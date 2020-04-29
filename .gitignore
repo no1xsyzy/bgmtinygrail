@@ -1,0 +1,9 @@
+.vscode
+.idea
+__pycache__
+venv
+venv*
+accounts.py
+e.py
+*.txt
+!requirements.txt
