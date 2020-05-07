@@ -2,6 +2,9 @@ import json
 from dacite import from_dict
 from .model import *
 from .helper import *
+import logging
+
+logger = logging.getLogger('tinygrail.api')
 
 
 def batch_character_info(player, lst, splits=50) -> List[Union[TCharacter, TICO]]:
@@ -68,3 +71,70 @@ def all_asks(player: Player) -> List[TCharacter]:
     jso2 = snaky(resp2.json())
     lst = from_dict(RAllAsks, jso2).value.items
     return lst
+
+
+def all_bids(player: Player) -> List[TCharacter]:
+    # get list length
+    response = player.session.get(f"https://tinygrail.com/api/chara/bids/0/1/1")
+    jso = snaky(response.json())
+    length = from_dict(RAllAsks, jso).value.total_items
+    # get full list
+    resp2 = player.session.get(f"https://tinygrail.com/api/chara/bids/0/1/{length}")
+    jso2 = snaky(resp2.json())
+    lst = from_dict(RAllAsks, jso2).value.items
+    return lst
+
+
+def all_holding(player: Player) -> List[THolding]:
+    # get list length
+    response = player.session.get(f"https://tinygrail.com/api/chara/user/chara/0/1/1")
+    jso = snaky(response.json())
+    length = from_dict(RHolding, jso).value.total_items
+    # get full list
+    resp2 = player.session.get(f"https://tinygrail.com/api/chara/user/chara/0/1/{length}")
+    jso2 = snaky(resp2.json())
+    lst = from_dict(RHolding, jso2).value.items
+    return lst
+
+
+def create_bid(player: Player, cid: int, bid: TBid):
+    url = f"https://tinygrail.com/api/chara/bid/{cid}/{bid.price}/{bid.amount}"
+    if bid.type == 1:
+        url += "/true"
+    response = player.session.post(url, data="null")
+    jso = response.json()
+    logger.debug(jso)
+    return jso
+
+
+def create_ask(player: Player, cid: int, ask: TAsk):
+    url = f"https://tinygrail.com/api/chara/ask/{cid}/{ask.price}/{ask.amount}"
+    if ask.type == 1:
+        url += "/true"
+    response = player.session.post(url, data="null")
+    jso = response.json()
+    logger.debug(jso)
+    return jso
+
+
+def cancel_bid(player: Player, bid: TBid):
+    assert bid.id is not None, ValueError
+    url = f"https://tinygrail.com/api/chara/bid/cancel/{bid.id}"
+    response = player.session.post(url, data="null")
+    jso = response.json()
+    logger.debug(jso)
+    return jso
+
+
+def cancel_ask(player: Player, ask: TAsk):
+    assert ask.id is not None, ValueError
+    url = f"https://tinygrail.com/api/chara/ask/cancel/{ask.id}"
+    response = player.session.post(url, data="null")
+    jso = response.json()
+    logger.debug(jso)
+    return jso
+
+
+def get_initial_price(player: Player, cid: int):
+    cc = chara_charts(player, cid)
+    return cc.value[0].begin

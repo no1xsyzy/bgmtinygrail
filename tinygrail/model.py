@@ -1,20 +1,24 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import *
 from functools import lru_cache
 import requests
 
 
-@dataclass
+@dataclass(order=True)
 class TBid:
     price: float
     amount: int
+    type: int = 0  # 0 表示明买，1 表示暗买
+    id: Optional[int] = field(default=None, compare=False)
 
 
-@dataclass
+@dataclass(order=True)
 class TAsk:
     price: float
     amount: int
-    id: int
+    type: int = field(default=0)
+    # 0 表示明卖，1 表示暗卖
+    id: Optional[int] = field(default=None, compare=False)
 
 
 @dataclass
@@ -40,6 +44,8 @@ class TCharacter:
     id: int
     name: str
     level: int
+    price: float
+    current: float
 
     @property
     def character_id(self) -> int:
@@ -67,6 +73,11 @@ class RCharacterish:
 class TUserCharacter:
     bids: List[TBid]
     asks: List[TAsk]
+    amount: int  # 持仓
+
+    @property
+    def total_holding(self):
+        return self.amount + sum(ask.amount for ask in self.asks)
 
 
 @dataclass
@@ -81,7 +92,6 @@ class TBlueleafCharacter(TCharacter):
 
 @dataclass
 class TBlueleafCharaAll:
-    total_pages: int
     total_items: int
     items: List[TBlueleafCharacter]
 
@@ -104,7 +114,7 @@ class TChartum:
 
 @dataclass
 class RCharts:
-    Value: List[TChartum]
+    value: List[TChartum]
 
 
 @dataclass(frozen=True)
@@ -148,3 +158,19 @@ class LAskCharacter:
 @dataclass
 class RAllAsks:
     value: LAskCharacter
+
+
+@dataclass
+class THolding(TCharacter):
+    state: int  # 持有
+
+
+@dataclass
+class LHolding:
+    total_items: int
+    items: List[THolding]
+
+
+@dataclass
+class RHolding:
+    value: LHolding
