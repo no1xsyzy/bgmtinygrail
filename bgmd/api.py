@@ -12,7 +12,6 @@ empty_session = requests.Session()
 empty_session.cookies['__cfduid'] = 'd633ed72fd4689407e7db8efc96eb92411588180481'
 empty_session.cookies['chii_theme'] = 'light'
 empty_session.headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0'
-empty_session.proxies['https'] = "http://localhost:1081"
 
 
 def user_info(uid: Optional[int] = None, username: Optional[str] = None) -> User:
