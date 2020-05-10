@@ -2,6 +2,12 @@
 from bgmd.api import *
 from accounts import bgm_xsb_player, tg_xsb_player
 from tinygrail.api import *
+import logging
+import logging.config
+
+logger = logging.getLogger('check_all_selling')
+
+logging.config.fileConfig('logging.conf')
 
 asks = {c.character_id for c in all_asks(tg_xsb_player)}
 
