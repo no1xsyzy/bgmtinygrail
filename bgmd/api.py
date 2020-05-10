@@ -4,6 +4,9 @@ import re
 import requests
 from .model import *
 from .helper import *
+import logging
+
+logger = logging.getLogger('bgmd.api')
 
 __all__ = ['user_info', 'user_mono', 'person_work_voice_character', 'collect_mono', 'erase_collect_mono']
 
@@ -27,7 +30,9 @@ def user_mono(user: User, monotype: Literal['both', 'character', 'person']) -> L
     result, all_pages = crop_mono(response.content)
     for page in range(2, all_pages+1):
         response = empty_session.get(f"https://bgm.tv/user/{user.username}/mono/{monotype}?page={page}")
-        res_ext, _ = crop_mono(response.content)
+        content = response.content
+        logger.debug(content)
+        res_ext, _ = crop_mono(content)
         result.extend(res_ext)
     return [Character(int(c.split("/")[-1])) for c in result]
 
@@ -48,8 +53,15 @@ def collect_mono(login: Login, character: Union[Character, int]):
         cid = character.id
     else:
         cid = character
-    login.session.get(f"https://bgm.tv/character/{cid}/collect?gh={login.gh}")
-    return
+    logger.info(f"collecting character: {cid}")
+    response = login.session.get(f"https://bgm.tv/character/{cid}/collect?gh={login.gh}", allow_redirects=False)
+    logger.debug(f"{response.status_code=}, {response.headers['Location']=}")
+    successful = response.status_code == 302 and response.headers['Location'].startswith('/character/')
+    if successful:
+        logger.info(f"Collected character: {cid}")
+    else:
+        logger.error(f"Failed in collecting character: {cid}")
+    return successful
 
 
 def erase_collect_mono(login: Login, character: Union[Character, int]):
@@ -57,5 +69,12 @@ def erase_collect_mono(login: Login, character: Union[Character, int]):
         cid = character.id
     else:
         cid = character
-    login.session.get(f"https://bgm.tv/character/{cid}/erase_collect?gh={login.gh}")
-    return
+    logger.info(f"removing collected character: {cid}")
+    response = login.session.get(f"https://bgm.tv/character/{cid}/erase_collect?gh={login.gh}", allow_redirects=False)
+    logger.debug(f"{response.status_code=}, {response.headers['Location']=}")
+    successful = response.status_code == 302 and response.headers['Location'].startswith('/character/')
+    if successful:
+        logger.info(f"Removed collection: {cid}")
+    else:
+        logger.error(f"Failed in removing collection: {cid}")
+    return successful
