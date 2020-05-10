@@ -34,6 +34,7 @@ class Login:
     cfduid: str
     chii_auth: str
     gh: str
+    ua: str  # BGM copy session way seems UA-related
     user: Optional[User]
 
     @property
@@ -45,9 +46,6 @@ class Login:
         sess.cookies['__cfduid'] = self.cfduid
         sess.cookies['chii_cookietime'] = '0'
         sess.cookies['chii_auth'] = self.chii_auth
-
-        sess.headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0'
-
-        sess.proxies['https'] = "http://localhost:1081"
+        sess.headers['User-Agent'] = self.ua
 
         return sess
