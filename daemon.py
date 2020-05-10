@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 from strategy import *
 from accounts import *
+import traceback
+from datetime import datetime, timedelta
+import json
 import logging
 import logging.config
 
@@ -13,17 +16,37 @@ def all_holding_ids(player):
 
 class Daemon:
     strategy_map: Dict[int, ABCCharaStrategy]
+    error_time: List[datetime]
 
     def __init__(self, player):
         self.player = player
         self.strategy_map = {}
+        self.error_time = []
+        self.error_tolerance = 1
 
     def init_strategy_cid(self, cid):
         self.strategy_map[cid] = IgnoreStrategy(self.player, cid)
 
     def tick(self):
         for cid in {*all_holding_ids(self.player), *self.strategy_map.keys()}:
-            self.tick_chara(cid)
+            # noinspection PyBroadException
+            try:
+                self.tick_chara(cid)
+            except Exception as e:
+                now = datetime.now()
+                self.error_time.append(now)
+                while now - self.error_time[0] < timedelta(minutes=1):
+                    self.error_time.pop(0)
+                with open(f"exception@{now.isoformat()}.log") as fp:
+                    traceback.print_last(file=fp)
+                    if isinstance(e, json.decoder.JSONDecodeError):
+                        print('JSONDecodeError, original doc:', file=fp)
+                        print(e.doc, file=fp)
+                logger.warning(f"Ticking character {cid} not successful, "
+                               f"traceback is at: `exception@{now.isoformat()}.log`.")
+                if len(self.error_time) > 5:
+                    logger.error("There has been too much (>5) errors in past 1 minutes, stopping.")
+                    raise
 
     def tick_chara(self, cid):
         logger.info(f"on {cid}")
@@ -52,4 +75,4 @@ if __name__ == '__main__':
         SECONDS = 20
         for i in range(SECONDS):
             sleep(1)
-            print(f"{i+1}/{SECONDS} seconds passed", end="\r")
+            print(f"{i + 1}/{SECONDS} seconds passed", end="\r")
