@@ -35,9 +35,9 @@ class Daemon:
             except Exception as e:
                 now = datetime.now()
                 self.error_time.append(now)
-                while now - self.error_time[0] < timedelta(minutes=1):
+                while self.error_time and now - self.error_time[0] < timedelta(minutes=1):
                     self.error_time.pop(0)
-                with open(f"exception@{now.isoformat()}.log") as fp:
+                with open(f"exception@{now.isoformat()}.log", mode='w') as fp:
                     traceback.print_last(file=fp)
                     if isinstance(e, json.decoder.JSONDecodeError):
                         print('JSONDecodeError, original doc:', file=fp)
