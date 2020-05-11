@@ -44,7 +44,7 @@ class Daemon:
                         print('JSONDecodeError, original doc:', file=fp)
                         print(e.doc, file=fp)
                 logger.warning(f"Ticking character {cid} not successful, "
-                               f"traceback is at: `exception@{now.isoformat()}.log`.")
+                               f"traceback is at: `exception@{now.isoformat().replace(':', '.')}.log`.")
                 if len(self.error_time) > 5:
                     logger.error("There has been too much (>5) errors in past 1 minutes, stopping.")
                     raise
