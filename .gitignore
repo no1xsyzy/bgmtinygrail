@@ -7,3 +7,4 @@ accounts.py
 e.py
 *.txt
 !requirements.txt
+*.log
