@@ -28,26 +28,26 @@ class Daemon:
         self.strategy_map[cid] = IgnoreStrategy(self.player, cid)
 
     def tick(self):
-        for cid in {*all_holding_ids(self.player), *self.strategy_map.keys()}:
-            # noinspection PyBroadException
-            try:
+        # noinspection PyBroadException
+        try:
+            for cid in {*all_holding_ids(self.player), *self.strategy_map.keys()}:
                 self.tick_chara(cid)
-            except Exception as e:
-                now = datetime.now()
-                self.error_time.append(now)
-                while self.error_time and now - self.error_time[0] < timedelta(minutes=1):
-                    self.error_time.pop(0)
-                with open(f"exception@{now.isoformat()}.log", mode='w') as fp:
-                    import sys
-                    traceback.print_exc(file=fp)
-                    if isinstance(e, json.decoder.JSONDecodeError):
-                        print('JSONDecodeError, original doc:', file=fp)
-                        print(e.doc, file=fp)
-                logger.warning(f"Ticking character {cid} not successful, "
-                               f"traceback is at: `exception@{now.isoformat().replace(':', '.')}.log`.")
-                if len(self.error_time) > 5:
-                    logger.error("There has been too much (>5) errors in past 1 minutes, stopping.")
-                    raise
+        except Exception as e:
+            now = datetime.now()
+            self.error_time.append(now)
+            while self.error_time and now - self.error_time[0] < timedelta(minutes=1):
+                self.error_time.pop(0)
+            with open(f"exception@{now.isoformat()}.log", mode='w') as fp:
+                import sys
+                traceback.print_exc(file=fp)
+                if isinstance(e, json.decoder.JSONDecodeError):
+                    print('JSONDecodeError, original doc:', file=fp)
+                    print(e.doc, file=fp)
+            logger.warning(f"Ticking not successful, "
+                           f"traceback is at: `exception@{now.isoformat().replace(':', '.')}.log`.")
+            if len(self.error_time) > 5:
+                logger.error("There has been too much (>5) errors in past 1 minutes, stopping.")
+                raise
 
     def tick_chara(self, cid):
         logger.info(f"on {cid}")
