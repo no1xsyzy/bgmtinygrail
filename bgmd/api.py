@@ -31,7 +31,6 @@ def user_mono(user: User, monotype: Literal['both', 'character', 'person']) -> L
     for page in range(2, all_pages+1):
         response = empty_session.get(f"https://bgm.tv/user/{user.username}/mono/{monotype}?page={page}")
         content = response.content
-        logger.debug(content)
         res_ext, _ = crop_mono(content)
         result.extend(res_ext)
     return [Character(int(c.split("/")[-1])) for c in result]
