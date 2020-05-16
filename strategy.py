@@ -1,7 +1,8 @@
-from tinygrail.api import *
-from enum import Enum
-from abc import ABC, abstractmethod
 import logging
+from abc import ABC, abstractmethod
+from enum import Enum
+
+from tinygrail.api import *
 
 logger = logging.getLogger('strategy')
 
@@ -32,8 +33,11 @@ class ABCCharaStrategy(ABC):
     def character_info(self):
         return character_info(self.player, self.cid).value
 
+    def current_price(self):
+        return int(self.character_info().current * 100) / 100
+
     def initial_price(self):
-        return get_initial_price(self.player, self.cid)
+        return int(get_initial_price(self.player, self.cid) * 100) / 100
 
     def ensure_bids(self, bids: List[TBid]):
         now_bids = self.user_character().bids
@@ -93,11 +97,11 @@ class IgnoreStrategy(ABCCharaStrategy):
 
     def transition(self):
         uc = self.user_character()
-        ci = self.character_info()
+        current_price = self.current_price()
         initial_price = self.initial_price()
-        logger.debug(f"{uc.total_holding=}, {ci.current=}, {initial_price=}")
+        logger.debug(f"{uc.total_holding=}, {current_price=}, {initial_price=}")
         if uc.total_holding > 0:
-            if ci.current <= initial_price:
+            if current_price <= initial_price:
                 return BalanceStrategy(self.player, self.cid)
             return CloseOutStrategy(self.player, self.cid)
         return self
@@ -114,7 +118,7 @@ class CloseOutStrategy(ABCCharaStrategy):
         uc = self.user_character()
         if uc.total_holding == 0:
             return IgnoreStrategy(self.player, self.cid)
-        elif self.character_info().current <= self.initial_price():
+        elif self.current_price() <= self.initial_price():
             return BalanceStrategy(self.player, self.cid)
         return self
 
