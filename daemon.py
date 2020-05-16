@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-from strategy import *
-from accounts import *
+import json
+import logging.config
 import traceback
 from datetime import datetime, timedelta
-import json
-import logging
-import logging.config
+
+from accounts import *
+from strategy import *
 
 logger = logging.getLogger('daemon')
 
@@ -64,16 +64,24 @@ class Daemon:
             del self.strategy_map[cid]
         next_state.output()
 
+    def run_forever(self, wait_seconds):
+        from time import sleep
+        try:
+            while True:
+                logger.info("start tick")
+                self.tick()
+                logger.info("finish run, sleeping")
+                for waited in range(wait_seconds):
+                    sleep(1)
+                    print(f"{waited + 1}/{wait_seconds} seconds passed", end="\r")
+        except KeyboardInterrupt:
+            print("\rbreak")
+
+    def daemon(self):
+        self.run_forever(20)
+
 
 if __name__ == '__main__':
     daemon = Daemon(tg_xsb_player)
     logging.config.fileConfig('logging.conf')
-    from time import sleep
-    while True:
-        logger.info("start tick")
-        daemon.tick()
-        logger.info("finish run, sleeping")
-        SECONDS = 20
-        for i in range(SECONDS):
-            sleep(1)
-            print(f"{i + 1}/{SECONDS} seconds passed", end="\r")
+    daemon.daemon()
