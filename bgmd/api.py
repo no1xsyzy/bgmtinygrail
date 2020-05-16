@@ -8,7 +8,13 @@ import logging
 
 logger = logging.getLogger('bgmd.api')
 
-__all__ = ['user_info', 'user_mono', 'person_work_voice_character', 'collect_mono', 'erase_collect_mono']
+__all__ = [
+    'user_info',
+    'user_mono',
+    'person_work_voice_character',
+    'collect_mono',
+    'erase_collect_mono',
+    'character_detail']
 
 empty_session = requests.Session()
 
@@ -74,3 +80,40 @@ def erase_collect_mono(login: Login, character: Union[Character, int]):
     else:
         logger.error(f"Failed in removing collection: {cid}")
     return successful
+
+
+def character_collection(character: Union[Character, int]):
+    result = []
+    if isinstance(character, Character):
+        cid = character.id
+    else:
+        cid = character
+    base_url = f"https://bgm.tv/character/{cid}/collections"
+    return [h['href']
+            for h in multi_page(empty_session.get, base_url, "a[href^=\"/user/\"]")]
+
+
+def character_detail(character: Union[Character, int]):
+    if isinstance(character, Character):
+        cid = character.id
+    else:
+        cid = character
+    url = f"https://bgm.tv/character/{cid}"
+    response = empty_session.get(url)
+    assert response.status_code == 200
+    info = {}
+    soup = BeautifulSoup(response.content, 'html.parser')
+    if (name_el := soup.select_one("h1.nameSingle a[title]")) is not None:
+        info['name'] = name_el.text
+    if (large_image_el := soup.select_one("a.cover")) is not None:
+        large = "https:" + large_image_el['href']
+        info['images'] = Images(large=large,
+                                medium=large.replace("/crt/l/", "/crt/m/"),
+                                small=large.replace("/crt/l/", "/crt/s/"),
+                                grid=large.replace("/crt/l/", "/crt/g/"))
+    if (name_cn_el := soup.select_one("h1.nameSingle small")) is not None:
+        info['name_cn'] = name_cn_el.text
+    return Character(cid, url=url,
+                     comment=len(soup.select("div[id^=\"post\"]")),
+                     collects=len(character_collection(cid)),
+                     **info)
