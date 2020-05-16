@@ -28,12 +28,9 @@ def user_mono(user: User, monotype: Literal['both', 'character', 'person']) -> L
         return user_mono(user, 'character') + user_mono(user, 'person')
     response = empty_session.get(f"https://bgm.tv/user/{user.username}/mono/{monotype}")
     result, all_pages = crop_mono(response.content)
-    for page in range(2, all_pages+1):
-        response = empty_session.get(f"https://bgm.tv/user/{user.username}/mono/{monotype}?page={page}")
-        content = response.content
-        res_ext, _ = crop_mono(content)
-        result.extend(res_ext)
-    return [Character(int(c.split("/")[-1])) for c in result]
+    return [Character(int(link['href'].split("/")[-1]))
+            for link in multi_page(empty_session.get, f"https://bgm.tv/user/{user.username}/mono/{monotype}",
+                                   f"a[href^=\"/{monotype}/\"]")]
 
 
 def person_work_voice_character(person: Person) -> List[Character]:
