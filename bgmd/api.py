@@ -40,9 +40,9 @@ def person_work_voice_character(person: Person) -> List[Character]:
     response = empty_session.get(f"https://bgm.tv/person/{person.id}/works/voice")
     soup = BeautifulSoup(response.content, 'html.parser')
     characters = [int(k[0])
-                  for k in (re.findall(r"/character/(\d+)", m)
-                            for m in (a['href']
-                                      for a in soup.find_all("a", {"class": "l"})))
+                  for a in soup.find_all("a", {"class": "l"})
+                  for m in [a['href']]
+                  for k in [re.findall(r"/character/(\d+)", m)]
                   if k]
     return [Character(cid) for cid in characters]
 
