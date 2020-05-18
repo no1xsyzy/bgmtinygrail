@@ -128,18 +128,27 @@ class CloseOutStrategy(ABCCharaStrategy):
 
 
 class BalanceStrategy(ABCCharaStrategy):
+    bid_amount: int = 100
     strategy = Strategy.BALANCE
+
+    def __init__(self, player, cid, **kwargs):
+        self.bid_amount = kwargs.pop('bid_amount', 100)
+        super().__init__(**kwargs)
 
     def transition(self):
         uc = self.user_character()
         if uc.total_holding == 0:
             return IgnoreStrategy(self.player, self.cid)
+        if not uc.bids:
+            return BalanceStrategy(self.player, self.cid, bid_amount=self.bid_amount*2)
+        if self.bid_amount > 100:
+            return BalanceStrategy(self.player, self.cid, bid_amount=100)
         return self
 
     def output(self):
         initial_price = self.initial_price()
         self.ensure_asks([TAsk(initial_price, self.user_character().total_holding)])
-        self.ensure_bids([TBid(initial_price, 100)])
+        self.ensure_bids([TBid(initial_price, self.bid_amount)])
 
 
 class SelfServiceStrategy(ABCCharaStrategy):
