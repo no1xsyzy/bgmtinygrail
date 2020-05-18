@@ -34,10 +34,10 @@ class ABCCharaStrategy(ABC):
         return character_info(self.player, self.cid).value
 
     def current_price(self):
-        return int(self.character_info().current * 100) / 100
+        return round(self.character_info().current, 2)
 
     def initial_price(self):
-        return int(get_initial_price(self.player, self.cid) * 100) / 100
+        return round(get_initial_price(self.player, self.cid), 2)
 
     def ensure_bids(self, bids: List[TBid]):
         now_bids = self.user_character().bids
