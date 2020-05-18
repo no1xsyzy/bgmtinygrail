@@ -133,7 +133,7 @@ class BalanceStrategy(ABCCharaStrategy):
 
     def __init__(self, player, cid, **kwargs):
         self.bid_amount = kwargs.pop('bid_amount', 100)
-        super().__init__(**kwargs)
+        super().__init__(player, cid, **kwargs)
 
     def transition(self):
         uc = self.user_character()
