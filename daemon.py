@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-import json
 import logging.config
 import traceback
 from datetime import datetime, timedelta
 
 from accounts import *
+from checkallselling import check_all_selling
 from strategy import *
 
 logger = logging.getLogger('daemon')
@@ -32,6 +32,7 @@ class Daemon:
         try:
             for cid in {*all_holding_ids(self.player), *self.strategy_map.keys()}:
                 self.tick_chara(cid)
+            check_all_selling(tg_xsb_player, bgm_xsb_player, True)
         except Exception as e:
             now = datetime.now()
             self.error_time.append(now)
