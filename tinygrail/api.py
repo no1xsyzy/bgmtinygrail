@@ -89,6 +89,7 @@ def all_holding(player: Player) -> List[THolding]:
     # get list length
     response = player.session.get(f"https://tinygrail.com/api/chara/user/chara/0/1/1")
     jso = snaky(response.json())
+    logger.debug(jso)
     length = from_dict(RHolding, jso).value.total_items
     # get full list
     resp2 = player.session.get(f"https://tinygrail.com/api/chara/user/chara/0/1/{length}")
