@@ -63,6 +63,8 @@ class Daemon:
                            f"to `{next_state.strategy.name}'")
         elif next_state.strategy == now_state.strategy == Strategy.IGNORE:
             del self.strategy_map[cid]
+        else:
+            self.strategy_map[cid] = next_state
         next_state.output()
 
     def run_forever(self, wait_seconds):
