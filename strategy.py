@@ -32,6 +32,8 @@ class ABCCharaStrategy(ABC):
     strategy: ClassVar[Strategy] = Strategy.NONE
 
     def __init__(self, player, cid, **kwargs):
+        assert hasattr(player, 'session'), ValueError
+        assert isinstance(cid, int), ValueError
         self.player = player
         self.cid = cid
         self.kwargs = kwargs
@@ -148,7 +150,7 @@ class BalanceStrategy(ABCCharaStrategy):
         if uc.total_holding == 0:
             return IgnoreStrategy(self.player, self.cid)
         if not uc.bids:
-            return BalanceStrategy(self.player, self.cid, bid_amount=self.bid_amount*2)
+            return BalanceStrategy(self.player, self.cid, bid_amount=self.bid_amount * 2)
         if self.bid_amount > 100:
             return BalanceStrategy(self.player, self.cid)
         return self

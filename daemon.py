@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
+import json
 import logging.config
 import traceback
 from datetime import datetime, timedelta
+from typing import *
 
 from accounts import *
 from checkallselling import check_all_selling
 from strategy import *
+from tinygrail.api import all_holding
 
 logger = logging.getLogger('daemon')
 
