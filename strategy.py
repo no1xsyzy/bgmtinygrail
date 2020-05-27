@@ -168,3 +168,12 @@ class BuyInStrategy(ABCCharaStrategy):
     def output(self):
         self.ensure_asks([])
         self.ensure_bids([TBid(self.initial_price(), 100)])
+
+
+all_strategies: Dict[Strategy, Type[ABCCharaStrategy]] = {
+    Strategy.IGNORE: IgnoreStrategy,
+    Strategy.CLOSE_OUT: CloseOutStrategy,
+    Strategy.BALANCE: BalanceStrategy,
+    Strategy.SELF_SERVICE: SelfServiceStrategy,
+    Strategy.BUY_IN: BuyInStrategy,
+}
