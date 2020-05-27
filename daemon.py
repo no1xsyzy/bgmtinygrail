@@ -75,21 +75,44 @@ class Daemon:
             self.strategy_map[cid] = next_state
         next_state.output()
 
-    def run_forever(self, wait_seconds):
+    def run_forever(self, wait_seconds, *, hook_after_tick=None):
         from time import sleep
         try:
             while True:
                 logger.info("start tick")
                 self.tick()
                 logger.info("finish run, sleeping")
+                if callable(hook_after_tick):
+                    hook_after_tick()
                 for waited in range(wait_seconds):
                     sleep(1)
                     print(f"{waited + 1}/{wait_seconds} seconds passed", end="\r")
         except KeyboardInterrupt:
             print("\rbreak")
 
+    def loads(self, fn):
+        try:
+            with open(fn, encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    str_cid, str_strategy, str_player, json_kwargs = line.split(",", 3)
+                    cid = int(str_cid)
+                    int_strategy = int(str_strategy)
+                    type_strategy: Type[ABCCharaStrategy] = all_strategies[Strategy(int_strategy)]
+                    player = self.player
+                    kwargs = json.loads(json_kwargs)
+                    self.strategy_map[cid] = type_strategy(player, cid, **kwargs)
+        except FileNotFoundError:
+            pass
+
+    def dumps(self, fn):
+        with open(fn, 'w', encoding="utf-8") as f:
+            for strategy in self.strategy_map.values():
+                print(f"{strategy.cid},{strategy.strategy.value},xsb_player,{json.dumps(strategy.kwargs)}", file=f)
+
     def daemon(self):
-        self.run_forever(20)
+        self.loads("now_strategy.txt")
+        self.run_forever(20, hook_after_tick=lambda: self.dumps("now_strategy.txt"))
 
 
 if __name__ == '__main__':
