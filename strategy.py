@@ -1,4 +1,3 @@
-import logging
 from abc import ABC, abstractmethod
 from enum import Enum
 
@@ -25,7 +24,7 @@ class ABCCharaStrategy(ABC):
     def __init__(self, player, cid, **kwargs):
         self.player = player
         self.cid = cid
-        self.extras = kwargs
+        self.kwargs = kwargs
 
     def user_character(self):
         return user_character(self.player, self.cid).value
@@ -128,12 +127,11 @@ class CloseOutStrategy(ABCCharaStrategy):
 
 
 class BalanceStrategy(ABCCharaStrategy):
-    bid_amount: int = 100
     strategy = Strategy.BALANCE
 
-    def __init__(self, player, cid, **kwargs):
-        self.bid_amount = kwargs.pop('bid_amount', 100)
-        super().__init__(player, cid, **kwargs)
+    @property
+    def bid_amount(self):
+        return self.kwargs.get('bid_amount', 100)
 
     def transition(self):
         uc = self.user_character()
@@ -142,7 +140,7 @@ class BalanceStrategy(ABCCharaStrategy):
         if not uc.bids:
             return BalanceStrategy(self.player, self.cid, bid_amount=self.bid_amount*2)
         if self.bid_amount > 100:
-            return BalanceStrategy(self.player, self.cid, bid_amount=100)
+            return BalanceStrategy(self.player, self.cid)
         return self
 
     def output(self):
