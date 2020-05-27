@@ -17,18 +17,25 @@ def all_holding_ids(player):
     return [h.character_id for h in all_holding(player)]
 
 
+class StrategyMap(dict):
+    def __init__(self, player, *args, **kwargs):
+        self.player = player
+        super().__init__(*args, **kwargs)
+
+    def __missing__(self, cid):
+        self[cid] = IgnoreStrategy(self.player, cid)
+        return self[cid]
+
+
 class Daemon:
     strategy_map: Dict[int, ABCCharaStrategy]
     error_time: List[datetime]
 
     def __init__(self, player):
         self.player = player
-        self.strategy_map = {}
+        self.strategy_map = StrategyMap(player)
         self.error_time = []
         self.error_tolerance = 1
-
-    def init_strategy_cid(self, cid):
-        self.strategy_map[cid] = IgnoreStrategy(self.player, cid)
 
     def tick(self):
         # noinspection PyBroadException
@@ -55,8 +62,6 @@ class Daemon:
 
     def tick_chara(self, cid):
         logger.info(f"on {cid}")
-        if cid not in self.strategy_map:
-            self.init_strategy_cid(cid)
         now_state = self.strategy_map[cid]
         next_state = now_state.transition()
         if next_state.strategy != now_state.strategy:
