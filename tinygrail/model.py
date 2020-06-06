@@ -45,6 +45,7 @@ class TCharacter:
     level: int
     price: float
     current: float
+    rate: float
 
     @property
     def character_id(self) -> int:
@@ -197,3 +198,17 @@ class LHolding:
 @dataclass
 class RHolding:
     value: LHolding
+
+
+@dataclass
+class TAuction:
+    amount: int
+    total: int
+    price: float  # 拍卖底价
+    auction_users: int
+    auction_total: int
+
+
+@dataclass
+class RAuction:
+    value: TAuction

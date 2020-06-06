@@ -1,8 +1,10 @@
 import json
-from dacite import from_dict
-from .model import *
-from .helper import *
 import logging
+
+from dacite import from_dict
+
+from .helper import *
+from .model import *
 
 logger = logging.getLogger('tinygrail.api')
 
@@ -139,3 +141,10 @@ def cancel_ask(player: Player, ask: TAsk):
 def get_initial_price(player: Player, cid: int):
     cc = chara_charts(player, cid)
     return cc.value[0].begin
+
+
+def character_auction(player: Player, cid: int) -> TAuction:
+    url = f"https://tinygrail.com/api/chara/user/{cid}/tinygrail/false"
+    response = player.session.get(url)
+    jso = snaky(response.json())
+    return from_dict(RAuction, jso).value
