@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
-from typing import *
 from functools import lru_cache
-import requests
+from typing import *
 
 
 @dataclass(order=True)
@@ -124,6 +123,30 @@ class Player:
     @property
     @lru_cache
     def session(self):
+        import requests
+        session = requests.Session()
+
+        session.cookies = requests.cookies.cookiejar_from_dict({
+            '.AspNetCore.Identity.Application': self.identity
+        })
+
+        session.headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:72.0) Gecko/20100101 Firefox/72.0',
+            'Accept': '*/*',
+            'Accept-Language': 'zh-CN,zh;q=0.7,en-US;q=0.3',
+            'Content-Type': 'application/json',
+            'Origin': 'https://bgm.tv',
+            'DNT': '1',
+            'Connection': 'keep-alive',
+            'Referer': 'https://bgm.tv/rakuen/topiclist',
+        }
+
+        return session
+
+    @property
+    @lru_cache
+    def aio_session(self):
+        from aiohttp_requests import requests
         session = requests.Session()
 
         session.cookies = requests.cookies.cookiejar_from_dict({
