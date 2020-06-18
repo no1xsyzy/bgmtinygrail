@@ -212,3 +212,23 @@ class TAuction:
 @dataclass
 class RAuction:
     value: TAuction
+
+
+@dataclass
+class TTemple:
+    name: str
+    character_id: int
+    assets: int
+    sacrifices: int
+    level: int
+
+
+@dataclass
+class LTemple:
+    total_items: int
+    items: List[TTemple]
+
+
+@dataclass
+class RAllTemples:
+    value: LTemple

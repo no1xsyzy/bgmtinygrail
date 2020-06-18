@@ -148,3 +148,15 @@ def character_auction(player: Player, cid: int) -> TAuction:
     response = player.session.get(url)
     jso = snaky(response.json())
     return from_dict(RAuction, jso).value
+
+
+def user_temples(player: Player) -> List[TTemple]:
+    # get list length
+    response = player.session.get(f"https://tinygrail.com/api/chara/user/temple/0/1/1")
+    jso = snaky(response.json())
+    length = from_dict(RAllTemples, jso).value.total_items
+    # get full list
+    resp2 = player.session.get(f"https://tinygrail.com/api/chara/user/temple/0/1/{length}")
+    jso2 = snaky(resp2.json())
+    lst = from_dict(RAllTemples, jso2).value.items
+    return lst

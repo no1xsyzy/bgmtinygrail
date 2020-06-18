@@ -14,10 +14,8 @@ aoi_chan = Person(5076)
 
 umb_characters: Set[int] = {c.id for c in person_work_voice_character(aoi_chan)}
 
-# edits, from code in page:
-# ```javascript
-# console.log(`followed = "${JSON.parse(localStorage.getItem('TinyGrail_followList'))['charas'].join("|")}"`)
-# ```
+temples = user_temples(no1xsyzy)
+temple_list = [t.character_id for t in temples if t.assets >= 2500]
 
 checklist: Set[int] = umb_characters - {cid for cid in (follow_list + umb_temple_list + umb_ignore_list)}
 
