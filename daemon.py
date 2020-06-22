@@ -37,7 +37,8 @@ class Daemon:
         self.player = player
         self.strategy_map = StrategyMap(player)
         self.error_time = []
-        self.error_tolerance = 1
+        self.error_tolerance_period = 5
+        self.error_tolerance_count = 5
 
     def tick(self):
         # noinspection PyBroadException
@@ -48,7 +49,7 @@ class Daemon:
         except Exception as e:
             now = datetime.now()
             self.error_time.append(now)
-            while self.error_time and now - self.error_time[0] < timedelta(minutes=1):
+            while self.error_time and now - self.error_time[0] < timedelta(minutes=self.error_tolerance_period):
                 self.error_time.pop(0)
             with open(f"exception@{now.isoformat().replace(':', '.')}.log", mode='w') as fp:
                 import sys
@@ -64,8 +65,9 @@ class Daemon:
                     pprint(original_data, stream=fp)
             logger.warning(f"Ticking not successful, "
                            f"traceback is at: `exception@{now.isoformat().replace(':', '.')}.log`.")
-            if len(self.error_time) > 5:
-                logger.error("There has been too much (>5) errors in past 1 minutes, stopping.")
+            if len(self.error_time) > self.error_tolerance_count:
+                logger.error(f"There has been too much (>{self.error_tolerance_count}) errors "
+                             f"in past {self.error_tolerance_period} minutes, stopping.")
                 raise
 
     def tick_chara(self, cid):
