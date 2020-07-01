@@ -160,3 +160,17 @@ def user_temples(player: Player) -> List[TTemple]:
     jso2 = snaky(resp2.json())
     lst = from_dict(RAllTemples, jso2).value.items
     return lst
+
+
+def magic_chaos(player: Player, attacker_cid: int):
+    url = f"https://tinygrail.com/api/magic/chaos/{attacker_cid}"
+    response = player.session.post(url, json=None)
+    jso = snaky(response.json())
+    return jso
+
+
+def magic_guidepost(player: Player, attacker_cid: int, target_cid: int):
+    url = f"https://tinygrail.com/api/magic/guidepost/{attacker_cid}/{target_cid}"
+    response = player.session.post(url, json=None)
+    jso = snaky(response.json())
+    return jso
