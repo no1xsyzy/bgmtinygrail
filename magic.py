@@ -12,7 +12,9 @@ from tinygrail.api import magic_chaos, magic_guidepost
 
 
 class TGPlayerParamType(click.ParamType):
-    def get_user_by_name(self, value, param, ctx):
+    name = "tg_player"
+
+    def convert(self, value, param, ctx):
         try:
             import accounts
             return getattr(accounts, value)
