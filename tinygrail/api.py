@@ -174,3 +174,17 @@ def magic_guidepost(player: Player, attacker_cid: int, target_cid: int):
     response = player.session.post(url, json=None)
     jso = snaky(response.json())
     return jso
+
+
+def magic_stardust(player: Player, supplier_cid: int, demand_cid: int, amount: int,
+                   use_type: Literal['position', 'temple']):
+    if use_type == 'position':
+        is_temple = 'false'
+    elif use_type == 'temple':
+        is_temple = 'true'
+    else:
+        raise ValueError(f"You can only use 'position' or 'temple', not {use_type!r}")
+    url = f"https://tinygrail.com/api/magic/stardust/{supplier_cid}/{demand_cid}/{amount}/{is_temple}"
+    response = player.session.post(url, json=None)
+    jso = snaky(response.json())
+    return jso

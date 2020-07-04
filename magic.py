@@ -8,7 +8,7 @@ from pprint import pprint
 
 import click
 
-from tinygrail.api import magic_chaos, magic_guidepost
+from tinygrail.api import magic_chaos, magic_guidepost, magic_stardust
 
 
 class TGPlayerParamType(click.ParamType):
@@ -54,6 +54,22 @@ def chaos(player_name, attacker_cid):
 def guidepost(player_name, attacker_cid, target_cid):
     """施放虚空道标"""
     result = magic_guidepost(player_name, attacker_cid, target_cid)
+    pprint(result, stream=sys.stderr)
+    return result
+
+
+@magic.command()
+@click.argument("player_name", type=TG_PLAYER, metavar="<玩家变量名>")
+@click.argument("supplier_cid", type=int, metavar="<能源>")
+@click.argument("demand_cid", type=int, metavar="<目标>")
+@click.argument("amount", type=int, metavar="<数量>")
+@click.option('--temple', 'use_type', flag_value='temple', help="指定使用塔股")
+@click.option('--position', 'use_type', flag_value='position', help="指定使用活股")
+@click.option('--use-type', type=click.Choice(['position', 'temple'], case_sensitive=False),
+              default='position', help="指定使用塔股或者活股")
+def stardust(player_name, supplier_cid, demand_cid, amount, use_type):
+    """施放星光碎片"""
+    result = magic_stardust(player_name, supplier_cid, demand_cid, amount, use_type)
     pprint(result, stream=sys.stderr)
     return result
 
