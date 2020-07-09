@@ -1,33 +1,49 @@
-from dataclasses import dataclass, field
 from functools import lru_cache
 from typing import *
+from pydantic import BaseModel
+from datetime import datetime
 
 
-@dataclass(order=True)
-class TBid:
+class TBid(BaseModel):
     price: float
     amount: int
     type: int = 0  # 0 表示明买，1 表示暗买
-    id: Optional[int] = field(default=None, compare=False)
+    id: Optional[int]
+
+    def __lt__(self, other):
+        if not isinstance(other, TBid):
+            return NotImplemented
+        return self.price < other.price or (self.price == other.price and self.amount < other.amount)
+
+    def __eq__(self, other):
+        if not isinstance(other, TBid):
+            return NotImplemented
+        return self.price == other.price and self.amount == other.amount
 
 
-@dataclass(order=True)
-class TAsk:
+class TAsk(BaseModel):
     price: float
     amount: int
-    type: int = field(default=0)
+    type: int = 0
     # 0 表示明卖，1 表示暗卖
-    id: Optional[int] = field(default=None, compare=False)
+    id: Optional[int]
 
+    def __lt__(self, other):
+        if not isinstance(other, TAsk):
+            return NotImplemented
+        return self.price < other.price or (self.price == other.price and self.amount < other.amount)
 
-@dataclass
-class TDepth:
+    def __eq__(self, other):
+        if not isinstance(other, TAsk):
+            return NotImplemented
+        return self.price == other.price and self.amount == other.amount
+
+class TDepth(BaseModel):
     asks: List[TAsk]
     bids: List[TBid]
 
 
-@dataclass
-class RDepth:
+class RDepth(BaseModel):
     value: TDepth
 
     @property
@@ -38,13 +54,17 @@ class RDepth:
             return None
 
 
-@dataclass
-class TCharacter:
+class TCharacter(BaseModel):
     id: int
     name: str
     level: int
     price: float
     current: float
+    rate: float
+    total: int
+    last_order: datetime
+    last_deal: datetime
+    sacrifices: int
     rate: float
 
     @property
@@ -52,25 +72,25 @@ class TCharacter:
         return self.id
 
 
-@dataclass
-class TICO:
+class TICO(BaseModel):
     id: int
     character_id: int
     name: str
+    begin: datetime
+    end: datetime
+    total: float  # 总金额
+    users: int
 
 
-@dataclass
-class RCharacterList:
+class RCharacterList(BaseModel):
     value: List[Union[TCharacter, TICO]]
 
 
-@dataclass
-class RCharacterish:
+class RCharacterish(BaseModel):
     value: Union[TCharacter, TICO]
 
 
-@dataclass
-class TUserCharacter:
+class TUserCharacter(BaseModel):
     bids: List[TBid]
     asks: List[TAsk]
     amount: int  # 持仓
@@ -80,29 +100,24 @@ class TUserCharacter:
         return self.amount + sum(ask.amount for ask in self.asks)
 
 
-@dataclass
-class RUserCharacter:
+class RUserCharacter(BaseModel):
     value: TUserCharacter
 
 
-@dataclass
 class TBlueleafCharacter(TCharacter):
     state: int  # 持有
 
 
-@dataclass
-class TBlueleafCharaAll:
+class TBlueleafCharaAll(BaseModel):
     total_items: int
     items: List[TBlueleafCharacter]
 
 
-@dataclass
-class RBlueleafCharaAll:
+class RBlueleafCharaAll(BaseModel):
     value: TBlueleafCharaAll
 
 
-@dataclass
-class TChartum:
+class TChartum(BaseModel):
     time: str
     begin: float
     end: float
@@ -112,14 +127,15 @@ class TChartum:
     price: float
 
 
-@dataclass
-class RCharts:
+class RCharts(BaseModel):
     value: List[TChartum]
 
 
-@dataclass(frozen=True)
 class Player:
     identity: str
+
+    def __init__(self, identity):
+        self.identity = identity
 
     @property
     @lru_cache
@@ -168,40 +184,33 @@ class Player:
         return session
 
 
-@dataclass
 class TAskCharacter(TCharacter):
     state: int  # 卖单量
 
 
-@dataclass
-class LAskCharacter:
+class LAskCharacter(BaseModel):
     total_items: int
     items: List[TAskCharacter]
 
 
-@dataclass
-class RAllAsks:
+class RAllAsks(BaseModel):
     value: LAskCharacter
 
 
-@dataclass
 class THolding(TCharacter):
     state: int  # 持有
 
 
-@dataclass
-class LHolding:
+class LHolding(BaseModel):
     total_items: int
     items: List[THolding]
 
 
-@dataclass
-class RHolding:
+class RHolding(BaseModel):
     value: LHolding
 
 
-@dataclass
-class TAuction:
+class TAuction(BaseModel):
     amount: int
     total: int
     price: float  # 拍卖底价
@@ -209,13 +218,11 @@ class TAuction:
     auction_total: int
 
 
-@dataclass
-class RAuction:
+class RAuction(BaseModel):
     value: TAuction
 
 
-@dataclass
-class TTemple:
+class TTemple(BaseModel):
     name: str
     character_id: int
     assets: int
@@ -223,12 +230,10 @@ class TTemple:
     level: int
 
 
-@dataclass
-class LTemple:
+class LTemple(BaseModel):
     total_items: int
     items: List[TTemple]
 
 
-@dataclass
-class RAllTemples:
+class RAllTemples(BaseModel):
     value: LTemple
