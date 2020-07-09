@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from functools import lru_cache
 from typing import *
+from pydantic import BaseModel
 
 
 @dataclass(order=True)
@@ -214,8 +215,7 @@ class RAuction:
     value: TAuction
 
 
-@dataclass
-class TTemple:
+class TTemple(BaseModel):
     name: str
     character_id: int
     assets: int
@@ -223,12 +223,10 @@ class TTemple:
     level: int
 
 
-@dataclass
-class LTemple:
+class LTemple(BaseModel):
     total_items: int
     items: List[TTemple]
 
 
-@dataclass
-class RAllTemples:
+class RAllTemples(BaseModel):
     value: LTemple
