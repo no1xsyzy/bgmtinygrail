@@ -19,8 +19,6 @@ def snaky_list(datum: List[T]) -> List[T]:
 
 
 def snaky(datum: T) -> T:
-    if isinstance(datum, str):
-        return snaky_str(datum)
     if isinstance(datum, dict):
         return snaky_dict(datum)
     if isinstance(datum, list):
