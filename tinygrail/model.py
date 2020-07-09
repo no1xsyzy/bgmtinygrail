@@ -1,26 +1,42 @@
-from dataclasses import dataclass, field
 from functools import lru_cache
 from typing import *
 from pydantic import BaseModel
 from datetime import datetime
 
 
-@dataclass(order=True)
-class TBid:
+class TBid(BaseModel):
     price: float
     amount: int
     type: int = 0  # 0 表示明买，1 表示暗买
-    id: Optional[int] = field(default=None, compare=False)
+    id: Optional[int]
+
+    def __lt__(self, other):
+        if not isinstance(other, TBid):
+            return NotImplemented
+        return self.price < other.price or (self.price == other.price and self.amount < other.amount)
+
+    def __eq__(self, other):
+        if not isinstance(other, TBid):
+            return NotImplemented
+        return self.price == other.price and self.amount == other.amount
 
 
-@dataclass(order=True)
-class TAsk:
+class TAsk(BaseModel):
     price: float
     amount: int
-    type: int = field(default=0)
+    type: int = 0
     # 0 表示明卖，1 表示暗卖
-    id: Optional[int] = field(default=None, compare=False)
+    id: Optional[int]
 
+    def __lt__(self, other):
+        if not isinstance(other, TAsk):
+            return NotImplemented
+        return self.price < other.price or (self.price == other.price and self.amount < other.amount)
+
+    def __eq__(self, other):
+        if not isinstance(other, TAsk):
+            return NotImplemented
+        return self.price == other.price and self.amount == other.amount
 
 class TDepth(BaseModel):
     asks: List[TAsk]
@@ -115,8 +131,11 @@ class RCharts(BaseModel):
     value: List[TChartum]
 
 
-class Player(BaseModel):
+class Player:
     identity: str
+
+    def __init__(self, identity):
+        self.identity = identity
 
     @property
     @lru_cache
