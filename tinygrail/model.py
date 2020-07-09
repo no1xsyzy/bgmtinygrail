@@ -232,3 +232,11 @@ class LTemple:
 @dataclass
 class RAllTemples:
     value: LTemple
+
+
+class TMyICO(BaseModel):
+    amount: float
+
+
+class RMyICO(BaseModel):
+    value: TMyICO

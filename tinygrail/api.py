@@ -188,3 +188,9 @@ def magic_stardust(player: Player, supplier_cid: int, demand_cid: int, amount: i
     response = player.session.post(url, json=None)
     jso = snaky(response.json())
     return jso
+
+
+def get_my_ico(player: Player, ico_id: int) -> TMyICO:
+    response = player.session.get(f"https://tinygrail.com/api/chara/initial/{ico_id}")
+    jso = snaky(response.json())
+    return RMyICO(**jso).value
