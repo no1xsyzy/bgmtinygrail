@@ -237,3 +237,11 @@ class LTemple(BaseModel):
 
 class RAllTemples(BaseModel):
     value: LTemple
+
+
+class TMyICO(BaseModel):
+    amount: float
+
+
+class RMyICO(BaseModel):
+    value: TMyICO
