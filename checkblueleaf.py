@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-from tinygrail.api import *
-from random import choice
 import functools
+from random import choice
+
 from accounts import *
+from tinygrail.api import *
 
 
 @functools.lru_cache(maxsize=1000)
@@ -13,9 +14,7 @@ def allc():
 depth = functools.lru_cache(maxsize=1000)(depth)
 
 
-@functools.lru_cache(maxsize=1000)
-def get_init_cost(cid):
-    return chara_charts(no1xsyzy, cid).value[0].begin
+get_init_cost = functools.lru_cache(maxsize=10000)(get_initial_price)
 
 
 def trysell(cid, amount):
