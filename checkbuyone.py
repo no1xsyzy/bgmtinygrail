@@ -2,6 +2,7 @@
 import sys
 from tinygrail.api import *
 from data import *
+from accounts import *
 
 fn = None
 
@@ -18,9 +19,9 @@ else:
     lst = loadlines(fn, factory=int)
 
 for chara in lst:
-    name = character_info(chara).value.name
-    hbid = depth(chara).highest_bid
-    mybids = user_character(chara).value.bids
+    name = character_info(no1xsyzy, chara).value.name
+    hbid = depth(no1xsyzy, chara).highest_bid
+    mybids = user_character(no1xsyzy, chara).value.bids
     if not mybids:
         print(f"https://bgm.tv/character/{chara:<5}   not buying? {name}")
         continue
