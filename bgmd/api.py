@@ -1,9 +1,11 @@
-from typing import *
-import re
-import requests
-from .model import *
-from .helper import *
 import logging
+import re
+from typing import *
+
+import requests
+
+from .helper import *
+from .model import *
 
 logger = logging.getLogger('bgmd.api')
 
@@ -80,7 +82,6 @@ def erase_collect_mono(login: Login, character: Union[Character, int]):
 
 
 def character_collection(character: Union[Character, int]):
-    result = []
     if isinstance(character, Character):
         cid = character.id
     else:
