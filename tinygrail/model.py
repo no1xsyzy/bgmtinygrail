@@ -42,16 +42,16 @@ class TDepth(BaseModel):
     asks: List[TAsk]
     bids: List[TBid]
 
-
-class RDepth(BaseModel):
-    value: TDepth
-
     @property
     def highest_bid(self) -> Optional[TBid]:
         try:
-            return max(self.value.bids, key=lambda bid: bid.Price)
+            return max(self.bids, key=lambda bid: bid.Price)
         except ValueError:
             return None
+
+
+class RDepth(BaseModel):
+    value: TDepth
 
 
 class TCharacter(BaseModel):

@@ -19,7 +19,7 @@ def get_init_cost(cid):
 
 
 def trysell(cid, amount):
-    bids = depth(cid).value.bids
+    bids = depth(cid).bids
     init_cost = get_init_cost(cid)
     sell_blueleaf_price = 0.8 * init_cost
     rev = 0

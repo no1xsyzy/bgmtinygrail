@@ -28,11 +28,11 @@ def character_info(player, cid) -> RCharacterish:
     return obj
 
 
-def depth(player, cid) -> RDepth:
+def depth(player, cid) -> TDepth:
     response = player.session.get(f"https://tinygrail.com/api/chara/depth/{cid}")
     jso = snaky(response.json())
     obj = RDepth(**jso)
-    return obj
+    return obj.value
 
 
 def user_character(player, cid) -> RUserCharacter:
