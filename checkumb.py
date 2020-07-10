@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from typing import *
 
-from dacite.exceptions import MissingValueError
+from pydantic import ValidationError
 
 from accounts import no1xsyzy
 from bgmd.api import person_work_voice_character
@@ -19,7 +19,7 @@ def main():
         checklist: Set[int] = umb_characters - {cid for cid in (follow_list + temple_list + umb_ignore_list)}
         print("\n".join(f"https://bgm.tv/character/{chara.character_id}"
                         for chara in batch_character_info(no1xsyzy, checklist)))
-    except MissingValueError:
+    except ValidationError:
         import inspect
         from pprint import pprint
         original_data = inspect.trace()[-1][0].f_locals['data']
