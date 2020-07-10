@@ -2,11 +2,12 @@
 from tinygrail.api import *
 from random import choice
 import functools
+from accounts import *
 
 
 @functools.lru_cache(maxsize=1000)
 def allc():
-    return blueleaf_chara_all().value.items
+    return blueleaf_chara_all(no1xsyzy).value.items
 
 
 depth = functools.lru_cache(maxsize=1000)(depth)
@@ -14,7 +15,7 @@ depth = functools.lru_cache(maxsize=1000)(depth)
 
 @functools.lru_cache(maxsize=1000)
 def get_init_cost(cid):
-    return chara_charts(cid).Value[0].begin
+    return chara_charts(no1xsyzy, cid).value[0].begin
 
 
 def trysell(cid, amount):
