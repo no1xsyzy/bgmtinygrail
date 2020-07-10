@@ -31,9 +31,7 @@ def user_mono(user: User, monotype: Literal['both', 'character', 'person']) -> L
     assert monotype in {'both', 'character', 'person'}, ValueError
     if monotype == 'both':
         return user_mono(user, 'character') + user_mono(user, 'person')
-    response = empty_session.get(f"https://bgm.tv/user/{user.username}/mono/{monotype}")
-    result, all_pages = crop_mono(response.content)
-    return [Character(int(link['href'].split("/")[-1]))
+    return [Character(id=int(link['href'].split("/")[-1]))
             for link in multi_page(empty_session.get, f"https://bgm.tv/user/{user.username}/mono/{monotype}",
                                    f"a[href^=\"/{monotype}/\"]")]
 
@@ -46,7 +44,7 @@ def person_work_voice_character(person: Person) -> List[Character]:
                   for m in [a['href']]
                   for k in [re.findall(r"/character/(\d+)", m)]
                   if k]
-    return [Character(cid) for cid in characters]
+    return [Character(id=cid) for cid in characters]
 
 
 def collect_mono(login: Login, character: Union[Character, int]):
@@ -112,7 +110,7 @@ def character_detail(character: Union[Character, int]):
                                 grid=large.replace("/crt/l/", "/crt/g/"))
     if (name_cn_el := soup.select_one("h1.nameSingle small")) is not None:
         info['name_cn'] = name_cn_el.text
-    return Character(cid, url=url,
+    return Character(id=cid, url=url,
                      comment=len(soup.select("div[id^=\"post\"]")),
                      collects=len(character_collection(cid)),
                      **info)
