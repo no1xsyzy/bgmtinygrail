@@ -2,11 +2,11 @@
 def loadlines(fn, /, *, factory=lambda x: x):
     try:
         with open(fn, mode='r', encoding='utf-8') as f:
-            return [factory(l.rstrip("\r\n"))
-                    for l in f
-                    if l and not l.startswith("//")]
+            return [factory(r.rstrip("\r\n"))
+                    for r in f
+                    if r and not r.startswith("//")]
     except:
-        pass
+        return []
 
 
 umb_ignore_list = loadlines("umb_ignore.txt", factory=int)
