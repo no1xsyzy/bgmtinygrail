@@ -16,7 +16,6 @@ cffi==1.14.0              # via pycares
 chardet==3.0.4            # via aiohttp, requests
 click==7.1.2              # via -r requirements.in
 cycler==0.10.0            # via matplotlib
-dacite==1.5.0             # via -r requirements.in
 idna==2.10                # via requests, yarl
 inflection==0.5.0         # via -r requirements.in
 kiwisolver==1.2.0         # via matplotlib
@@ -25,6 +24,7 @@ multidict==4.7.6          # via aiohttp, yarl
 numpy==1.19.0             # via matplotlib
 pycares==3.1.1            # via aiodns
 pycparser==2.20           # via cffi
+pydantic==1.5.1           # via -r requirements.in
 pyparsing==2.4.7          # via matplotlib
 python-dateutil==2.8.1    # via matplotlib
 requests==2.24.0          # via -r requirements.in
