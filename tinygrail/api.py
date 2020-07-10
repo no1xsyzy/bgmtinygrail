@@ -54,11 +54,11 @@ def blueleaf_chara_all(player) -> RBlueleafCharaAll:
     return lst
 
 
-def chara_charts(player, cid) -> RCharts:
+def chara_charts(player, cid) -> List[TChartum]:
     response = player.session.get(f"https://tinygrail.com/api/chara/charts/{cid}/2019-08-08")
     jso = snaky(response.json())
     obj = RCharts(**jso)
-    return obj
+    return obj.value
 
 
 def all_asks(player: Player) -> List[TCharacter]:
@@ -138,7 +138,7 @@ def cancel_ask(player: Player, ask: TAsk):
 
 def get_initial_price(player: Player, cid: int):
     cc = chara_charts(player, cid)
-    return cc.value[0].begin
+    return cc[0].begin
 
 
 def character_auction(player: Player, cid: int) -> TAuction:
