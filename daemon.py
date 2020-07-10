@@ -5,7 +5,7 @@ import traceback
 from datetime import datetime, timedelta
 from typing import *
 
-import dacite.exceptions
+from pydantic import ValidationError
 
 from accounts import *
 from checkallselling import check_all_selling
@@ -57,7 +57,7 @@ class Daemon:
                 if isinstance(e, json.decoder.JSONDecodeError):
                     print('JSONDecodeError, original doc:', file=fp)
                     print(e.doc, file=fp)
-                if isinstance(e, dacite.exceptions.MissingValueError):
+                if isinstance(e, ValidationError):
                     print('MissingValueError, original dict:', file=fp)
                     import inspect
                     from pprint import pprint
