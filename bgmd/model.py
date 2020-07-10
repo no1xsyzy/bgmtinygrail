@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from pydantic import BaseModel
 from functools import lru_cache
 from typing import *
 import requests
@@ -8,28 +8,25 @@ __all__ = ['User', 'Login',
            'Character', 'Person']
 
 
-@dataclass(frozen=True)
-class User:
+class User(BaseModel):
     id: int
     url: str
     username: str
     nickname: str
 
 
-@dataclass()
-class Images:
-    large: Optional[str] = field(default=None)
-    medium: Optional[str] = field(default=None)
-    small: Optional[str] = field(default=None)
-    grid: Optional[str] = field(default=None)
+class Images(BaseModel):
+    large: Optional[str]
+    medium: Optional[str]
+    small: Optional[str]
+    grid: Optional[str]
 
 
-@dataclass(frozen=True)
-class MonoBase:
+class MonoBase(BaseModel):
     id: int
-    url: Optional[str] = field(default=None, compare=False)
-    name: Optional[str] = field(default=None, compare=False)
-    images: Optional[Images] = field(default=None, compare=False)
+    url: Optional[str]
+    name: Optional[str]
+    images: Optional[Images]
 
     def is_detail(self):
         return (self.url is not None and
@@ -37,11 +34,10 @@ class MonoBase:
                 self.images is not None)
 
 
-@dataclass(frozen=True)
 class Mono(MonoBase):
-    name_cn: Optional[str] = field(default=None, compare=False)
-    comment: Optional[int] = field(default=None, compare=False)
-    collects: Optional[int] = field(default=None, compare=False)
+    name_cn: Optional[str]
+    comment: Optional[int]
+    collects: Optional[int]
 
     def is_detail(self):
         return (super().is_detail() and
@@ -50,23 +46,29 @@ class Mono(MonoBase):
                 self.collects is not None)
 
 
-@dataclass(frozen=True)
 class Character(Mono):
-    pass
+    def __eq__(self, other):
+        return isinstance(other, Character) and other.id == self.id
 
 
-@dataclass(frozen=True)
 class Person(Mono):
-    pass
+    def __eq__(self, other):
+        return isinstance(other, Person) and other.id == self.id
 
 
-@dataclass(frozen=True)
 class Login:
     cfduid: str
     chii_auth: str
     gh: str
     ua: str  # BGM copy session way seems UA-related
     user: Optional[User]
+
+    def __init__(self, cfduid, chii_auth, gh, ua, user=None):
+        self.cfduid = cfduid
+        self.chii_auth = chii_auth
+        self.gh = gh
+        self.ua = ua
+        self.user = user
 
     @property
     @lru_cache

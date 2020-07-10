@@ -1,4 +1,3 @@
-from dacite import from_dict
 from typing import *
 import re
 import requests
@@ -25,7 +24,7 @@ empty_session.headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64;
 
 def user_info(uid: Optional[int] = None, username: Optional[str] = None) -> User:
     """Usage: ``user_info(123456) or user_info(username='no1xsyzy')``. Returns :class:`User` object."""
-    return from_dict(User, empty_session.get(f"https://api.bgm.tv/user/{uid or username}").json())
+    return User(**empty_session.get(f"https://api.bgm.tv/user/{uid or username}").json())
 
 
 def user_mono(user: User, monotype: Literal['both', 'character', 'person']) -> List[Union[Character, Person]]:
