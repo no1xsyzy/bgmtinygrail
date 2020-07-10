@@ -134,7 +134,7 @@ class CloseOutStrategy(ABCCharaStrategy):
         return self
 
     def output(self):
-        self.ensure_asks([TAsk(self.initial_price(), self.user_character().total_holding)])
+        self.ensure_asks([TAsk(price=self.initial_price(), amount=self.user_character().total_holding)])
         self.ensure_bids([])
 
 
@@ -157,8 +157,8 @@ class BalanceStrategy(ABCCharaStrategy):
 
     def output(self):
         initial_price = self.initial_price()
-        self.ensure_asks([TAsk(initial_price, self.user_character().total_holding)])
-        self.ensure_bids([TBid(initial_price, self.bid_amount)])
+        self.ensure_asks([TAsk(price=initial_price, amount=self.user_character().total_holding)])
+        self.ensure_bids([TBid(price=initial_price, amount=self.bid_amount)])
 
 
 class SelfServiceStrategy(ABCCharaStrategy):
@@ -179,7 +179,7 @@ class BuyInStrategy(ABCCharaStrategy):
 
     def output(self):
         self.ensure_asks([])
-        self.ensure_bids([TBid(self.initial_price(), 100)])
+        self.ensure_bids([TBid(price=self.initial_price(), amount=100)])
 
 
 all_strategies: Dict[Strategy, Type[ABCCharaStrategy]] = {
