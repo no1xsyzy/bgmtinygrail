@@ -1,7 +1,8 @@
+from datetime import datetime
 from functools import lru_cache
 from typing import *
+
 from pydantic import BaseModel
-from datetime import datetime
 
 
 class TBid(BaseModel):
@@ -37,6 +38,7 @@ class TAsk(BaseModel):
         if not isinstance(other, TAsk):
             return NotImplemented
         return self.price == other.price and self.amount == other.amount
+
 
 class TDepth(BaseModel):
     asks: List[TAsk]
@@ -143,9 +145,7 @@ class Player:
         import requests
         session = requests.Session()
 
-        session.cookies = requests.cookies.cookiejar_from_dict({
-            '.AspNetCore.Identity.Application': self.identity
-        })
+        session.cookies['.AspNetCore.Identity.Application'] = self.identity
 
         session.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:72.0) Gecko/20100101 Firefox/72.0',
@@ -166,9 +166,7 @@ class Player:
         from aiohttp_requests import requests
         session = requests.Session()
 
-        session.cookies = requests.cookies.cookiejar_from_dict({
-            '.AspNetCore.Identity.Application': self.identity
-        })
+        session.cookies['.AspNetCore.Identity.Application'] = self.identity
 
         session.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:72.0) Gecko/20100101 Firefox/72.0',
