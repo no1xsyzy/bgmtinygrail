@@ -12,7 +12,7 @@ from tinygrail.api import batch_character_info, user_temples
 
 def main():
     try:
-        aoi_chan = Person(5076)
+        aoi_chan = Person(id=5076)
         umb_characters: Set[int] = {c.id for c in person_work_voice_character(aoi_chan)}
         temples = user_temples(no1xsyzy)
         temple_list = [t.character_id for t in temples if t.assets >= 2500]
