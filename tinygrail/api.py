@@ -1,7 +1,6 @@
 import json
 import logging
 
-from .helper import *
 from .model import *
 
 logger = logging.getLogger('tinygrail.api')
@@ -192,3 +191,15 @@ def get_my_ico(player: Player, ico_id: int) -> TMyICO:
     response = player.session.get(f"https://tinygrail.com/api/chara/initial/{ico_id}")
     jso = snaky(response.json())
     return RMyICO(**jso).value
+
+
+def get_history(player: Player) -> List[BHistory]:
+    # get list length
+    response = player.session.get(f"https://tinygrail.com/api/chara/user/balance/1/1")
+    jso = snaky(response.json())
+    length = RHistory(**jso).value.total_items
+    # get full list
+    resp2 = player.session.get(f"https://tinygrail.com/api/chara/user/balance/1/{length}")
+    jso2 = snaky(resp2.json())
+    lst = RHistory(**jso2).value.items
+    return lst
