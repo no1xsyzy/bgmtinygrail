@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import json
 import logging.config
+import sys
 import traceback
 from datetime import datetime, timedelta
 from typing import *
@@ -96,9 +97,11 @@ class Daemon:
                     hook_after_tick()
                 for waited in range(wait_seconds):
                     sleep(1)
-                    print(f"{waited + 1}/{wait_seconds} seconds passed", end="\r")
+                    if sys.stdout.isatty():
+                        print(f"{waited + 1}/{wait_seconds} seconds passed", end="\r")
         except KeyboardInterrupt:
-            print("\rbreak")
+            if sys.stdout.isatty():
+                print("\rbreak")
 
     def loads(self, fn):
         try:
