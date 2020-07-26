@@ -1,3 +1,4 @@
+import itertools
 import logging
 import re
 from typing import *
@@ -115,3 +116,32 @@ def character_detail(character: Union[Character, int]):
                      comment=len(soup.select("div[id^=\"post\"]")),
                      collects=len(character_collection(cid)),
                      **info)
+
+
+def inbox(login: Login):
+    links = [link.get('href')
+             for link in multi_page_alt(login.session.get, "https://bgm.tv/pm/inbox.chii", "a[href^=\"/pm/view\"]")]
+    link_origs = {}
+    for link in links:
+        redir_response = login.session.get(f"https://bgm.tv{link}", allow_redirects=False)
+        if redir_response.status_code == 200:
+            link_origs[link] = link
+        elif redir_response.status_code == 302:
+            link_origs[link] = redir_response.headers['Location']
+    pg: Dict[int, Tuple[Optional[int], Optional[List], List]] = {}
+    for link in set(link_origs.values()):
+        head_pm_code = int(link[9:-5])
+        bs = BeautifulSoup(login.session.get(f"https://bgm.tv{link}").content, 'html.parser')
+        for el in bs.select(".text_pm"):
+            pm_code = int(re.findall(r"^erasePM\('(\d+)", el.select_one("div.rr a")['onclick'])[0])
+            pin = el.select_one("a.l[href^=\"/user/\"]")
+            pm_content = [*itertools.dropwhile(lambda x: x is not pin, el.children)][1:]
+            pin = el.select_one("hr.board")
+            if pin is None:
+                pm_content[0] = pm_content[0][2:]
+                pg[pm_code] = (head_pm_code, None, pm_content)
+            else:
+                pm_title = [*pm_content[1].children]
+                pm_content = pm_content[4:]
+                pg[pm_code] = (None, pm_title, pm_content)
+    return pg

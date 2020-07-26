@@ -19,7 +19,22 @@ def multi_page(getter, base_url, selector):
         all_pages = max(int(a['href'].rsplit("=", 1)[1]) for a in pin.find_all('a', {'class': 'p'}))
     else:
         all_pages = 1
-    for page in range(2, all_pages+1):
-        soup = BeautifulSoup(getter(base_url, params=(('page', page), )).content, 'html.parser')
+    for page in range(2, all_pages + 1):
+        soup = BeautifulSoup(getter(base_url, params=(('page', page),)).content, 'html.parser')
         result.extend(soup.select(selector))
+    return result
+
+
+def multi_page_alt(getter, base_url, selector):
+    result = []
+    page = 1
+    has_next_page = True
+    while has_next_page:
+        soup = BeautifulSoup(getter(base_url, params=(('page', page),)).content, 'html.parser')
+        result.extend(soup.select(selector))
+        if (pin := soup.select_one("div.page_inner")) is not None:
+            has_next_page = (page + 1) in (int(a['href'].rsplit("=", 1)[1]) for a in pin.find_all('a', {'class': 'p'}))
+        else:
+            has_next_page = False
+        page += 1
     return result
