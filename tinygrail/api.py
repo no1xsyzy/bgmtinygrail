@@ -1,10 +1,19 @@
 import logging
 
+import modelify
 from .model import *
+
+modelify.monkey_patch()
 
 logger = logging.getLogger('tinygrail.api')
 
 REQUEST_TIMEOUT = 10
+
+
+# FIXME: temporarily disabling snaky by return as-is
+#        remove every existence and remove the function
+def snaky(x):
+    return x
 
 
 def batch_character_info(player, lst, splits=50) -> List[Union[TCharacter, TICO]]:

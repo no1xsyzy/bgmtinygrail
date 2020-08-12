@@ -3,12 +3,18 @@ from datetime import datetime
 from functools import lru_cache
 from typing import *
 
+from inflection import camelize
 from pydantic import BaseModel, validator
 
 from .helper import *
 
 
-class TBid(BaseModel):
+class TinygrailModel(BaseModel):
+    class Config:
+        alias_generator = camelize
+
+
+class TBid(TinygrailModel):
     price: float
     amount: int
     type: int = 0  # 0 表示明买，1 表示暗买
@@ -25,7 +31,7 @@ class TBid(BaseModel):
         return self.price == other.price and self.amount == other.amount
 
 
-class TAsk(BaseModel):
+class TAsk(TinygrailModel):
     price: float
     amount: int
     type: int = 0
@@ -43,7 +49,7 @@ class TAsk(BaseModel):
         return self.price == other.price and self.amount == other.amount
 
 
-class TDepth(BaseModel):
+class TDepth(TinygrailModel):
     asks: List[TAsk]
     bids: List[TBid]
 
@@ -55,11 +61,11 @@ class TDepth(BaseModel):
             return None
 
 
-class RDepth(BaseModel):
+class RDepth(TinygrailModel):
     value: TDepth
 
 
-class TCharacter(BaseModel):
+class TCharacter(TinygrailModel):
     id: int
     name: str
     level: int
@@ -77,7 +83,7 @@ class TCharacter(BaseModel):
         return self.id
 
 
-class TICO(BaseModel):
+class TICO(TinygrailModel):
     id: int
     character_id: int
     name: str
@@ -87,15 +93,15 @@ class TICO(BaseModel):
     users: int
 
 
-class RCharacterList(BaseModel):
+class RCharacterList(TinygrailModel):
     value: List[Union[TCharacter, TICO]]
 
 
-class RCharacterish(BaseModel):
+class RCharacterish(TinygrailModel):
     value: Union[TCharacter, TICO]
 
 
-class TUserCharacter(BaseModel):
+class TUserCharacter(TinygrailModel):
     bids: List[TBid]
     asks: List[TAsk]
     amount: int  # 持仓
@@ -105,7 +111,7 @@ class TUserCharacter(BaseModel):
         return self.amount + sum(ask.amount for ask in self.asks)
 
 
-class RUserCharacter(BaseModel):
+class RUserCharacter(TinygrailModel):
     value: TUserCharacter
 
 
@@ -113,16 +119,16 @@ class TBlueleafCharacter(TCharacter):
     state: int  # 持有
 
 
-class TBlueleafCharaAll(BaseModel):
+class TBlueleafCharaAll(TinygrailModel):
     total_items: int
     items: List[TBlueleafCharacter]
 
 
-class RBlueleafCharaAll(BaseModel):
+class RBlueleafCharaAll(TinygrailModel):
     value: TBlueleafCharaAll
 
 
-class TChartum(BaseModel):
+class TChartum(TinygrailModel):
     time: str
     begin: float
     end: float
@@ -132,7 +138,7 @@ class TChartum(BaseModel):
     price: float
 
 
-class RCharts(BaseModel):
+class RCharts(TinygrailModel):
     value: List[TChartum]
 
 
@@ -189,12 +195,12 @@ class TAskCharacter(TCharacter):
     state: int  # 卖单量
 
 
-class LAskCharacter(BaseModel):
+class LAskCharacter(TinygrailModel):
     total_items: int
     items: List[TAskCharacter]
 
 
-class RAllAsks(BaseModel):
+class RAllAsks(TinygrailModel):
     value: LAskCharacter
 
 
@@ -202,16 +208,16 @@ class THolding(TCharacter):
     state: int  # 持有
 
 
-class LHolding(BaseModel):
+class LHolding(TinygrailModel):
     total_items: int
     items: List[THolding]
 
 
-class RHolding(BaseModel):
+class RHolding(TinygrailModel):
     value: LHolding
 
 
-class TAuction(BaseModel):
+class TAuction(TinygrailModel):
     amount: int
     total: int
     price: float  # 拍卖底价
@@ -219,11 +225,11 @@ class TAuction(BaseModel):
     auction_total: int
 
 
-class RAuction(BaseModel):
+class RAuction(TinygrailModel):
     value: TAuction
 
 
-class TTemple(BaseModel):
+class TTemple(TinygrailModel):
     name: str
     character_id: int
     assets: int
@@ -231,24 +237,24 @@ class TTemple(BaseModel):
     level: int
 
 
-class LTemple(BaseModel):
+class LTemple(TinygrailModel):
     total_items: int
     items: List[TTemple]
 
 
-class RAllTemples(BaseModel):
+class RAllTemples(TinygrailModel):
     value: LTemple
 
 
-class TMyICO(BaseModel):
+class TMyICO(TinygrailModel):
     amount: float
 
 
-class RMyICO(BaseModel):
+class RMyICO(TinygrailModel):
     value: TMyICO
 
 
-class BHistory(BaseModel):
+class BHistory(TinygrailModel):
     description: str
     parsed_description: Optional[re.Match] = None
     related_name: Optional[str]
@@ -265,6 +271,7 @@ class BHistory(BaseModel):
 
     class Config:
         arbitrary_types_allowed = True
+        alias_generator = camelize
 
     # noinspection PyMethodParameters
     # validator returns class method
@@ -780,11 +787,11 @@ class THistoryStardust(BHistory):
     _amount_match = parsed_match('amount', 5, translate=int)
 
 
-class HistoryParser(BaseModel):
+class HistoryParser(TinygrailModel):
     history: Union[(*BHistory.__subclasses__(),)]
 
 
-class LHistory(BaseModel):
+class LHistory(TinygrailModel):
     current_page: int
     total_pages: int
     total_items: int
@@ -792,6 +799,6 @@ class LHistory(BaseModel):
     items: List[Union[(*BHistory.__subclasses__(),)]]
 
 
-class RHistory(BaseModel):
+class RHistory(TinygrailModel):
     state: int
     value: LHistory

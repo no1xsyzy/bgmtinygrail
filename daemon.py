@@ -6,10 +6,9 @@ import traceback
 from datetime import datetime, timedelta
 from typing import *
 
-from pydantic import ValidationError
-
 from accounts import *
 from checkallselling import check_all_selling
+from modelify import APIResponseSchemeNotMatch
 from strategy import *
 from tinygrail.api import all_holding
 
@@ -58,12 +57,9 @@ class Daemon:
                 if isinstance(e, json.decoder.JSONDecodeError):
                     print('JSONDecodeError, original doc:', file=fp)
                     print(e.doc, file=fp)
-                if isinstance(e, ValidationError):
-                    print('MissingValueError, original dict:', file=fp)
-                    import inspect
-                    from pprint import pprint
-                    original_data = inspect.trace()[-1][0].f_locals['data']
-                    pprint(original_data, stream=fp)
+                elif isinstance(e, APIResponseSchemeNotMatch):
+                    print('Validation Error, original doc:', file=fp)
+                    print(e.data, file=fp)
             logger.warning(f"Ticking not successful, "
                            f"traceback is at: `exception@{now.isoformat().replace(':', '.')}.log`.")
             if len(self.error_time) > self.error_tolerance_count:
