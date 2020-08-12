@@ -51,7 +51,7 @@ class Daemon:
             self.error_time.append(now)
             while self.error_time and now - self.error_time[0] < timedelta(minutes=self.error_tolerance_period):
                 self.error_time.pop(0)
-            with open(f"exception@{now.isoformat().replace(':', '.')}.log", mode='w') as fp:
+            with open(f"exception@{now.isoformat().replace(':', '.')}.log", mode='w', encoding='utf-8') as fp:
                 import sys
                 traceback.print_exc(file=fp)
                 if isinstance(e, json.decoder.JSONDecodeError):
