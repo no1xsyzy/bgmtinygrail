@@ -1,6 +1,8 @@
 from .api import *
 from datetime import datetime
 
+logger = logging.getLogger('big_c')
+
 
 class BigC:
     # user character
