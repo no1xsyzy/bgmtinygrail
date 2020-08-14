@@ -114,20 +114,20 @@ class BigC:
         while now_bids and bids:
             if now_bids[0] < bids[0]:
                 logger.info(f"Cancel: {now_bids[0]!r}")
-                cancel_bid(self.player, now_bids.pop(0))
+                self.cancel_bid(now_bids.pop(0))
             elif now_bids[0] > bids[0]:
                 logger.info(f"Create: {bids[0]!r}")
-                create_bid(self.player, self.character, bids.pop(0))
+                self.create_bid(bids.pop(0))
             else:
                 logger.info(f"Equals: {now_bids[0]!r}")
                 now_bids.pop(0)
                 bids.pop(0)
 
         for now_bid in now_bids:
-            cancel_bid(self.player, now_bid)
+            self.cancel_bid(now_bid)
 
         for bid in bids:
-            create_bid(self.player, self.character, bid)
+            self.create_bid(bid)
 
     def ensure_asks(self, asks: List[TAsk]):
         self._update_user_character()
@@ -137,17 +137,17 @@ class BigC:
         while now_asks and asks:
             if now_asks[0] < asks[0]:
                 logger.info(f"Cancel: {now_asks[0]!r}")
-                cancel_ask(self.player, now_asks.pop(0))
+                self.cancel_ask(now_asks.pop(0))
             elif now_asks[0] > asks[0]:
                 logger.info(f"Create: {asks[0]!r}")
-                create_ask(self.player, self.character, asks.pop(0))
+                self.create_ask(asks.pop(0))
             else:
                 logger.info(f"Equals: {now_asks[0]!r}")
                 now_asks.pop(0)
                 asks.pop(0)
 
         for now_ask in now_asks:
-            cancel_ask(self.player, now_ask)
+            self.cancel_ask(now_ask)
 
         for ask in asks:
-            create_ask(self.player, self.character, ask)
+            self.create_ask(ask)
