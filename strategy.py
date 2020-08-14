@@ -28,6 +28,11 @@ class Strategy(Enum):
     USER_DEFINED = 100
 
 
+@lru_cache()
+def _big_c(player, cid):
+    return BigC(player, cid)
+
+
 class ABCCharaStrategy(ABC):
     cid: int
     player: Player
@@ -53,9 +58,9 @@ class ABCCharaStrategy(ABC):
         return round(get_initial_price(self.player, self.cid), 2)
 
     @property
-    @lru_cache()
+    @lru_cache(maxsize=1000)
     def big_c(self):
-        return BigC(self.player, self.cid)
+        return _big_c(self.player, self.cid)
 
     def ensure_bids(self, bids: List[TBid]):
         now_bids = self.user_character().bids
