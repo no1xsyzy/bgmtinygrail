@@ -1,7 +1,11 @@
 from .api import *
-from datetime import datetime
+from datetime import datetime, timedelta
 
 logger = logging.getLogger('big_c')
+
+_USER_CHARACTER_THROTTLE_DELTA = timedelta(seconds=2)
+_CHARACTER_INFO_THROTTLE_DELTA = timedelta(seconds=2)
+_CHARTS_THROTTLE_DELTA = timedelta(seconds=2)
 
 
 class BigC:
@@ -31,24 +35,36 @@ class BigC:
     # charts
     charts: List[TChartum]
 
+    _uc_update: Optional[datetime]
+    _ci_update: Optional[datetime]
+    _ch_update: Optional[datetime]
+
     def __init__(self, player, character):
         self.player = player
         self.character = character
-        self.update()
+        self._uc_update = datetime(1, 1, 1)
+        self._ci_update = datetime(1, 1, 1)
+        self._ch_update = datetime(1, 1, 1)
+        self.update(ignore_throttle=True)
 
-    def update(self):
-        self._update_user_character()
-        self._update_character_info()
-        self._update_charts()
+    def update(self, **kwargs):
+        self._update_user_character(**kwargs)
+        self._update_character_info(**kwargs)
+        self._update_charts(**kwargs)
 
-    def _update_user_character(self):
+    def _update_user_character(self, ignore_throttle=False):
+        if ignore_throttle or self._uc_update > datetime.now():
+            return
         uc = user_character(self.player, self.character).value
         self.bids = uc.bids
         self.asks = uc.asks
         self.amount = uc.amount
         self.total_holding = uc.total_holding
+        self._uc_update = datetime.now() + _USER_CHARACTER_THROTTLE_DELTA
 
-    def _update_character_info(self):
+    def _update_character_info(self, ignore_throttle=False):
+        if ignore_throttle or self._ci_update > datetime.now():
+            return
         ci = character_info(self.player, self.character).value
         self.name = ci.name
         if isinstance(ci, TICO):
@@ -69,10 +85,14 @@ class BigC:
             self.global_sacrifices = ci.sacrifices
             self.rate = ci.rate
             self.price = ci.price
+        self._ci_update = datetime.now() + _CHARACTER_INFO_THROTTLE_DELTA
 
-    def _update_charts(self):
+    def _update_charts(self, ignore_throttle=False):
+        if ignore_throttle or self._ch_update > datetime.now():
+            return
         cc = chara_charts(self.player, self.character)
         self.charts = cc
+        self._ch_update = datetime.now() + _CHARTS_THROTTLE_DELTA
 
     @property
     def current_price_rounded(self):
