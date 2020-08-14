@@ -102,7 +102,7 @@ class BigC:
 
     @property
     def initial_price(self):
-        return self.charts[0].price
+        return self.charts[0].begin
 
     @property
     def initial_price_rounded(self):
