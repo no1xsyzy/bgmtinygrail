@@ -52,7 +52,7 @@ class BigC:
         self._update_charts(**kwargs)
 
     def _update_user_character(self, ignore_throttle=False):
-        if not ignore_throttle and self._uc_update < datetime.now():
+        if not ignore_throttle and self._uc_update > datetime.now():
             return
         uc = user_character(self.player, self.character).value
         self.bids = uc.bids
@@ -62,7 +62,7 @@ class BigC:
         self._uc_update = datetime.now() + _USER_CHARACTER_THROTTLE_DELTA
 
     def _update_character_info(self, ignore_throttle=False):
-        if not ignore_throttle and self._ci_update < datetime.now():
+        if not ignore_throttle and self._ci_update > datetime.now():
             return
         ci = character_info(self.player, self.character).value
         self.name = ci.name
@@ -87,7 +87,7 @@ class BigC:
         self._ci_update = datetime.now() + _CHARACTER_INFO_THROTTLE_DELTA
 
     def _update_charts(self, ignore_throttle=False):
-        if not ignore_throttle and self._ch_update < datetime.now():
+        if not ignore_throttle and self._ch_update > datetime.now():
             return
         cc = chara_charts(self.player, self.character)
         self.charts = cc
