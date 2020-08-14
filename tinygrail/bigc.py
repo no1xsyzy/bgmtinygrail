@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 
 logger = logging.getLogger('big_c')
 
+_INTERNAL_RATE = 0.1
+
 _USER_CHARACTER_THROTTLE_DELTA = timedelta(seconds=2)
 _CHARACTER_INFO_THROTTLE_DELTA = timedelta(seconds=2)
 _CHARTS_THROTTLE_DELTA = timedelta(seconds=2)
@@ -108,7 +110,7 @@ class BigC:
 
     @property
     def fundamental(self):
-        return self.rate / 0.12
+        return self.rate / _INTERNAL_RATE
 
     @property
     def fundamental_rounded(self):
