@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 from enum import Enum
 
 from tinygrail.api import *
+from tinygrail.bigc import BigC
+from functools import lru_cache
 
 logger = logging.getLogger('strategy')
 
@@ -49,6 +51,11 @@ class ABCCharaStrategy(ABC):
 
     def initial_price(self):
         return round(get_initial_price(self.player, self.cid), 2)
+
+    @property
+    @lru_cache()
+    def big_c(self):
+        return BigC(self.player, self.cid)
 
     def ensure_bids(self, bids: List[TBid]):
         now_bids = self.user_character().bids
