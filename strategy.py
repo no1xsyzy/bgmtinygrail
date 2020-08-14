@@ -58,6 +58,10 @@ class ABCCharaStrategy(ABC):
         return round(get_initial_price(self.player, self.cid), 2)
 
     @property
+    def exchange_price(self):
+        return max(self.big_c.initial_price_rounded, self.big_c.fundamental_rounded)
+
+    @property
     @lru_cache(maxsize=1000)
     def big_c(self):
         return _big_c(self.player, self.cid)
@@ -83,10 +87,9 @@ class IgnoreStrategy(ABCCharaStrategy):
     def transition(self):
         uc = self.user_character()
         current_price = self.current_price()
-        initial_price = self.initial_price()
-        logger.debug(f"{uc.total_holding=}, {current_price=}, {initial_price=}")
+        logger.debug(f"{uc.total_holding=}, {current_price=}, {self.exchange_price=}")
         if uc.total_holding > 0:
-            if current_price <= initial_price:
+            if current_price <= self.exchange_price:
                 return BalanceStrategy(self.player, self.cid)
             return CloseOutStrategy(self.player, self.cid)
         return self
@@ -103,12 +106,12 @@ class CloseOutStrategy(ABCCharaStrategy):
         uc = self.user_character()
         if uc.total_holding == 0:
             return IgnoreStrategy(self.player, self.cid)
-        elif self.current_price() <= self.initial_price():
+        else:
             return BalanceStrategy(self.player, self.cid)
         return self
 
     def output(self):
-        self.ensure_asks([TAsk(Price=self.initial_price(), Amount=self.user_character().total_holding)])
+        self.ensure_asks([TAsk(Price=self.exchange_price, Amount=self.user_character().total_holding)])
         self.ensure_bids([])
 
 
@@ -130,9 +133,8 @@ class BalanceStrategy(ABCCharaStrategy):
         return self
 
     def output(self):
-        initial_price = self.initial_price()
-        self.ensure_asks([TAsk(Price=initial_price, Amount=self.user_character().total_holding)])
-        self.ensure_bids([TBid(Price=initial_price, Amount=self.bid_amount)])
+        self.ensure_asks([TAsk(Price=self.exchange_price, Amount=self.user_character().total_holding)])
+        self.ensure_bids([TBid(Price=self.exchange_price, Amount=self.bid_amount)])
 
 
 class SelfServiceStrategy(ABCCharaStrategy):
@@ -153,7 +155,7 @@ class BuyInStrategy(ABCCharaStrategy):
 
     def output(self):
         self.ensure_asks([])
-        self.ensure_bids([TBid(Price=self.initial_price(), Amount=100)])
+        self.ensure_bids([TBid(Price=self.exchange_price, Amount=100)])
 
 
 all_strategies: Dict[Strategy, Type[ABCCharaStrategy]] = {
