@@ -10,13 +10,17 @@ from accounts import *
 from checkallselling import check_all_selling
 from modelify import APIResponseSchemeNotMatch
 from strategy import *
-from tinygrail.api import all_holding
+from tinygrail.api import all_holding, all_bids
 
 logger = logging.getLogger('daemon')
 
 
 def all_holding_ids(player):
     return [h.character_id for h in all_holding(player)]
+
+
+def all_bidding_ids(player):
+    return [h.character_id for h in all_bids(player)]
 
 
 class StrategyMap(dict):
@@ -43,7 +47,7 @@ class Daemon:
     def tick(self):
         # noinspection PyBroadException
         try:
-            for cid in {*all_holding_ids(self.player), *self.strategy_map.keys()}:
+            for cid in {*all_holding_ids(self.player), *all_bidding_ids(self.player), *self.strategy_map.keys()}:
                 self.tick_chara(cid)
             check_all_selling(tg_xsb_player, bgm_xsb_player, True)
         except Exception as e:
