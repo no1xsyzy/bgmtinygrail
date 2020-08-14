@@ -63,48 +63,10 @@ class ABCCharaStrategy(ABC):
         return _big_c(self.player, self.cid)
 
     def ensure_bids(self, bids: List[TBid]):
-        now_bids = self.user_character().bids
-        now_bids = sorted(now_bids)
-        bids = sorted(bids)
-        while now_bids and bids:
-            if now_bids[0] < bids[0]:
-                logger.info(f"Cancel: {now_bids[0]!r}")
-                cancel_bid(self.player, now_bids.pop(0))
-            elif now_bids[0] > bids[0]:
-                logger.info(f"Create: {bids[0]!r}")
-                create_bid(self.player, self.cid, bids.pop(0))
-            else:
-                logger.info(f"Equals: {now_bids[0]!r}")
-                now_bids.pop(0)
-                bids.pop(0)
-
-        for now_bid in now_bids:
-            cancel_bid(self.player, now_bid)
-
-        for bid in bids:
-            create_bid(self.player, self.cid, bid)
+        self.big_c.ensure_bids(bids)
 
     def ensure_asks(self, asks: List[TAsk]):
-        now_asks = self.user_character().asks
-        now_asks = sorted(now_asks)
-        asks = sorted(asks)
-        while now_asks and asks:
-            if now_asks[0] < asks[0]:
-                logger.info(f"Cancel: {now_asks[0]!r}")
-                cancel_ask(self.player, now_asks.pop(0))
-            elif now_asks[0] > asks[0]:
-                logger.info(f"Create: {asks[0]!r}")
-                create_ask(self.player, self.cid, asks.pop(0))
-            else:
-                logger.info(f"Equals: {now_asks[0]!r}")
-                now_asks.pop(0)
-                asks.pop(0)
-
-        for now_ask in now_asks:
-            cancel_ask(self.player, now_ask)
-
-        for ask in asks:
-            create_ask(self.player, self.cid, ask)
+        self.big_c.ensure_asks(asks)
 
     @abstractmethod
     def transition(self) -> 'ABCCharaStrategy':
