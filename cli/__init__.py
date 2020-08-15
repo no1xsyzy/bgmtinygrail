@@ -14,3 +14,4 @@ assert isinstance(entry_point, click.Group)
 
 entry_point.add_command(accounts)
 entry_point.add_command(check_auction_price_value)
+entry_point.add_command(magic)

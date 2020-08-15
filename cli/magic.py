@@ -9,6 +9,7 @@ from pprint import pprint
 import click
 
 from tinygrail.api import magic_chaos, magic_guidepost, magic_stardust
+from tinygrail.model import Player
 
 
 class TGPlayerParamType(click.ParamType):
@@ -16,13 +17,10 @@ class TGPlayerParamType(click.ParamType):
 
     def convert(self, value, param, ctx):
         try:
-            import accounts
-            return getattr(accounts, value)
-        except ImportError:
-            self.fail(f"you have not set up accounts.py correctly, see Readme.md")
-        except SyntaxError:
-            self.fail(f"your accounts.py has syntax error")
-        except AttributeError:
+            from model import accounts
+            dct = accounts.retrieve(value)[0]
+            return Player(dct['tinygrail_identity'])
+        except IndexError:
             self.fail(f"no such player {value!r}", param, ctx)
 
 
@@ -72,7 +70,3 @@ def stardust(player_name, supplier_cid, demand_cid, amount, use_type):
     result = magic_stardust(player_name, supplier_cid, demand_cid, amount, use_type)
     pprint(result, stream=sys.stderr)
     return result
-
-
-if __name__ == '__main__':
-    magic()
