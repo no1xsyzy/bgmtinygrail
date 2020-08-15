@@ -15,6 +15,10 @@ from tinygrail.api import all_holding, all_bids
 logger = logging.getLogger('daemon')
 
 
+class TooMuchExceptionsError(Exception):
+    pass
+
+
 def all_holding_ids(player):
     return [h.character_id for h in all_holding(player)]
 
@@ -69,7 +73,7 @@ class Daemon:
             if len(self.error_time) > self.error_tolerance_count:
                 logger.error(f"There has been too much (>{self.error_tolerance_count}) errors "
                              f"in past {self.error_tolerance_period} minutes, stopping.")
-                raise
+                raise TooMuchExceptionsError from None
 
     def tick_chara(self, cid):
         logger.info(f"on {cid}")
