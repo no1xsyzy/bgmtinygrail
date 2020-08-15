@@ -1,9 +1,12 @@
+import logging
 from abc import ABC, abstractmethod
 from enum import Enum
-
-from tinygrail.api import *
-from tinygrail.bigc import BigC
 from functools import lru_cache
+from typing import *
+
+from tinygrail.api import get_initial_price, user_character, character_info
+from tinygrail.bigc import BigC
+from tinygrail.model import Player, TAsk, TBid
 
 logger = logging.getLogger('strategy')
 
@@ -85,11 +88,8 @@ class IgnoreStrategy(ABCCharaStrategy):
     strategy = Strategy.IGNORE
 
     def transition(self):
-        uc = self.user_character()
-        current_price = self.current_price()
-        logger.debug(f"{uc.total_holding=}, {current_price=}, {self.exchange_price=}")
-        if uc.total_holding > 0:
-            if current_price <= self.exchange_price:
+        if self.big_c.total_holding > 0:
+            if self.big_c.current_price <= self.exchange_price:
                 return BalanceStrategy(self.player, self.cid)
             return CloseOutStrategy(self.player, self.cid)
         return self
@@ -108,7 +108,6 @@ class CloseOutStrategy(ABCCharaStrategy):
             return IgnoreStrategy(self.player, self.cid)
         else:
             return BalanceStrategy(self.player, self.cid)
-        return self
 
     def output(self):
         self.ensure_asks([TAsk(Price=self.exchange_price, Amount=self.user_character().total_holding)])
