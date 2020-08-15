@@ -52,6 +52,7 @@ class Daemon:
         self.error_tolerance_count = 5
 
     def tick(self):
+        # we want exception not breaking
         # noinspection PyBroadException
         try:
             for cid in sorted(*all_bidding_ids(self.player), *all_holding_ids(self.player), *self.strategy_map.keys()):
