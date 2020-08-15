@@ -8,3 +8,4 @@ e.py
 *.txt
 !requirements.txt
 *.log
+*.db
