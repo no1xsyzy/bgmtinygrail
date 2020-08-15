@@ -55,7 +55,9 @@ class Daemon:
         # we want exception not breaking
         # noinspection PyBroadException
         try:
-            for cid in sorted(*all_bidding_ids(self.player), *all_holding_ids(self.player), *self.strategy_map.keys()):
+            for cid in sorted({*all_bidding_ids(self.player),
+                               *all_holding_ids(self.player),
+                               *self.strategy_map.keys()}):
                 self.tick_chara(cid)
             check_all_selling(tg_xsb_player, bgm_xsb_player, True)
         except Exception as e:
