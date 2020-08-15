@@ -29,13 +29,14 @@ def all_bidding_ids(player):
     return [h.character_id for h in all_bids(player)]
 
 
-class StrategyMap(dict):
+class StrategyMap(dict, Dict[int, ABCCharaStrategy]):
     def __init__(self, player, *args, **kwargs):
         self.player = player
         super().__init__(*args, **kwargs)
 
     def __missing__(self, cid):
-        self[cid] = IgnoreStrategy(self.player, cid)
+        self[cid] = BalanceStrategy(self.player, cid)
+        self[cid].output()
         return self[cid]
 
 
@@ -53,7 +54,7 @@ class Daemon:
     def tick(self):
         # noinspection PyBroadException
         try:
-            for cid in {*all_holding_ids(self.player), *all_bidding_ids(self.player), *self.strategy_map.keys()}:
+            for cid in sorted(*all_bidding_ids(self.player), *all_holding_ids(self.player), *self.strategy_map.keys()):
                 self.tick_chara(cid)
             check_all_selling(tg_xsb_player, bgm_xsb_player, True)
         except Exception as e:
