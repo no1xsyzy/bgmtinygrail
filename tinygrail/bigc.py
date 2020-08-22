@@ -47,11 +47,11 @@ class BigC:
         self.update(ignore_throttle=True)
 
     def update(self, **kwargs):
-        self._update_user_character(**kwargs)
-        self._update_character_info(**kwargs)
-        self._update_charts(**kwargs)
+        self.update_user_character(**kwargs)
+        self.update_character_info(**kwargs)
+        self.update_charts(**kwargs)
 
-    def _update_user_character(self, ignore_throttle=False):
+    def update_user_character(self, ignore_throttle=False):
         if not ignore_throttle and self._uc_update > datetime.now():
             return
         uc = user_character(self.player, self.character).value
@@ -61,7 +61,7 @@ class BigC:
         self.total_holding = uc.total_holding
         self._uc_update = datetime.now() + _USER_CHARACTER_THROTTLE_DELTA
 
-    def _update_character_info(self, ignore_throttle=False):
+    def update_character_info(self, ignore_throttle=False):
         if not ignore_throttle and self._ci_update > datetime.now():
             return
         ci = character_info(self.player, self.character).value
@@ -86,7 +86,7 @@ class BigC:
             self.price = ci.price
         self._ci_update = datetime.now() + _CHARACTER_INFO_THROTTLE_DELTA
 
-    def _update_charts(self, ignore_throttle=False):
+    def update_charts(self, ignore_throttle=False):
         if not ignore_throttle and self._ch_update > datetime.now():
             return
         cc = chara_charts(self.player, self.character)
@@ -107,7 +107,7 @@ class BigC:
 
     @property
     def fundamental(self):
-        self._update_character_info()
+        self.update_character_info()
         return self.rate / _INTERNAL_RATE
 
     @property
@@ -127,7 +127,7 @@ class BigC:
         return cancel_ask(self.player, ask)
 
     def ensure_bids(self, bids: List[TBid]):
-        self._update_user_character()
+        self.update_user_character()
         now_bids = self.bids
         now_bids = sorted(now_bids)
         bids = sorted(bids)
@@ -150,7 +150,7 @@ class BigC:
             self.create_bid(bid)
 
     def ensure_asks(self, asks: List[TAsk]):
-        self._update_user_character()
+        self.update_user_character()
         now_asks = self.asks
         now_asks = sorted(now_asks)
         asks = sorted(asks)
