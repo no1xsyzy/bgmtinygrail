@@ -8,6 +8,7 @@ _INTERNAL_RATE = 0.1
 _USER_CHARACTER_THROTTLE_DELTA = timedelta(seconds=2)
 _CHARACTER_INFO_THROTTLE_DELTA = timedelta(seconds=2)
 _CHARTS_THROTTLE_DELTA = timedelta(seconds=2)
+_DEPTH_THROTTLE_DELTA = timedelta(seconds=2)
 
 
 class BigC:
@@ -36,10 +37,14 @@ class BigC:
     price: Optional[float]
     # charts
     charts: List[TChartum]
+    # depth
+    bids_all: List[TBid]
+    asks_all: List[TAsk]
 
     _uc_update: Optional[datetime]
     _ci_update: Optional[datetime]
     _ch_update: Optional[datetime]
+    _dp_update: Optional[datetime]
 
     def __init__(self, player, character):
         self.player = player
@@ -50,6 +55,7 @@ class BigC:
         self.update_user_character(**kwargs)
         self.update_character_info(**kwargs)
         self.update_charts(**kwargs)
+        self.update_depth(**kwargs)
 
     def update_user_character(self, ignore_throttle=False):
         if not ignore_throttle and self._uc_update > datetime.now():
@@ -92,6 +98,14 @@ class BigC:
         cc = chara_charts(self.player, self.character)
         self.charts = cc
         self._ch_update = datetime.now() + _CHARTS_THROTTLE_DELTA
+
+    def update_depth(self, ignore_throttle=False):
+        if not ignore_throttle and self._dp_update > datetime.now():
+            return
+        the_depth = depth(self.player, self.character)
+        self.bids_all = the_depth.bids
+        self.asks_all = the_depth.asks
+        self._dp_update = datetime.now() + _DEPTH_THROTTLE_DELTA
 
     @property
     def current_price_rounded(self):
