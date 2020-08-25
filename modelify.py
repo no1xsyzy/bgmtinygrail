@@ -5,7 +5,8 @@ from pydantic import BaseModel, ValidationError
 
 
 class APIResponseSchemeNotMatch(ValueError):
-    def __init__(self, data):
+    def __init__(self, response, data):
+        self.response = response
         self.data = data
 
 
@@ -14,7 +15,7 @@ def as_model(self, model: Type[BaseModel]):
     try:
         return model(**data)
     except ValidationError:
-        raise APIResponseSchemeNotMatch(data)
+        raise APIResponseSchemeNotMatch(self, data)
 
 
 def monkey_patch():
