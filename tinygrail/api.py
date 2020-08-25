@@ -39,6 +39,17 @@ def user_character(player, cid) -> RUserCharacter:
     return obj
 
 
+def chara_user_character(player) -> List[TCharaUserChara]:
+    # get list length
+    response = player.session.get(f"https://tinygrail.com/api/chara/user/chara/1/1", timeout=REQUEST_TIMEOUT)
+    length = response.as_model(RCharaUserChara).value.total_items
+    # get full list
+    resp2 = player.session.get(f"https://tinygrail.com/api/chara/user/chara/1/{length}",
+                               timeout=REQUEST_TIMEOUT)
+    lst = resp2.as_model(RCharaUserChara).value.items
+    return lst
+
+
 def blueleaf_chara_all(player) -> RBlueleafCharaAll:
     # get list length
     response = player.session.get(f"https://tinygrail.com/api/chara/user/chara/blueleaf/1/1", timeout=REQUEST_TIMEOUT)

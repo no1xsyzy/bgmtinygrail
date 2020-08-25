@@ -115,6 +115,21 @@ class RUserCharacter(TinygrailModel):
     value: TUserCharacter
 
 
+class TCharaUserChara(TinygrailModel):
+    id: int
+    sacrifices: int  # 已献祭
+    state: int  # 持仓
+
+
+class LCharaUserChara(TinygrailModel):
+    total_items: int
+    items: List[TCharaUserChara]
+
+
+class RCharaUserChara(TinygrailModel):
+    value: LCharaUserChara
+
+
 class TBlueleafCharacter(TCharacter):
     state: int  # 持有
 
