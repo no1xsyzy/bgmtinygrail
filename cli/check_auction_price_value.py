@@ -28,7 +28,7 @@ def check_auction_price_value():
         r = pv(tg_xsb_player, cid)
         result.append(r)
 
-    result = sorted(result, key=lambda tup: tup[2])
+    result = sorted(result, key=lambda t: t[2])
 
     for tup in result:
         print(*tup)
