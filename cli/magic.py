@@ -17,7 +17,7 @@ class TGPlayerParamType(click.ParamType):
 
     def convert(self, value, param, ctx):
         try:
-            from model import accounts
+            from db import accounts
             dct = accounts.retrieve(value)[0]
             return Player(dct['tinygrail_identity'])
         except IndexError:
