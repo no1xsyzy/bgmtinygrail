@@ -1,3 +1,5 @@
+from typing import List
+
 from .base import get_db
 
 
@@ -61,7 +63,7 @@ def delete(friendly_name):
     db.commit()
 
 
-def list_all():
+def list_all() -> List[str]:
     res = get_db().execute("""
         SELECT
             friendly_name
