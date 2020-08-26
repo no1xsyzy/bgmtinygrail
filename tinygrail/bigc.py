@@ -46,7 +46,7 @@ class BigC:
     _ch_update: Optional[datetime]
     _dp_update: Optional[datetime]
 
-    def __init__(self, player, character):
+    def __init__(self, player: Player, character: int):
         self.player = player
         self.character = character
         self.update(ignore_throttle=True)
