@@ -19,6 +19,7 @@ cycler==0.10.0            # via matplotlib
 idna==2.10                # via requests, yarl
 inflection==0.5.0         # via -r requirements.in
 kiwisolver==1.2.0         # via matplotlib
+lazy-object-proxy==1.5.1  # via -r requirements.in
 matplotlib==3.2.2         # via -r requirements.in
 multidict==4.7.6          # via aiohttp, yarl
 numpy==1.19.0             # via matplotlib

@@ -2,6 +2,7 @@ aiohttp-requests
 beautifulsoup4
 click
 inflection
+lazy-object-proxy
 matplotlib
-requests
 pydantic
+requests
