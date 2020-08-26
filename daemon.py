@@ -10,7 +10,7 @@ from requests.exceptions import ReadTimeout
 
 from accounts import *
 from checkallselling import check_all_selling
-from modelify import APIResponseSchemeNotMatch
+from requests_as_model import APIResponseSchemeNotMatch
 from strategy import *
 from tinygrail.api import all_holding, all_bids
 

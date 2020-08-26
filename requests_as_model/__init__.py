@@ -1,7 +1,9 @@
-from typing import Type
+from typing import Type, TypeVar
 
 import requests
 from pydantic import BaseModel, ValidationError
+
+_MT = TypeVar("_MT", bound=BaseModel)
 
 
 class APIResponseSchemeNotMatch(ValueError):
@@ -10,7 +12,7 @@ class APIResponseSchemeNotMatch(ValueError):
         self.data = data
 
 
-def as_model(self, model: Type[BaseModel]):
+def as_model(self: requests.Response, model: Type[_MT]) -> _MT:
     data = self.json()
     try:
         return model(**data)

@@ -1,9 +1,9 @@
 import logging
 
-import modelify
+import requests_as_model
 from .model import *
 
-modelify.monkey_patch()
+requests_as_model.monkey_patch()
 
 logger = logging.getLogger('tinygrail.api')
 
