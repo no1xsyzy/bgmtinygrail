@@ -1,3 +1,5 @@
+import logging.config
+
 import click
 
 from .accounts import accounts
@@ -7,8 +9,9 @@ from .magic import magic
 
 
 @click.group()
-def entry_point():
-    pass
+@click.option('-L', '--log-conf', default='logging.conf')
+def entry_point(log_conf):
+    logging.config.fileConfig(log_conf)
 
 
 assert isinstance(entry_point, click.Group)
