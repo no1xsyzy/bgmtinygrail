@@ -7,7 +7,7 @@ from tinygrail.api import *
 
 
 @functools.lru_cache(maxsize=1000)
-def allc():
+def all_bl_char():
     return blueleaf_chara_all(no1xsyzy).value.items
 
 
@@ -17,15 +17,15 @@ depth = functools.lru_cache(maxsize=1000)(depth)
 get_init_cost = functools.lru_cache(maxsize=10000)(get_initial_price)
 
 
-def trysell(cid, amount):
+def sim_sell(cid, amount):
     bids = depth(cid).bids
     init_cost = get_init_cost(cid)
     sell_blueleaf_price = 0.8 * init_cost
     rev = 0
     for bid in sorted((bid for bid in bids if bid.price > sell_blueleaf_price),
-                      key=lambda bid: bid.Price, reverse=True):
+                      key=lambda b: b.price, reverse=True):
         if bid.amount >= amount:
-            rev += amount*bid.price
+            rev += amount * bid.price
             return rev
         amount -= bid.amount
         rev += bid.amount * bid.price
@@ -33,27 +33,27 @@ def trysell(cid, amount):
     return rev
 
 
-def montecarlo_once():
+def monte_carlo_one_run():
     total = 100
     rev = 0
     s = []
     while total > 0:
-        chara = choice(allc())
-        cid = chara.Id
+        chara = choice(all_bl_char())
+        cid = chara.id
         amount = choice(range(min([
             total,
-            chara.State
-        ])))+1
-        rev += trysell(cid, amount)
-        s.append((chara.Name, amount))
+            chara.state
+        ]))) + 1
+        rev += sim_sell(cid, amount)
+        s.append((chara.name, amount))
         total -= amount
     return rev, s
 
 
-def montecarlo_list(times):
+def monte_carlo(times):
     result = []
     for i in range(times):
-        rev, lst = montecarlo_once()
+        rev, lst = monte_carlo_one_run()
         result.append(rev)
         print(f"{i:5}:: {rev:5.2f}: {lst}")
     return result
@@ -68,5 +68,5 @@ def violin(data):
 
 
 if __name__ == "__main__":
-    j = montecarlo_list(1000)
+    j = monte_carlo(1000)
     violin(j)
