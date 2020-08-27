@@ -2,7 +2,7 @@ from .base import *
 
 
 class FundamentalTrader(ABCTrader):
-    internal_rate = float
+    internal_rate: float
 
     def __init__(self, player):
         super().__init__(player)
