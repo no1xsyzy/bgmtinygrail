@@ -67,8 +67,8 @@ class FundamentalTrader(ABCTrader):
         big_c = self.big_c(cid)
         big_c.ensure_bids([])
         big_c.ensure_asks([])
-        if not amount:
-            return
+        if amount is None:
+            amount = big_c.amount
         while amount:
             pin = round(0.618 * high + 0.382 * low, 2)
             if pin == high or pin == low:
