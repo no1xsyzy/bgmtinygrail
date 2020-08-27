@@ -1,5 +1,6 @@
+from datetime import timedelta
+
 from .api import *
-from datetime import datetime, timedelta
 
 logger = logging.getLogger('big_c')
 
@@ -9,6 +10,17 @@ _USER_CHARACTER_THROTTLE_DELTA = timedelta(seconds=2)
 _CHARACTER_INFO_THROTTLE_DELTA = timedelta(seconds=2)
 _CHARTS_THROTTLE_DELTA = timedelta(seconds=2)
 _DEPTH_THROTTLE_DELTA = timedelta(seconds=2)
+
+
+def _helper_detect_stage(this_stage: str, stage_desc: Union[bool, str]) -> bool:
+    if stage_desc is False:
+        return False
+    if stage_desc is True:
+        return True
+    try:
+        return this_stage in stage_desc
+    except TypeError:
+        return False
 
 
 class BigC:
@@ -128,20 +140,32 @@ class BigC:
     def fundamental_rounded(self):
         return round(self.fundamental, 2)
 
-    def create_bid(self, bid: TBid):
-        return create_bid(self.player, self.character, bid)
+    def create_bid(self, bid: TBid, *, force_updates=False):
+        result = create_bid(self.player, self.character, bid)
+        if force_updates:
+            self.update_user_character(ignore_throttle=True)
+        return result
 
-    def create_ask(self, ask: TAsk):
-        return create_ask(self.player, self.character, ask)
+    def create_ask(self, ask: TAsk, *, force_updates=False):
+        result = create_ask(self.player, self.character, ask)
+        if force_updates:
+            self.update_user_character(ignore_throttle=True)
+        return result
 
-    def cancel_bid(self, bid: TBid):
-        return cancel_bid(self.player, bid)
+    def cancel_bid(self, bid: TBid, *, force_updates=False):
+        result = cancel_bid(self.player, bid)
+        if force_updates:
+            self.update_user_character(ignore_throttle=True)
+        return result
 
-    def cancel_ask(self, ask: TAsk):
-        return cancel_ask(self.player, ask)
+    def cancel_ask(self, ask: TAsk, *, force_updates=False):
+        result = cancel_ask(self.player, ask)
+        if force_updates:
+            self.update_user_character(ignore_throttle=True)
+        return result
 
-    def ensure_bids(self, bids: List[TBid]):
-        self.update_user_character()
+    def ensure_bids(self, bids: List[TBid], *, force_updates=False):
+        self.update_user_character(ignore_throttle=_helper_detect_stage('before', force_updates))
         now_bids = self.bids
         now_bids = sorted(now_bids)
         bids = sorted(bids)
@@ -163,8 +187,11 @@ class BigC:
         for bid in bids:
             self.create_bid(bid)
 
-    def ensure_asks(self, asks: List[TAsk]):
-        self.update_user_character()
+        if _helper_detect_stage('after', force_updates):
+            self.update_user_character(ignore_throttle=True)
+
+    def ensure_asks(self, asks: List[TAsk], *, force_updates=False):
+        self.update_user_character(ignore_throttle=_helper_detect_stage('before', force_updates))
         now_asks = self.asks
         now_asks = sorted(now_asks)
         asks = sorted(asks)
@@ -185,3 +212,6 @@ class BigC:
 
         for ask in asks:
             self.create_ask(ask)
+
+        if _helper_detect_stage('after', force_updates):
+            self.update_user_character(ignore_throttle=True)
