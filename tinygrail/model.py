@@ -817,3 +817,27 @@ class LHistory(TinygrailModel):
 class RHistory(TinygrailModel):
     state: int
     value: LHistory
+
+
+class TScratchBonus(TinygrailModel):
+    id: int
+    name: str
+    level: int
+    cover: str
+    amount: int
+    rate: float
+    current_price: float
+    sell_price: float
+    sell_amount: int
+    finance_price: float
+
+
+class RScratchBonus(TinygrailModel):
+    state: int
+    value: Optional[List[TScratchBonus]]
+    message: Optional[str]
+
+
+class RScratchLikeOnce(TinygrailModel):
+    state: int
+    value: TScratchBonus

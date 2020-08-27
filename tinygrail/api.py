@@ -156,17 +156,17 @@ def user_temples(player: Player) -> List[TTemple]:
     return lst
 
 
-def magic_chaos(player: Player, attacker_cid: int):
+def magic_chaos(player: Player, attacker_cid: int) -> TScratchBonus:
     url = f"https://tinygrail.com/api/magic/chaos/{attacker_cid}"
     response = player.session.post(url, json=None, timeout=REQUEST_TIMEOUT)
-    jso = response.json()
+    jso = response.as_model(RScratchLikeOnce).value
     return jso
 
 
-def magic_guidepost(player: Player, attacker_cid: int, target_cid: int):
+def magic_guidepost(player: Player, attacker_cid: int, target_cid: int) -> TScratchBonus:
     url = f"https://tinygrail.com/api/magic/guidepost/{attacker_cid}/{target_cid}"
     response = player.session.post(url, json=None, timeout=REQUEST_TIMEOUT)
-    jso = response.json()
+    jso = response.as_model(RScratchLikeOnce).value
     return jso
 
 
@@ -197,3 +197,13 @@ def get_history(player: Player) -> List[BHistory]:
     resp2 = player.session.get(f"https://tinygrail.com/api/chara/user/balance/1/{length}", timeout=REQUEST_TIMEOUT)
     lst = resp2.as_model(RHistory).value.items
     return lst
+
+
+def scratch_bonus2(player: Player) -> List[TScratchBonus]:
+    response = player.session.get("https://tinygrail.com/api/event/scratch/bonus2", timeout=REQUEST_TIMEOUT)
+    return response.as_model(RScratchBonus).value
+
+
+def scratch_gensokyo(player: Player) -> List[TScratchBonus]:
+    response = player.session.get("https://tinygrail.com/api/event/scratch/bonus2/true", timeout=REQUEST_TIMEOUT)
+    return response.as_model(RScratchBonus).value
