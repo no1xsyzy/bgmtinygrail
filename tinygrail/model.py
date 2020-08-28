@@ -841,3 +841,8 @@ class RScratchBonus(TinygrailModel):
 class RScratchLikeOnce(TinygrailModel):
     state: int
     value: TScratchBonus
+
+
+class RString(TinygrailModel):
+    state: int
+    value: str

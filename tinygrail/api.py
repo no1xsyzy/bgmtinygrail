@@ -102,9 +102,8 @@ def create_bid(player: Player, cid: int, bid: TBid):
     if bid.type == 1:
         url += "/true"
     response = player.session.post(url, json=None, timeout=REQUEST_TIMEOUT)
-    jso = response.json()
-    logger.debug(jso)
-    return jso
+    result = response.as_model(RString)
+    return result
 
 
 def create_ask(player: Player, cid: int, ask: TAsk):
@@ -112,27 +111,24 @@ def create_ask(player: Player, cid: int, ask: TAsk):
     if ask.type == 1:
         url += "/true"
     response = player.session.post(url, json=None, timeout=REQUEST_TIMEOUT)
-    jso = response.json()
-    logger.debug(jso)
-    return jso
+    result = response.as_model(RString)
+    return result
 
 
 def cancel_bid(player: Player, bid: TBid):
     assert bid.id is not None, ValueError
     url = f"https://tinygrail.com/api/chara/bid/cancel/{bid.id}"
     response = player.session.post(url, json=None, timeout=REQUEST_TIMEOUT)
-    jso = response.json()
-    logger.debug(jso)
-    return jso
+    result = response.as_model(RString)
+    return result
 
 
 def cancel_ask(player: Player, ask: TAsk):
     assert ask.id is not None, ValueError
     url = f"https://tinygrail.com/api/chara/ask/cancel/{ask.id}"
     response = player.session.post(url, json=None, timeout=REQUEST_TIMEOUT)
-    jso = response.json()
-    logger.debug(jso)
-    return jso
+    result = response.as_model(RString)
+    return result
 
 
 def get_initial_price(player: Player, cid: int):
