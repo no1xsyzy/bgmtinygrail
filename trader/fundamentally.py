@@ -16,20 +16,21 @@ class FundamentalTrader(ABCTrader):
         exchange_price = self._exchange_price(cid)
         if big_c.asks:  # selling, already in balance
             if big_c.amount > 0:
-                logger.debug("there is some part not selling")
+                logger.info("there is some part not selling")
                 self._fast_forward(cid, exchange_price)
                 self._output_balanced(cid)
             elif big_c.asks[0].price != exchange_price:
-                logger.debug(f"exchange price not match ({big_c.asks[0].price} != {exchange_price})")
+                logger.info(f"exchange price not match ({big_c.asks[0].price} != {exchange_price})")
                 self._output_balanced(cid)
             # otherwise, it must be unchanged
         elif big_c.amount > 0:  # new in stock
-            logger.debug(f"new stock")
+            logger.info(f"new stock")
             self._fast_seller(cid, low=self._exchange_price(cid))
             if big_c.amount:
                 self._output_balanced(cid)
         elif big_c.bids:
             if big_c.bids[0].price == 2.0 and big_c.bids[0].amount == 2:  # forced view
+                logger.info(f"forced view")
                 self._fast_forward(cid, self._exchange_price(cid))
                 self._output_balanced(cid)
             elif max([bid.price for bid in big_c.bids_all]) <= self._exchange_price(cid):  # justice! no under exchange
@@ -51,6 +52,7 @@ class FundamentalTrader(ABCTrader):
         return round(big_c.rate / self.internal_rate, 2)
 
     def _fast_forward(self, cid, price=None):
+        logger.debug(f"fast forward #{cid:<5} | {price}")
         big_c = self.big_c(cid)
         price = price or self._exchange_price(cid)
         amount = 100
@@ -64,6 +66,7 @@ class FundamentalTrader(ABCTrader):
         big_c.update_user_character(ignore_throttle=True)
 
     def _fast_seller(self, cid, amount=None, low=10, high=100000):
+        logger.debug(f"fast forward #{cid:<5} | ({low}-{high}) / {amount}")
         big_c = self.big_c(cid)
         big_c.ensure_bids([])
         big_c.ensure_asks([])
@@ -88,6 +91,7 @@ class FundamentalTrader(ABCTrader):
 
     def _output_balanced(self, cid):
         exchange_price = self._exchange_price(cid)
+        logger.debug(f"fast forward #{cid:<5} | {exchange_price}")
         big_c = self.big_c(cid)
         if big_c.total_holding:
             big_c.ensure_asks([TAsk(Price=exchange_price, Amount=big_c.total_holding)])
