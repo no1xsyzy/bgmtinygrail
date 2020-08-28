@@ -33,10 +33,8 @@ class FundamentalTrader(ABCTrader):
                 logger.info(f"forced view")
                 self._fast_forward(cid, self._exchange_price(cid))
                 self._output_balanced(cid)
-            elif max([bid.price for bid in big_c.bids_all]) <= self._exchange_price(cid):  # justice! no under exchange
-                self._fast_forward(cid, self._exchange_price(cid))
-                self._output_balanced(cid)
-            elif big_c.initial_price_rounded <= self._fundamental(cid):  # keeping is profitable
+            elif max(
+                    [bid.price for bid in big_c.bids_all]) <= big_c.initial_price_rounded:  # justice! no under exchange
                 self._fast_forward(cid, self._exchange_price(cid))
                 self._output_balanced(cid)
             else:
