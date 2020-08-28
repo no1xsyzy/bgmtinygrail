@@ -26,7 +26,7 @@ class FundamentalTrader(ABCTrader):
         elif big_c.amount > 0:  # new in stock
             logger.info(f"new stock")
             self._fast_seller(cid, low=self._exchange_price(cid))
-            if big_c.amount:
+            if big_c.amount or big_c.asks:
                 self._output_balanced(cid)
         elif big_c.bids:
             if big_c.bids[0].price == 2.0 and big_c.bids[0].amount == 2:  # forced view
