@@ -195,13 +195,14 @@ class BigC:
         now_asks = self.asks
         now_asks = sorted(now_asks)
         asks = sorted(asks)
+        should_create = []
         while now_asks and asks:
             if now_asks[0] < asks[0]:
                 logger.info(f"Cancel: {now_asks[0]!r}")
                 self.cancel_ask(now_asks.pop(0))
             elif now_asks[0] > asks[0]:
                 logger.info(f"Create: {asks[0]!r}")
-                self.create_ask(asks.pop(0))
+                should_create.append(asks.pop(0))
             else:
                 logger.info(f"Equals: {now_asks[0]!r}")
                 now_asks.pop(0)
@@ -209,6 +210,9 @@ class BigC:
 
         for now_ask in now_asks:
             self.cancel_ask(now_ask)
+
+        for ask in should_create:
+            self.create_ask(ask)
 
         for ask in asks:
             self.create_ask(ask)
