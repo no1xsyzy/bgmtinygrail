@@ -164,7 +164,7 @@ class BigC:
             self.update_user_character(ignore_throttle=True)
         return result
 
-    def ensure_bids(self, bids: List[TBid], *, force_updates=False):
+    def ensure_bids(self, bids: List[TBid], *, force_updates=True):
         self.update_user_character(ignore_throttle=_helper_detect_stage('before', force_updates))
         now_bids = self.bids
         now_bids = sorted(now_bids)
@@ -190,7 +190,7 @@ class BigC:
         if _helper_detect_stage('after', force_updates):
             self.update_user_character(ignore_throttle=True)
 
-    def ensure_asks(self, asks: List[TAsk], *, force_updates=False):
+    def ensure_asks(self, asks: List[TAsk], *, force_updates=True):
         self.update_user_character(ignore_throttle=_helper_detect_stage('before', force_updates))
         now_asks = self.asks
         now_asks = sorted(now_asks)
