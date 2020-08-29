@@ -1,20 +1,17 @@
-#!/usr/bin/env python3
-import json
-import logging.config
+import json.decoder
+import logging
 import os
 import sys
 import traceback
+from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 from typing import *
 
 from requests.exceptions import ReadTimeout
 
 from bgmd.model import Login
-from model_link.sync_asks_collect import sync_asks_collect
 from requests_as_model import APIResponseSchemeNotMatch
-from tinygrail.api import all_holding, all_bids
 from tinygrail.model import Player
-from trader import *
 
 logger = logging.getLogger('daemon')
 
@@ -23,42 +20,28 @@ class TooMuchExceptionsError(Exception):
     pass
 
 
-def all_holding_ids(player):
-    return [h.character_id for h in all_holding(player)]
-
-
-def all_bidding_ids(player):
-    return [h.character_id for h in all_bids(player)]
-
-
-class Daemon:
+class Daemon(ABC):
     player: Player
     login: Login
-    trader: ABCTrader
     error_time: List[datetime]
     error_tolerance_period: int
     error_tolerance_count: int
     as_systemd_unit: bool
 
-    def __init__(self, player, login, *, trader_cls=GracefulTrader):
+    def __init__(self, player, login, *args, **kwargs):
         self.player = player
         self.login = login
-        self.trader = trader_cls(player)
         self.error_time = []
         self.error_tolerance_period = 5
         self.error_tolerance_count = 5
         self.as_systemd_unit = ('INVOCATION_ID' in os.environ  # systemd >= v252
                                 or 'BT_AS_SYSTEMD_UNIT' in os.environ)  # < v252 or for testing
 
-    def tick(self):
+    def safe_run(self, tick_function):
         # we want exception not breaking
         # noinspection PyBroadException
         try:
-            for cid in sorted({*all_bidding_ids(self.player),
-                               *all_holding_ids(self.player)}):
-                logger.info(f"on {cid}")
-                self.trader.tick(cid)
-            sync_asks_collect(self.player, self.login, True)
+            tick_function()
         except Exception as e:
             now = datetime.now()
             self.error_time.append(now)
@@ -68,7 +51,6 @@ class Daemon:
                 logger.warning("Read Timeout")
             else:
                 with open(f"exception@{now.isoformat().replace(':', '.')}.log", mode='w', encoding='utf-8') as fp:
-                    import sys
                     traceback.print_exc(file=fp)
                     if isinstance(e, json.decoder.JSONDecodeError):
                         print('JSONDecodeError, original doc:', file=fp)
@@ -83,33 +65,35 @@ class Daemon:
                              f"in past {self.error_tolerance_period} minutes, stopping.")
                 raise TooMuchExceptionsError from None
 
-    def run_forever(self, wait_seconds, *, hook_after_tick=None):
+    def run_forever(self, wait_seconds, *, start_function=None, tick_function=None, finalize_function=None):
         from time import sleep
         try:
+            self.safe_run(start_function or self.start)
             while True:
                 logger.info("start tick")
-                self.tick()
+                self.safe_run(tick_function or self.tick)
                 logger.info("finish run, sleeping")
-                if callable(hook_after_tick):
-                    hook_after_tick()
-                for waited in range(wait_seconds):
-                    sleep(1)
-                    if sys.stdout.isatty():
+                if sys.stdout.isatty():
+                    for waited in range(wait_seconds):
+                        sleep(1)
                         print(f"{waited + 1}/{wait_seconds} seconds passed", end="\r")
+                else:
+                    sleep(wait_seconds)
         except KeyboardInterrupt:
             if sys.stdout.isatty():
                 print("\rbreak")
+        finally:
+            self.safe_run(finalize_function or self.finalize())
 
     def daemon(self):
         self.run_forever(20)
 
+    @abstractmethod
+    def tick(self, *args, **kwargs):
+        pass
 
-if __name__ == '__main__':
-    from accounts import *
+    def start(self, *args, **kwargs):
+        pass
 
-    daemon = Daemon(tg_xsb_player, bgm_xsb_player)
-    if daemon.as_systemd_unit:
-        logging.config.fileConfig('logging-journald.conf')
-    else:
-        logging.config.fileConfig('logging.conf')
-    daemon.daemon()
+    def finalize(self, *args, **kwargs):
+        pass
