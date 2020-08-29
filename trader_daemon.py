@@ -8,6 +8,7 @@ from typing import *
 
 from requests.exceptions import ReadTimeout
 
+from bgmd.model import Login
 from model_link.sync_asks_collect import sync_asks_collect
 from requests_as_model import APIResponseSchemeNotMatch
 from tinygrail.api import all_holding, all_bids
@@ -29,23 +30,15 @@ def all_bidding_ids(player):
     return [h.character_id for h in all_bids(player)]
 
 
-class StrategyMap(dict, Dict[int, ABCCharaStrategy]):
-    def __init__(self, player, *args, **kwargs):
-        self.player = player
-        super().__init__(*args, **kwargs)
-
-    def __missing__(self, cid):
-        self[cid] = BalanceStrategy(self.player, cid)
-        self[cid].output()
-        return self[cid]
-
-
 class Daemon:
+    player: Player
+    login: Login
     trader: ABCTrader
     error_time: List[datetime]
 
-    def __init__(self, player, trader_cls=GracefulTrader):
+    def __init__(self, player, login, *, trader_cls=GracefulTrader):
         self.player = player
+        self.login = login
         self.trader = trader_cls(player)
         self.error_time = []
         self.error_tolerance_period = 5
