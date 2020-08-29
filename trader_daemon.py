@@ -58,7 +58,8 @@ class Daemon:
         try:
             for cid in sorted({*all_bidding_ids(self.player),
                                *all_holding_ids(self.player)}):
-                self.tick_chara(cid)
+                logger.info(f"on {cid}")
+                self.trader.tick(cid)
             check_all_selling(tg_xsb_player, bgm_xsb_player, True)
         except Exception as e:
             now = datetime.now()
@@ -83,22 +84,6 @@ class Daemon:
                 logger.error(f"There has been too much (>{self.error_tolerance_count}) errors "
                              f"in past {self.error_tolerance_period} minutes, stopping.")
                 raise TooMuchExceptionsError from None
-
-    def tick_chara(self, cid):
-        logger.info(f"on {cid}")
-        self.trader.tick(cid)
-        # now_state = self.strategy_map[cid]
-        # next_state = now_state.transition()
-        # if next_state.strategy != now_state.strategy:
-        #     self.strategy_map[cid] = next_state
-        #     logger.warning(f"transaction {cid}! "
-        #                    f"from `{now_state.strategy.name}' "
-        #                    f"to `{next_state.strategy.name}'")
-        # elif next_state.strategy == now_state.strategy == Strategy.IGNORE:
-        #     del self.strategy_map[cid]
-        # else:
-        #     self.strategy_map[cid] = next_state
-        # next_state.output()
 
     def run_forever(self, wait_seconds, *, hook_after_tick=None):
         from time import sleep
