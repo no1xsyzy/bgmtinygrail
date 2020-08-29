@@ -25,7 +25,7 @@ class TraderDaemon(Daemon):
     trader: ABCTrader
 
     def __init__(self, player, login, /, *args, trader_cls=GracefulTrader, **kwargs):
-        super().__init__(self, player, login, *args, **kwargs)
+        super().__init__(player, login, *args, **kwargs)
         self.trader = trader_cls(player)
 
     def tick(self):

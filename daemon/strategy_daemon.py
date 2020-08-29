@@ -45,7 +45,7 @@ class StrategyDaemon(Daemon):
     error_time: List[datetime]
 
     def __init__(self, player, login, /, *args, **kwargs):
-        super().__init__(self, player, login, *args, **kwargs)
+        super().__init__(player, login, *args, **kwargs)
         self.strategy_map = StrategyMap(player)
 
     def _tick_chara(self, cid):
