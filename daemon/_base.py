@@ -83,7 +83,7 @@ class Daemon(ABC):
             if sys.stdout.isatty():
                 print("\rbreak")
         finally:
-            self.safe_run(finalize_function or self.finalize())
+            self.safe_run(finalize_function or self.finalize)
 
     def daemon(self):
         self.run_forever(20)
