@@ -1,3 +1,4 @@
+import logging.config
 import os
 
 import click
@@ -41,6 +42,11 @@ def start(fork, pid_file, daemon_type, account):
             with open(pid_file, mode='w', encoding='ascii') as fp:
                 print(child_pid, file=fp)
         return
+
+    if d.as_systemd_unit:
+        logging.config.fileConfig('logging-journald.conf')
+    else:
+        logging.config.fileConfig('logging.conf')
 
     try:
         d.run_forever(20)
