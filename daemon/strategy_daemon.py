@@ -88,7 +88,8 @@ class StrategyDaemon(Daemon):
                            *all_holding_ids(self.player),
                            *self.strategy_map.keys()}):
             self._tick_chara(cid)
-            notify(Notification.WATCHDOG)
+            if self.as_systemd_unit:
+                notify(Notification.WATCHDOG)
         sync_asks_collect(tg_xsb_player, bgm_xsb_player, True)
         self._dumps("now_strategy.txt")
 
