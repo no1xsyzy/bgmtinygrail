@@ -14,7 +14,7 @@ def daemon():
 @daemon.command()
 @click.option("--fork/--no-fork", default=True)
 @click.option("--pid-file", default=None)
-@click.option("--daemon-type", type=click.Choice('trader'), default='trader')
+@click.option("--daemon-type", type=click.Choice(['trader', 'strategy']), default='trader')
 @click.option("--account")
 def start(fork, pid_file, daemon_type, account):
     if daemon_type == 'trader':
