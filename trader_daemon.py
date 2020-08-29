@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import json
 import logging.config
+import os
 import sys
 import traceback
 from datetime import datetime, timedelta
@@ -35,6 +36,9 @@ class Daemon:
     login: Login
     trader: ABCTrader
     error_time: List[datetime]
+    error_tolerance_period: int
+    error_tolerance_count: int
+    as_systemd_unit: bool
 
     def __init__(self, player, login, *, trader_cls=GracefulTrader):
         self.player = player
@@ -43,6 +47,8 @@ class Daemon:
         self.error_time = []
         self.error_tolerance_period = 5
         self.error_tolerance_count = 5
+        self.as_systemd_unit = ('INVOCATION_ID' in os.environ  # systemd >= v252
+                                or 'BT_AS_SYSTEMD_UNIT' in os.environ)  # < v252 or for testing
 
     def tick(self):
         # we want exception not breaking
@@ -102,5 +108,8 @@ if __name__ == '__main__':
     from accounts import *
 
     daemon = Daemon(tg_xsb_player, bgm_xsb_player)
-    logging.config.fileConfig('logging.conf')
+    if daemon.as_systemd_unit:
+        logging.config.fileConfig('logging-journald.conf')
+    else:
+        logging.config.fileConfig('logging.conf')
     daemon.daemon()
