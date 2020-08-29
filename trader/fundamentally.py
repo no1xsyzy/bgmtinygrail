@@ -64,7 +64,7 @@ class FundamentalTrader(ABCTrader):
         big_c.update_user_character(ignore_throttle=True)
 
     def _fast_seller(self, cid, amount=None, low=10, high=100000):
-        logger.debug(f"fast forward #{cid:<5} | ({low}-{high}) / {amount}")
+        logger.debug(f"fast seller #{cid:<5} | ({low}-{high}) / {amount}")
         big_c = self.big_c(cid)
         big_c.ensure_bids([])
         big_c.ensure_asks([])
@@ -89,7 +89,7 @@ class FundamentalTrader(ABCTrader):
 
     def _output_balanced(self, cid):
         exchange_price = self._exchange_price(cid)
-        logger.debug(f"fast forward #{cid:<5} | {exchange_price}")
+        logger.debug(f"output balanced #{cid:<5} | {exchange_price}")
         big_c = self.big_c(cid)
         if big_c.total_holding:
             big_c.ensure_asks([TAsk(Price=exchange_price, Amount=big_c.total_holding)])
