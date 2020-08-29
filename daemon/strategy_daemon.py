@@ -4,6 +4,8 @@ import logging.config
 from datetime import datetime
 from typing import *
 
+# noinspection PyUnresolvedReferences
+# there is no systemd in windows
 from systemd.daemon import notify, Notification
 
 from accounts import *

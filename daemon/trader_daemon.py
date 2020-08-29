@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import logging.config
 
+# noinspection PyUnresolvedReferences
+# there is no systemd in windows
 from systemd.daemon import notify, Notification
 
 from model_link.sync_asks_collect import sync_asks_collect
