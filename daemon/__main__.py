@@ -47,3 +47,6 @@ def start(fork, pid_file, daemon_type, account):
     finally:
         if fork:
             os.remove(pid_file)
+
+
+daemon()
