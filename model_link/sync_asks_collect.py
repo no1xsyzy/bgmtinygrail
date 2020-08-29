@@ -10,7 +10,7 @@ from tinygrail.model import Player
 logger = logging.getLogger('check_all_selling')
 
 
-def check_all_selling(player: Player, login: Login, sets=True):
+def sync_asks_collect(player: Player, login: Login, sets=True):
     asks = {c.character_id for c in all_asks(player)}
 
     favorite_characters = {c.id for c in user_mono(login.user, 'character')}
@@ -27,5 +27,5 @@ def check_all_selling(player: Player, login: Login, sets=True):
 
 
 if __name__ == "__main__":
-    logging.config.fileConfig('logging.conf')
-    check_all_selling(tg_xsb_player, bgm_xsb_player, True)
+    logging.config.fileConfig('../logging.conf')
+    sync_asks_collect(tg_xsb_player, bgm_xsb_player, True)

@@ -9,7 +9,7 @@ from typing import *
 from requests.exceptions import ReadTimeout
 
 from accounts import *
-from checkallselling import check_all_selling
+from model_link.sync_asks_collect import sync_asks_collect
 from requests_as_model import APIResponseSchemeNotMatch
 from strategy import *
 from tinygrail.api import all_holding, all_bids
@@ -59,7 +59,7 @@ class Daemon:
                                *all_holding_ids(self.player),
                                *self.strategy_map.keys()}):
                 self.tick_chara(cid)
-            check_all_selling(tg_xsb_player, bgm_xsb_player, True)
+            sync_asks_collect(tg_xsb_player, bgm_xsb_player, True)
         except Exception as e:
             now = datetime.now()
             self.error_time.append(now)
