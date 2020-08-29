@@ -42,13 +42,11 @@ class StrategyMap(dict, Dict[int, ABCCharaStrategy]):
 
 
 class Daemon:
-    strategy_map: Dict[int, ABCCharaStrategy]
     trader: ABCTrader
     error_time: List[datetime]
 
     def __init__(self, player, trader_cls=GracefulTrader):
         self.player = player
-        self.strategy_map = StrategyMap(player)
         self.trader = trader_cls(player)
         self.error_time = []
         self.error_tolerance_period = 5
@@ -59,8 +57,7 @@ class Daemon:
         # noinspection PyBroadException
         try:
             for cid in sorted({*all_bidding_ids(self.player),
-                               *all_holding_ids(self.player),
-                               *self.strategy_map.keys()}):
+                               *all_holding_ids(self.player)}):
                 self.tick_chara(cid)
             check_all_selling(tg_xsb_player, bgm_xsb_player, True)
         except Exception as e:
@@ -120,29 +117,8 @@ class Daemon:
             if sys.stdout.isatty():
                 print("\rbreak")
 
-    def loads(self, fn):
-        try:
-            with open(fn, encoding="utf-8") as f:
-                for line in f:
-                    line = line.strip()
-                    str_cid, str_strategy, str_player, json_kwargs = line.split(",", 3)
-                    cid = int(str_cid)
-                    int_strategy = int(str_strategy)
-                    type_strategy: Type[ABCCharaStrategy] = all_strategies[Strategy(int_strategy)]
-                    player = self.player
-                    kwargs = json.loads(json_kwargs)
-                    self.strategy_map[cid] = type_strategy(player, cid, **kwargs)
-        except FileNotFoundError:
-            pass
-
-    def dumps(self, fn):
-        with open(fn, 'w', encoding="utf-8") as f:
-            for strategy in self.strategy_map.values():
-                print(f"{strategy.cid},{strategy.strategy.value},xsb_player,{json.dumps(strategy.kwargs)}", file=f)
-
     def daemon(self):
-        self.loads("now_strategy.txt")
-        self.run_forever(20, hook_after_tick=lambda: self.dumps("now_strategy.txt"))
+        self.run_forever(20)
 
 
 if __name__ == '__main__':
