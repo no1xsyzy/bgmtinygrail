@@ -28,7 +28,7 @@ def remove(friendly_name):
 
 @accounts.command()
 @click.argument('friendly_name')
-@click.option('--uid', type=int)
+@click.option('--uid', 'id', type=int)
 @click.option('--cfduid')
 @click.option('--chii-auth')
 @click.option('--gh')

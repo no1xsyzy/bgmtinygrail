@@ -42,13 +42,14 @@ def update(friendly_name, **kwargs):
     ks = []
     vs = []
     for k, v in kwargs.items():
-        ks.append(k)
-        vs.append(v)
+        if v is not None:
+            ks.append(k)
+            vs.append(v)
     assert len(ks) == len(vs)
     db = get_db()
     db.execute(f"""
         UPDATE accounts
-        SET ({",".join(k + "=?" for k in ks)})
+        SET {",".join(k + "=?" for k in ks)}
         WHERE friendly_name=?
     """, (*vs, friendly_name))
     db.commit()
