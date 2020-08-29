@@ -8,11 +8,10 @@ from typing import *
 
 from requests.exceptions import ReadTimeout
 
-from accounts import *
 from model_link.sync_asks_collect import sync_asks_collect
 from requests_as_model import APIResponseSchemeNotMatch
-from strategy import *
 from tinygrail.api import all_holding, all_bids
+from tinygrail.model import Player
 from trader import *
 
 logger = logging.getLogger('daemon')
@@ -60,7 +59,7 @@ class Daemon:
                                *all_holding_ids(self.player)}):
                 logger.info(f"on {cid}")
                 self.trader.tick(cid)
-            sync_asks_collect(tg_xsb_player, bgm_xsb_player, True)
+            sync_asks_collect(self.player, self.login, True)
         except Exception as e:
             now = datetime.now()
             self.error_time.append(now)
@@ -107,6 +106,8 @@ class Daemon:
 
 
 if __name__ == '__main__':
-    daemon = Daemon(tg_xsb_player)
+    from accounts import *
+
+    daemon = Daemon(tg_xsb_player, bgm_xsb_player)
     logging.config.fileConfig('logging.conf')
     daemon.daemon()
