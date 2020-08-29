@@ -31,7 +31,10 @@ class GracefulTrader(FundamentalTrader):
                 import itertools
                 iterable = itertools.count()
             for t in iterable:
-                for sb in scratch_translate[scratch_type](self.player):
+                scratch_result = scratch_translate[scratch_type](self.player)
+                if scratch_result is None:
+                    break
+                for sb in scratch_result:
                     logger.debug(f"scratch_{scratch_type:<10} | "
                                  f"got #{sb.id:<5} {sb.amount} stock, with highest price {sb.sell_price}")
                     results[sb.id] = sb.sell_price
