@@ -31,5 +31,6 @@ python-dateutil==2.8.1    # via matplotlib
 requests==2.24.0          # via -r requirements.in
 six==1.15.0               # via cycler, python-dateutil
 soupsieve==2.0.1          # via beautifulsoup4
+systemd==0.16.1           # via -r requirements.in
 urllib3==1.25.9           # via requests
 yarl==1.4.2               # via aiohttp

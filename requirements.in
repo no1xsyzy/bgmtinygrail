@@ -6,3 +6,4 @@ lazy-object-proxy
 matplotlib
 pydantic
 requests
+systemd
