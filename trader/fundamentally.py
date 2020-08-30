@@ -17,7 +17,9 @@ class FundamentalTrader(ABCTrader):
         if big_c.asks:  # selling, already in balance
             if big_c.amount > 0:
                 logger.info("there is some part not selling")
-                self._fast_forward(cid, exchange_price)
+                if not big_c.bids:
+                    logger.info("and bids not existing")
+                    self._fast_forward(cid, exchange_price)
                 self._output_balanced(cid)
             elif big_c.asks[0].price != exchange_price:
                 logger.info(f"exchange price not match ({big_c.asks[0].price} != {exchange_price})")
