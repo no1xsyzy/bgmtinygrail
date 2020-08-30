@@ -36,7 +36,7 @@ class GracefulTrader(FundamentalTrader):
                     break
                 for sb in scratch_result:
                     logger.debug(f"scratch_{scratch_type:<10} | "
-                                 f"got #{sb.id:<5} {sb.amount} stock, with highest price {sb.sell_price}")
+                                 f"got #{sb.id:<5} | {sb.amount=}, {sb.sell_price=}")
                     results[sb.id] = sb.sell_price
         return list(results.items())
 
