@@ -41,7 +41,7 @@ class Daemon(ABC):
         # we want exception not breaking
         # noinspection PyBroadException
         try:
-            tick_function(*args, **kwargs)
+            return tick_function(*args, **kwargs)
         except TooMuchExceptionsError:
             raise
         except Exception as e:
