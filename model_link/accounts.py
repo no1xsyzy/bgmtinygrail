@@ -8,7 +8,6 @@ from db import accounts as db_accounts
 from tinygrail.model import Player
 
 __all__ = []
-all_accounts = {}
 
 
 class LoginPlayer(NamedTuple):
@@ -23,6 +22,8 @@ def translate(dr: Dict) -> LoginPlayer:
     name = dr.pop('friendly_name')
     return LoginPlayer(name, Login(**dr, user=user), Player(identity))
 
+
+all_accounts: Dict[str, LoginPlayer] = {}
 
 for friendly_name in db_accounts.list_all():
     for dict_row in db_accounts.retrieve(friendly_name):
