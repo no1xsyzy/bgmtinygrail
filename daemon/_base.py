@@ -37,11 +37,13 @@ class Daemon(ABC):
         self.as_systemd_unit = ('INVOCATION_ID' in os.environ  # systemd >= v252
                                 or 'BT_AS_SYSTEMD_UNIT' in os.environ)  # < v252 or for testing
 
-    def safe_run(self, tick_function):
+    def safe_run(self, tick_function, *args, **kwargs):
         # we want exception not breaking
         # noinspection PyBroadException
         try:
-            tick_function()
+            tick_function(*args, **kwargs)
+        except TooMuchExceptionsError:
+            raise
         except Exception as e:
             now = datetime.now()
             self.error_time.append(now)
