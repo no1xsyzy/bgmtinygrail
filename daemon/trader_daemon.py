@@ -32,7 +32,7 @@ class TraderDaemon(Daemon):
         for cid in sorted({*all_bidding_ids(self.player),
                            *all_holding_ids(self.player)}):
             logger.info(f"on {cid}")
-            self.trader.tick(cid)
+            self.safe_run(self.trader.tick, cid)
             if self.as_systemd_unit:
                 notify(Notification.WATCHDOG)
         sync_asks_collect(self.player, self.login, True)
