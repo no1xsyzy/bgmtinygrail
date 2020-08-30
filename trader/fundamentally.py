@@ -68,32 +68,29 @@ class FundamentalTrader(ABCTrader):
     def _fast_seller(self, cid, amount=None, low=10, high=100000):
         logger.debug(f"fast seller #{cid:<5} | ({low}-{high}) / {amount}")
         big_c = self.big_c(cid)
-        big_c.ensure_bids([])
-        big_c.ensure_asks([])
+        big_c.ensure_bids([], force_updates='before')
+        big_c.ensure_asks([], force_updates='after')
         if amount is None:
             amount = big_c.amount
         while amount:
             pin = round(0.618 * high + 0.382 * low, 2)
             if pin == high or pin == low:
                 break
-            big_c.ensure_asks([TAsk(Price=pin, Amount=1)])
-            big_c.update_user_character(ignore_throttle=True)
+            big_c.ensure_asks([TAsk(Price=pin, Amount=1)], force_updates='after')
             if big_c.asks:
-                big_c.ensure_asks([])
-                big_c.update_user_character(ignore_throttle=True)
+                big_c.ensure_asks([], force_updates='after')
                 high = pin
             else:
                 low = pin
                 amount -= 1
         if amount:
-            big_c.ensure_asks([TAsk(Price=low, Amount=amount)])
-            big_c.update_user_character(ignore_throttle=True)
+            big_c.ensure_asks([TAsk(Price=low, Amount=amount)], force_updates='after')
 
     def _output_balanced(self, cid):
         exchange_price = self._exchange_price(cid)
         logger.debug(f"output balanced #{cid:<5} | {exchange_price}")
         big_c = self.big_c(cid)
+        big_c.update_user_character(ignore_throttle=True)
         if big_c.total_holding:
             big_c.ensure_asks([TAsk(Price=exchange_price, Amount=big_c.total_holding)])
-        big_c.ensure_bids([TBid(Price=exchange_price, Amount=100)])
-        big_c.update_user_character(ignore_throttle=True)
+        big_c.ensure_bids([TBid(Price=exchange_price, Amount=100)], force_updates='after')
