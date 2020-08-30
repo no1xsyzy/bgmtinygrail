@@ -38,12 +38,17 @@ class GracefulTrader(FundamentalTrader):
                     logger.debug(f"scratch_{scratch_type:<10} | "
                                  f"got #{sb.id:<5} {sb.amount} stock, with highest price {sb.sell_price}")
                     results[sb.id] = sb.sell_price
-        for cid, sell_price in results.items():
-            big_c = self.big_c(cid)
-            if big_c.asks or sell_price < big_c.initial_price_rounded:
-                self.tick(cid)
-                continue
-            big_c.create_ask(TAsk(Price=sell_price, Amount=big_c.amount), force_updates=True)
-            if big_c.asks:
-                big_c.ensure_asks([], force_updates=True)
-                self._fast_seller(cid, big_c.amount, low=big_c.initial_price_rounded, high=sell_price)
+        return list(results.items())
+
+    def graceful_tick(self, cid, sell_price):
+        """indicated for daily bonus"""
+        big_c = self.big_c(cid)
+        if big_c.asks or sell_price < big_c.initial_price_rounded:
+            self.tick(cid)
+            return
+        big_c.create_ask(TAsk(Price=sell_price, Amount=big_c.amount), force_updates=True)
+        if not big_c.asks:
+            return
+        self._fast_seller(cid, big_c.amount, low=big_c.initial_price_rounded, high=sell_price)
+        if big_c.amount or big_c.asks:
+            self._output_balanced(cid)
