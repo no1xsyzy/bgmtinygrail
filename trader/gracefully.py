@@ -19,7 +19,7 @@ class GracefulTrader(FundamentalTrader):
     def init_fixed(self):
         self.fixed = []
 
-    def daily_bonus(self, rule: Optional[Tuple[str, Union[Literal['inf'], int]]] = None):
+    def get_bonus(self, rule: Optional[Tuple[str, Union[Literal['inf'], int]]] = None):
         if rule is None:
             rule = ('bonus2', 'inf'),
         results = {}
