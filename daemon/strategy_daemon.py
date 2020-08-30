@@ -17,10 +17,6 @@ from ._base import Daemon
 logger = logging.getLogger('daemon')
 
 
-class TooMuchExceptionsError(Exception):
-    pass
-
-
 def all_holding_ids(player):
     return [h.character_id for h in all_holding(player)]
 
