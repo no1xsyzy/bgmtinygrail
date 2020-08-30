@@ -23,21 +23,21 @@ class FundamentalTrader(ABCTrader):
                 logger.info(f"exchange price not match ({big_c.asks[0].price} != {exchange_price})")
                 self._output_balanced(cid)
             # otherwise, it must be unchanged
-        elif big_c.amount > 0:  # new in stock
+        elif big_c.amount > 0:
             logger.info(f"new stock")
             self._fast_seller(cid, low=self._exchange_price(cid))
             if big_c.amount or big_c.asks:
                 self._output_balanced(cid)
         elif big_c.bids:
-            if big_c.bids[0].price == 2.0 and big_c.bids[0].amount == 2:  # forced view
+            if big_c.bids[0].price == 2.0 and big_c.bids[0].amount == 2:
                 logger.info(f"forced view")
                 self._fast_forward(cid, self._exchange_price(cid))
                 self._output_balanced(cid)
-            elif max(
-                    [bid.price for bid in big_c.bids_all]) <= big_c.initial_price_rounded:  # justice! no under exchange
-                self._fast_forward(cid, self._exchange_price(cid))
+            elif max(bid.price for bid in big_c.bids_all) <= big_c.initial_price_rounded:
+                logger.info(f"justice! no under initial")
                 self._output_balanced(cid)
             else:
+                logger.info(f"forget it")
                 big_c.ensure_bids([])
         # otherwise nothing
 
