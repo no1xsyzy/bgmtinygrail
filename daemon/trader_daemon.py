@@ -37,6 +37,13 @@ class TraderDaemon(Daemon):
                 notify(Notification.WATCHDOG)
         sync_asks_collect(self.player, self.login, True)
 
+    def daily(self):
+        if isinstance(self.trader, GracefulTrader):
+            logger.info(f"daily")
+            bonus_result = self.safe_run(self.trader.get_bonus)
+            for cid, sell_price in bonus_result:
+                self.safe_run(self.trader.graceful_tick, cid, sell_price)
+
 
 if __name__ == '__main__':
     from accounts import *
