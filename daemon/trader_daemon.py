@@ -43,6 +43,7 @@ class TraderDaemon(Daemon):
             bonus_result = self.safe_run(self.trader.get_bonus)
             for cid, sell_price in bonus_result:
                 self.safe_run(self.trader.graceful_tick, cid, sell_price)
+        return True
 
 
 if __name__ == '__main__':
