@@ -7,6 +7,7 @@ from systemd.daemon import notify, Notification
 
 from model_link.sync_asks_collect import sync_asks_collect
 from tinygrail.api import all_holding, all_bids
+from tinygrail.api import scratch_bonus2, scratch_gensokyo, scratch_gensokyo_price
 from trader import *
 from ._base import Daemon
 
@@ -38,12 +39,31 @@ class TraderDaemon(Daemon):
         sync_asks_collect(self.player, self.login, True)
 
     def daily(self):
+        logger.info(f"daily")
         if isinstance(self.trader, GracefulTrader):
-            logger.info(f"daily")
-            bonus_result = self.safe_run(self.trader.get_bonus)
-            for cid, sell_price in bonus_result:
-                self.safe_run(self.trader.graceful_tick, cid, sell_price)
-        return True
+            ticker = self.trader.graceful_tick
+        else:
+            ticker = self.trader.tick
+
+        while True:
+            scratch_result = self.safe_run(scratch_bonus2, self.player)
+            if scratch_result is None:
+                break
+            for sb in scratch_result:
+                logger.debug(f"scratch_bonus2   | got #{sb.id:<5} | {sb.amount=}, {sb.sell_price=}")
+                self.safe_run(ticker, sb.id, sb.sell_price)
+        got_value = 4000
+        s_price = scratch_gensokyo_price(self.player)
+        while got_value >= s_price:
+            scratch_result = self.safe_run(scratch_gensokyo, self.player)
+            if scratch_result is None:
+                break
+            for sb in scratch_result:
+                logger.debug(f"scratch_gensokyo | got #{sb.id:<5} | {sb.amount=}, {sb.sell_price=}")
+                actual_value = self.safe_run(ticker, sb.id, sb.sell_price)
+                got_value += actual_value * sb.amount
+            got_value = 0
+            s_price = scratch_gensokyo_price(self.player)
 
 
 if __name__ == '__main__':
