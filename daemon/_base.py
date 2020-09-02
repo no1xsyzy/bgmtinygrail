@@ -15,6 +15,8 @@ from tinygrail.model import Player
 
 logger = logging.getLogger('daemon')
 
+_TV = TypeVar('_TV')
+
 
 class TooMuchExceptionsError(Exception):
     pass
@@ -39,7 +41,7 @@ class Daemon(ABC):
                                 or 'BT_AS_SYSTEMD_UNIT' in os.environ)  # < v252 or for testing
         self.last_daily = None
 
-    def safe_run(self, tick_function, *args, **kwargs):
+    def safe_run(self, tick_function: Callable[..., _TV], *args, **kwargs) -> _TV:
         # we want exception not breaking
         # noinspection PyBroadException
         try:
