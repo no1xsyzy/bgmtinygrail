@@ -48,6 +48,7 @@ class TraderDaemon(Daemon):
         while True:
             scratch_result = self.safe_run(scratch_bonus2, self.player)
             if scratch_result is None:
+                logger.debug(f"scratch_bonus2   | either error or over")
                 break
             for sb in scratch_result:
                 logger.debug(f"scratch_bonus2   | got #{sb.id:<5} | {sb.amount=}, {sb.sell_price=}")
@@ -57,6 +58,7 @@ class TraderDaemon(Daemon):
         while got_value >= s_price:
             scratch_result = self.safe_run(scratch_gensokyo, self.player)
             if scratch_result is None:
+                logger.debug(f"scratch_gensokyo | error")
                 break
             for sb in scratch_result:
                 logger.debug(f"scratch_gensokyo | got #{sb.id:<5} | {sb.amount=}, {sb.sell_price=}")
@@ -64,6 +66,8 @@ class TraderDaemon(Daemon):
                 got_value += actual_value * sb.amount
             got_value = 0
             s_price = scratch_gensokyo_price(self.player)
+        else:
+            logger.debug(f"scratch_gensokyo | over")
 
 
 if __name__ == '__main__':
