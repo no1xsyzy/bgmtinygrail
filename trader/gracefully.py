@@ -46,6 +46,7 @@ class GracefulTrader(FundamentalTrader):
         if big_c.asks or sell_price < big_c.initial_price_rounded:
             self.tick(cid)
             return big_c.fundamental_rounded
+        logger.debug(f"try sell all #{cid}, {sell_price=}, amount={big_c.amount}")
         big_c.create_ask(TAsk(Price=sell_price, Amount=big_c.amount), force_updates=True)
         if not big_c.asks:
             return sell_price
