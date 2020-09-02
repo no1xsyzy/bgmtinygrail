@@ -203,3 +203,8 @@ def scratch_bonus2(player: Player) -> List[TScratchBonus]:
 def scratch_gensokyo(player: Player) -> List[TScratchBonus]:
     response = player.session.get("https://tinygrail.com/api/event/scratch/bonus2/true", timeout=REQUEST_TIMEOUT)
     return response.as_model(RScratchBonus).value
+
+
+def scratch_gensokyo_price(player: Player) -> int:
+    response = player.session.get("https://tinygrail.com/api/event/daily/count/10", timeout=REQUEST_TIMEOUT)
+    return 2000 * (2 ** response.as_model(RInteger).value)

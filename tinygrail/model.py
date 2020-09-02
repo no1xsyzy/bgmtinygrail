@@ -846,3 +846,8 @@ class RScratchLikeOnce(TinygrailModel):
 class RString(TinygrailModel):
     state: int
     value: str
+
+
+class RInteger(TinygrailModel):
+    state: int
+    value: int
