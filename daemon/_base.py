@@ -81,12 +81,12 @@ class Daemon(ABC):
             self.safe_run(start_function or self.start)
             while True:
                 logger.info("start tick")
-                self.safe_run(tick_function or self.tick)
-                logger.info("finish run, sleeping")
                 if self.last_daily is None or self.last_daily < date.today():
                     update = self.safe_run(daily_function or self.daily)
                     if update:
                         self.last_daily = date.today()
+                self.safe_run(tick_function or self.tick)
+                logger.info("finish run, sleeping")
                 if sys.stdout.isatty():
                     for waited in range(wait_seconds):
                         sleep(1)
