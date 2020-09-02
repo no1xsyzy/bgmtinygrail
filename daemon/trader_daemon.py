@@ -68,6 +68,7 @@ class TraderDaemon(Daemon):
             s_price = scratch_gensokyo_price(self.player)
         else:
             logger.debug(f"scratch_gensokyo | over")
+        return True
 
 
 if __name__ == '__main__':
