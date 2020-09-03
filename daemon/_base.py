@@ -86,10 +86,11 @@ class Daemon(ABC):
             while True:
                 logger.info("start tick")
                 # daily
-                if self.last_daily is None or self.last_daily < date.today():
+                today = date.today()
+                if self.last_daily is None or self.last_daily < today:
                     update = self.safe_run(daily_function or self.daily)
                     if update:
-                        self.last_daily = date.today()
+                        self.last_daily = today
                 # hourly
                 hour = datetime.now().replace(minute=0, second=0, microsecond=0)
                 if self.last_hourly is None or self.last_hourly < hour:
