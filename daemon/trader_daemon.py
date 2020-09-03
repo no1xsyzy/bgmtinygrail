@@ -100,6 +100,7 @@ class TraderDaemon(Daemon):
         return True
 
     def hourly(self):
+        logger.info("hourly")
         to_update = self._update_character_due_to_history(full_update=True)
         for cid in to_update:
             logger.info(f"on {cid}")
