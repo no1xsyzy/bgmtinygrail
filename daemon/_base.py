@@ -68,6 +68,7 @@ class Daemon(ABC):
                     elif isinstance(e, APIResponseSchemeNotMatch):
                         print('Validation Error, original doc:', file=fp)
                         print(e.data, file=fp)
+                    traceback.print_exc(file=fp)
                 logger.warning(f"Ticking not successful, "
                                f"traceback is at: `exception@{now.isoformat().replace(':', '.')}.log`.")
             if len(self.error_time) > self.error_tolerance_count:
