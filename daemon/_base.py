@@ -30,6 +30,7 @@ class Daemon(ABC):
     error_tolerance_count: int
     as_systemd_unit: bool
     last_daily: Optional[date]
+    last_hourly: Optional[datetime]
 
     def __init__(self, player, login, *args, **kwargs):
         self.player = player
@@ -40,6 +41,7 @@ class Daemon(ABC):
         self.as_systemd_unit = ('INVOCATION_ID' in os.environ  # systemd >= v252
                                 or 'BT_AS_SYSTEMD_UNIT' in os.environ)  # < v252 or for testing
         self.last_daily = None
+        self.last_hourly = None
 
     def safe_run(self, tick_function: Callable[..., _TV], *args, **kwargs) -> _TV:
         # we want exception not breaking
@@ -75,16 +77,26 @@ class Daemon(ABC):
                     start_function=None,
                     tick_function=None,
                     finalize_function=None,
-                    daily_function=None):
+                    daily_function=None,
+                    hourly_function=None,
+                    ):
         from time import sleep
         try:
             self.safe_run(start_function or self.start)
             while True:
                 logger.info("start tick")
+                # daily
                 if self.last_daily is None or self.last_daily < date.today():
                     update = self.safe_run(daily_function or self.daily)
                     if update:
                         self.last_daily = date.today()
+                # hourly
+                hour = datetime.now().replace(minute=0, second=0, microsecond=0)
+                if self.last_hourly is None or self.last_daily < hour:
+                    update = self.safe_run(hourly_function or self.hourly)
+                    if update:
+                        self.last_hourly = hour
+                # tick
                 self.safe_run(tick_function or self.tick)
                 logger.info("finish run, sleeping")
                 if sys.stdout.isatty():
@@ -113,4 +125,7 @@ class Daemon(ABC):
         pass
 
     def daily(self, *args, **kwargs):
+        return True
+
+    def hourly(self, *args, **kwargs):
         return True
