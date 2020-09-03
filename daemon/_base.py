@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from datetime import date, datetime, timedelta
 from typing import *
 
-from requests.exceptions import ReadTimeout
+from requests.exceptions import ReadTimeout, ConnectionError
 
 from bgmd.model import Login
 from requests_as_model import APIResponseSchemeNotMatch
@@ -57,6 +57,8 @@ class Daemon(ABC):
                 self.error_time.pop(0)
             if isinstance(e, ReadTimeout):
                 logger.warning("Read Timeout")
+            elif isinstance(e, ConnectionError):
+                logger.warning("Connection Error")
             else:
                 with open(f"exception@{now.isoformat().replace(':', '.')}.log", mode='w', encoding='utf-8') as fp:
                     traceback.print_exc(file=fp)
