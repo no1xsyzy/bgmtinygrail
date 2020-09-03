@@ -302,6 +302,13 @@ class BHistory(TinygrailModel):
         return parsed_description
 
 
+class THistoryAuctionRebate(BHistory):
+    type: Literal[1]
+    related_id: Literal[0]
+
+    DESCRIPTION_PARSER: ClassVar[re.Pattern] = re.compile(r"萌王投票返利")
+
+
 class THistoryBangumiDays(BHistory):
     type: Literal[1]
     related_id: Literal[1]
