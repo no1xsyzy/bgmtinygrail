@@ -92,7 +92,7 @@ class Daemon(ABC):
                         self.last_daily = date.today()
                 # hourly
                 hour = datetime.now().replace(minute=0, second=0, microsecond=0)
-                if self.last_hourly is None or self.last_daily < hour:
+                if self.last_hourly is None or self.last_hourly < hour:
                     update = self.safe_run(hourly_function or self.hourly)
                     if update:
                         self.last_hourly = hour
