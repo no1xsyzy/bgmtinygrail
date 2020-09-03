@@ -108,6 +108,7 @@ class TraderDaemon(Daemon):
             if self.as_systemd_unit:
                 notify(Notification.WATCHDOG)
         sync_asks_collect(self.player, self.login, True)
+        return True
 
 
 if __name__ == '__main__':
