@@ -1,17 +1,26 @@
 #!/usr/bin/env python3
 import logging.config
-
-# noinspection PyUnresolvedReferences
-# there is no systemd in windows
-from systemd.daemon import notify, Notification
+from enum import Enum
+from typing import *
 
 from model_link.sync_asks_collect import sync_asks_collect
 from tinygrail.api import all_holding, all_bids
+from tinygrail.api import get_history_since_id
 from tinygrail.api import scratch_bonus2, scratch_gensokyo, scratch_gensokyo_price
 from trader import *
 from ._base import Daemon
 
 logger = logging.getLogger('daemon')
+
+try:
+    from systemd.daemon import notify, Notification
+except ImportError:
+    class Notification(Enum):
+        WATCHDOG = "WATCHDOG"
+
+
+    def notify(notification: Notification):
+        logger.debug(f"no systemd support but notified: {notification}")
 
 
 def all_holding_ids(player):
