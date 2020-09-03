@@ -1,5 +1,7 @@
 import logging
 
+from pydantic import ValidationError
+
 import requests_as_model
 from .model import *
 
@@ -191,7 +193,17 @@ def get_history(player: Player) -> List[BHistory]:
     length = response.as_model(RHistory).value.total_items
     # get full list
     resp2 = player.session.get(f"https://tinygrail.com/api/chara/user/balance/1/{length}", timeout=REQUEST_TIMEOUT)
-    lst = resp2.as_model(RHistory).value.items
+    try:
+        lst = resp2.as_model(RHistory).value.items
+    except requests_as_model.APIResponseSchemeNotMatch:
+        raw_histories = resp2.json()['Value']['Items']
+        for raw_history in raw_histories:
+            assert isinstance(raw_history, dict)
+            try:
+                assert isinstance(HistoryParser(History=raw_history).history, BHistory)
+            except ValidationError:
+                raise requests_as_model.APIResponseSchemeNotMatch(resp2, raw_history) from None
+        raise
     return lst
 
 
