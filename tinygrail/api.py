@@ -1,3 +1,4 @@
+import itertools
 import logging
 
 from pydantic import ValidationError
@@ -205,6 +206,33 @@ def get_history(player: Player) -> List[BHistory]:
                 raise requests_as_model.APIResponseSchemeNotMatch(resp2, raw_history) from None
         raise
     return lst
+
+
+def get_history_since_id(player: Player, since_id: int = 0, page_limit: int = None) -> List[BHistory]:
+    # get list length
+    fetched: Dict[int, BHistory] = {}
+    page_id_iterator = (itertools.count(1) if page_limit is None else range(1, page_limit + 1))
+    for page in page_id_iterator:
+        response = player.session.get(f"https://tinygrail.com/api/chara/user/balance/{page}/50",
+                                      timeout=REQUEST_TIMEOUT)
+        try:
+            lst: List[BHistory] = response.as_model(RHistory).value.items
+        except requests_as_model.APIResponseSchemeNotMatch:
+            lst = []
+            raw_histories = response.json()['Value']['Items']
+            for raw_history in raw_histories:
+                try:
+                    lst.append(HistoryParser(History=raw_history).history)
+                except ValidationError:
+                    logger.error(f"Bad history: {raw_history}")
+        for history in lst:
+            if history.id > since_id:
+                fetched[history.id] = history
+            else:
+                break  # for history in lst
+        if not lst or lst[-1].id <= since_id:
+            break  # for page in page_id_iterator
+    return [fetched[cid] for cid in sorted(fetched.keys(), reverse=True)]
 
 
 def scratch_bonus2(player: Player) -> List[TScratchBonus]:
