@@ -33,14 +33,34 @@ def all_bidding_ids(player):
 
 class TraderDaemon(Daemon):
     trader: ABCTrader
+    last_history_id: int
 
     def __init__(self, player, login, /, *args, trader_cls=GracefulTrader, **kwargs):
         super().__init__(player, login, *args, **kwargs)
         self.trader = trader_cls(player)
+        self.last_history_id = 0
+
+    def _update_character_due_to_history(self, full_update=False) -> List[int]:
+        if full_update or self.last_history_id == 0:
+            histories = get_history_since_id(self.player, page_limit=1)
+            self.last_history_id = histories[0].id
+            return sorted({*all_bidding_ids(self.player),
+                           *all_holding_ids(self.player)})
+        histories = get_history_since_id(self.player, self.last_history_id)
+        update_characters = set()
+        for history in histories:
+            if history.id > self.last_history_id:
+                if hasattr(history, 'character_id'):
+                    update_characters.add(history.character_id)
+            else:
+                break
+        if histories:
+            self.last_history_id = histories[0].id
+        return sorted(update_characters)
 
     def tick(self):
-        for cid in sorted({*all_bidding_ids(self.player),
-                           *all_holding_ids(self.player)}):
+        to_update = self._update_character_due_to_history()
+        for cid in to_update:
             logger.info(f"on {cid}")
             self.safe_run(self.trader.tick, cid)
             if self.as_systemd_unit:
@@ -78,6 +98,15 @@ class TraderDaemon(Daemon):
         else:
             logger.debug(f"scratch_gensokyo | over")
         return True
+
+    def hourly(self):
+        to_update = self._update_character_due_to_history(full_update=True)
+        for cid in to_update:
+            logger.info(f"on {cid}")
+            self.safe_run(self.trader.tick, cid)
+            if self.as_systemd_unit:
+                notify(Notification.WATCHDOG)
+        sync_asks_collect(self.player, self.login, True)
 
 
 if __name__ == '__main__':
