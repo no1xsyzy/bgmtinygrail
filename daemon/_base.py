@@ -63,7 +63,7 @@ class Daemon(ABC):
         if self.as_systemd_unit:
             notify(Notification.WATCHDOG)
 
-    def safe_run(self, tick_function: Callable[..., _TV], *args, **kwargs) -> _TV:
+    def safe_run(self, tick_function: Callable[..., _TV], *args, **kwargs) -> Union[_TV, None]:
         # we want exception not breaking
         # noinspection PyBroadException
         try:
@@ -95,6 +95,7 @@ class Daemon(ABC):
                 logger.error(f"There has been too much (>{self.error_tolerance_count}) errors "
                              f"in past {self.error_tolerance_period} minutes, stopping.")
                 raise TooMuchExceptionsError from None
+            return None
 
     def run_forever(self, wait_seconds, *,
                     start_function=None,
