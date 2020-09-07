@@ -32,7 +32,7 @@ def start(fork, pid_file, daemon_type, account):
     if len(players_dicts) == 0:
         print("No such account!")
         raise click.exceptions.Exit(1)
-    _, login, player = translate(db_accounts.retrieve(account)[0])
+    _, login, player = translate(players_dicts[0])
 
     d = daemon_cls(player, login)
 
