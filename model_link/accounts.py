@@ -25,9 +25,10 @@ def translate(dr: Dict) -> LoginPlayer:
 
     def hook(r, *args, **kwargs):
         nonlocal identity
-        if r.cookies['.AspNetCore.Identity.Application'] is not None:
-            db_accounts.update(name, tinygrail_identity=r.cookies['.AspNetCore.Identity.Application'])
-            identity = r.cookies['.AspNetCore.Identity.Application']
+        new_identity = r.cookies.get('.AspNetCore.Identity.Application', domain='tinygrail.com')
+        if new_identity is not None:
+            db_accounts.update(name, tinygrail_identity=new_identity)
+            identity = new_identity
 
     tinygrail.session.hooks['response'].append(hook)
     return LoginPlayer(name, bangumi, tinygrail)
