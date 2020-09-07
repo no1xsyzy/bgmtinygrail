@@ -55,8 +55,9 @@ class TraderDaemon(Daemon):
 
     def tick(self):
         self.urgent_chars.update(self._update_character_due_to_history())
-        for cid in sorted({*self.urgent_chars,
-                           *sample(self.slow_chars, k=math.ceil(len(self.slow_chars)/5))}):
+        to_update = sorted({*self.urgent_chars, *sample(self.slow_chars, k=math.ceil(len(self.slow_chars) / 5))})
+        logger.debug(f"{to_update=}")
+        for cid in to_update:
             logger.info(f"on {cid}")
             self.safe_run(self._tick_one, cid)
             self.notify_watchdog()
@@ -112,11 +113,11 @@ class TraderDaemon(Daemon):
         ahi = set(all_holding_ids(self.player))
 
         self.slow_chars.update(abi)
-        logger.debug(f"slow chars: {sorted(self.slow_chars)}")
+        logger.debug(f"{sorted(self.slow_chars)=}")
 
         # holding but not bidding, indicating worn out bidding
         self.urgent_chars.update(ahi-abi)
-        logger.debug(f"urgent chars: {sorted(self.urgent_chars)}")
+        logger.debug(f"{sorted(self.urgent_chars)=}")
         return True
 
 
