@@ -123,6 +123,7 @@ class Daemon(ABC):
                         self.last_hourly = hour
                 # tick
                 self.safe_run(tick_function or self.tick)
+                self.notify_watchdog()
                 logger.info("finish run, sleeping")
                 if sys.stdout.isatty():
                     for waited in range(wait_seconds):
