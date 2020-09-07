@@ -2,8 +2,8 @@ import re
 from datetime import datetime
 from typing import *
 
+import aiohttp
 import requests
-from aiohttp_requests import requests as aio_requests
 from inflection import camelize
 from pydantic import BaseModel, validator
 
@@ -161,7 +161,7 @@ class RCharts(TinygrailModel):
 class Player:
     identity: str
     _session: Optional[requests.Session]
-    _aio_session: Optional[aio_requests.Session]
+    _aio_session: Optional[aiohttp.ClientSession]
 
     def __init__(self, identity):
         self.identity = identity
@@ -203,9 +203,8 @@ class Player:
         if self._aio_session is not None:
             return self._aio_session
 
-        session = aio_requests.Session()
-
-        session.cookies['.AspNetCore.Identity.Application'] = self.identity
+        session = aiohttp.ClientSession(
+            cookies=http.cookies.SimpleCookie({'.AspNetCore.Identity.Application': self.identity}))
 
         session.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:72.0) Gecko/20100101 Firefox/72.0',
