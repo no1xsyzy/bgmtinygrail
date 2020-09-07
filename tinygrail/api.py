@@ -215,7 +215,7 @@ def get_history(player: Player, *, since_id: int = 0, page_limit: int = None, pa
     return [fetched[cid] for cid in sorted(fetched.keys(), reverse=True)]
 
 
-def iter_history(player: Player, *, page_size: int = 50) -> Generator[BHistory]:
+def iter_history(player: Player, *, page_size: int = 50) -> Iterator[BHistory]:
     for page in itertools.count(1):
         response = player.session.get(f"https://tinygrail.com/api/chara/user/balance/{page}/{page_size}",
                                       timeout=REQUEST_TIMEOUT)
