@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import logging.config
-from enum import Enum
 from typing import *
 
 from model_link.sync_asks_collect import sync_asks_collect
@@ -11,16 +10,6 @@ from trader import *
 from ._base import Daemon
 
 logger = logging.getLogger('daemon')
-
-try:
-    from systemd.daemon import notify, Notification
-except ImportError:
-    class Notification(Enum):
-        WATCHDOG = "WATCHDOG"
-
-
-    def notify(notification: Notification):
-        logger.debug(f"no systemd support but notified: {notification}")
 
 
 def all_holding_ids(player):
@@ -63,29 +52,33 @@ class TraderDaemon(Daemon):
         for cid in to_update:
             logger.info(f"on {cid}")
             self.safe_run(self.trader.tick, cid)
-            if self.as_systemd_unit:
-                notify(Notification.WATCHDOG)
+            self.notify_watchdog()
         sync_asks_collect(self.player, self.login, True)
 
     def daily(self):
         logger.info(f"daily")
+        self.notify_watchdog()
         if isinstance(self.trader, GracefulTrader):
             ticker = self.trader.graceful_tick
         else:
             ticker = self.trader.tick
 
+        # bonus2
         while True:
             scratch_result = self.safe_run(scratch_bonus2, self.player)
+            self.notify_watchdog()
             if scratch_result is None:
                 logger.debug(f"scratch_bonus2   | either error or over")
                 break
             for sb in scratch_result:
                 logger.debug(f"scratch_bonus2   | got #{sb.id:<5} | {sb.amount=}, {sb.sell_price=}")
                 self.safe_run(ticker, sb.id, sb.sell_price)
+        # gensokyo
         got_value = 4000
         s_price = scratch_gensokyo_price(self.player)
         while got_value >= s_price:
             scratch_result = self.safe_run(scratch_gensokyo, self.player)
+            self.notify_watchdog()
             if scratch_result is None:
                 logger.debug(f"scratch_gensokyo | error")
                 break
@@ -105,8 +98,7 @@ class TraderDaemon(Daemon):
         for cid in to_update:
             logger.info(f"on {cid}")
             self.safe_run(self.trader.tick, cid)
-            if self.as_systemd_unit:
-                notify(Notification.WATCHDOG)
+            self.notify_watchdog()
         sync_asks_collect(self.player, self.login, True)
         return True
 

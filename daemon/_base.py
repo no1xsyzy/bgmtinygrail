@@ -5,6 +5,7 @@ import sys
 import traceback
 from abc import ABC, abstractmethod
 from datetime import date, datetime, timedelta
+from enum import Enum
 from typing import *
 
 from requests.exceptions import ReadTimeout, ConnectionError
@@ -14,6 +15,17 @@ from requests_as_model import APIResponseSchemeNotMatch
 from tinygrail.model import Player
 
 logger = logging.getLogger('daemon')
+
+try:
+    from systemd.daemon import notify, Notification
+except ImportError:
+    class Notification(Enum):
+        WATCHDOG = "WATCHDOG"
+        READY = "READY"
+
+
+    def notify(notification: Notification):
+        logger.debug(f"no systemd support but notified: {notification}")
 
 _TV = TypeVar('_TV')
 
@@ -42,6 +54,14 @@ class Daemon(ABC):
                                 or 'BT_AS_SYSTEMD_UNIT' in os.environ)  # < v252 or for testing
         self.last_daily = None
         self.last_hourly = None
+
+    def notify_ready(self):
+        if self.as_systemd_unit:
+            notify(Notification.READY)
+
+    def notify_watchdog(self):
+        if self.as_systemd_unit:
+            notify(Notification.WATCHDOG)
 
     def safe_run(self, tick_function: Callable[..., _TV], *args, **kwargs) -> _TV:
         # we want exception not breaking
@@ -123,7 +143,7 @@ class Daemon(ABC):
         pass
 
     def start(self, *args, **kwargs):
-        pass
+        self.notify_ready()
 
     def finalize(self, *args, **kwargs):
         pass
