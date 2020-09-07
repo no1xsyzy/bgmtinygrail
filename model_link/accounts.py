@@ -20,7 +20,17 @@ def translate(dr: Dict) -> LoginPlayer:
     identity = dr.pop('tinygrail_identity')
     user = user_info(dr.pop('id'))
     name = dr.pop('friendly_name')
-    return LoginPlayer(name, Login(**dr, user=user), Player(identity))
+    bangumi = Login(**dr, user=user)
+    tinygrail = Player(identity)
+
+    def hook(r, *args, **kwargs):
+        nonlocal identity
+        if identity != r.cookies['.AspNetCore.Identity.Application']:
+            db_accounts.update(name, tinygrail_identity=r.cookies['.AspNetCore.Identity.Application'])
+            identity = r.cookies['.AspNetCore.Identity.Application']
+
+    tinygrail.session.hooks['response'].append(hook)
+    return LoginPlayer(name, bangumi, tinygrail)
 
 
 all_accounts: Dict[str, LoginPlayer] = {}
