@@ -215,6 +215,26 @@ def get_history(player: Player, *, since_id: int = 0, page_limit: int = None, pa
     return [fetched[cid] for cid in sorted(fetched.keys(), reverse=True)]
 
 
+def iter_history(player: Player, *, page_size: int = 50) -> Generator[BHistory]:
+    for page in itertools.count(1):
+        response = player.session.get(f"https://tinygrail.com/api/chara/user/balance/{page}/{page_size}",
+                                      timeout=REQUEST_TIMEOUT)
+        try:
+            lst: List[BHistory] = response.as_model(RHistory).value.items
+        except requests_as_model.APIResponseSchemeNotMatch:
+            raw_histories = response.json()['Value']['Items']
+            for raw_history in raw_histories:
+                try:
+                    yield HistoryParser(History=raw_history).history
+                except ValidationError:
+                    logger.error(f"Bad history: {raw_history}")
+        else:
+            if not lst:
+                break
+            for history in lst:
+                yield history
+
+
 def scratch_bonus2(player: Player) -> List[TScratchBonus]:
     response = player.session.get("https://tinygrail.com/api/event/scratch/bonus2", timeout=REQUEST_TIMEOUT)
     return response.as_model(RScratchBonus).value
