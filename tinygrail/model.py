@@ -1,3 +1,4 @@
+import http.cookies
 import re
 from datetime import datetime
 from typing import *
@@ -169,8 +170,9 @@ class Player:
         self._aio_session = None
 
     def _update_identity_with_response(self, r: requests.Response, *args, **kwargs):
-        self.identity = r.cookies['.AspNetCore.Identity.Application']
-        print(args, kwargs)
+        new_identity = r.cookies.get('.AspNetCore.Identity.Application', domain='tinygrail.com')
+        if new_identity is not None:
+            self.identity = new_identity
 
     @property
     def session(self):
