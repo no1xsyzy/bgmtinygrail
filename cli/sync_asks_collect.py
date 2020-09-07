@@ -4,7 +4,7 @@ import click
 
 from db import accounts
 from model_link.accounts import translate
-from model_link.sync_asks_collect import sync_asks_collect
+from model_link.sync_asks_collect import sync_asks_collect as api_sync_asks_collect
 
 logger = logging.getLogger('check_all_selling')
 
@@ -13,9 +13,9 @@ logger = logging.getLogger('check_all_selling')
 @click.argument('account')
 @click.option('--override-bangumi', default=None)
 @click.option('--sets/--no-sets', default=True)
-def cmd_sync_asks_collect(account, override_bangumi, sets):
+def sync_asks_collect(account, override_bangumi, sets):
     _, login, player = translate(accounts.retrieve(account)[0])
     if override_bangumi is not None:
         _, login, _ = translate(accounts.retrieve(override_bangumi)[0])
 
-    sync_asks_collect(player, login, logs=logger.info)
+    api_sync_asks_collect(player, login, logs=logger.info)
