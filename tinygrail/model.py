@@ -1,8 +1,9 @@
 import re
 from datetime import datetime
-from functools import lru_cache
 from typing import *
 
+import requests
+from aiohttp_requests import requests as aio_requests
 from inflection import camelize
 from pydantic import BaseModel, validator
 
@@ -159,14 +160,23 @@ class RCharts(TinygrailModel):
 
 class Player:
     identity: str
+    _session: Optional[requests.Session]
+    _aio_session: Optional[aio_requests.Session]
 
     def __init__(self, identity):
         self.identity = identity
+        self._session = None
+        self._aio_session = None
+
+    def _update_identity_with_response(self, r: requests.Response, *args, **kwargs):
+        self.identity = r.cookies['.AspNetCore.Identity.Application']
+        print(args, kwargs)
 
     @property
-    @lru_cache
     def session(self):
-        import requests
+        if self._session is not None:
+            return self._session
+
         session = requests.Session()
 
         session.cookies['.AspNetCore.Identity.Application'] = self.identity
@@ -181,14 +191,19 @@ class Player:
             'Connection': 'keep-alive',
             'Referer': 'https://bgm.tv/rakuen/topiclist',
         }
+
+        session.hooks['response'].append(self._update_identity_with_response)
+
+        self._session = session
 
         return session
 
     @property
-    @lru_cache
     def aio_session(self):
-        from aiohttp_requests import requests
-        session = requests.Session()
+        if self._aio_session is not None:
+            return self._aio_session
+
+        session = aio_requests.Session()
 
         session.cookies['.AspNetCore.Identity.Application'] = self.identity
 
@@ -202,6 +217,8 @@ class Player:
             'Connection': 'keep-alive',
             'Referer': 'https://bgm.tv/rakuen/topiclist',
         }
+
+        self._aio_session = session
 
         return session
 
