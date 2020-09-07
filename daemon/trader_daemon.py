@@ -4,7 +4,7 @@ from typing import *
 
 from model_link.sync_asks_collect import sync_asks_collect
 from tinygrail.api import all_holding, all_bids
-from tinygrail.api import get_history_since_id
+from tinygrail.api import get_history
 from tinygrail.api import scratch_bonus2, scratch_gensokyo, scratch_gensokyo_price
 from trader import *
 from ._base import Daemon
@@ -31,11 +31,11 @@ class TraderDaemon(Daemon):
 
     def _update_character_due_to_history(self, full_update=False) -> List[int]:
         if full_update or self.last_history_id == 0:
-            histories = get_history_since_id(self.player, page_limit=1)
+            histories = get_history(self.player, page_limit=1)
             self.last_history_id = histories[0].id
             return sorted({*all_bidding_ids(self.player),
                            *all_holding_ids(self.player)})
-        histories = get_history_since_id(self.player, self.last_history_id)
+        histories = get_history(self.player, since_id=self.last_history_id)
         update_characters = set()
         for history in histories:
             if history.id > self.last_history_id:

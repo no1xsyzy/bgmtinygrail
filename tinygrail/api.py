@@ -188,32 +188,12 @@ def get_my_ico(player: Player, ico_id: int) -> TMyICO:
     return response.as_model(RMyICO).value
 
 
-def get_history(player: Player) -> List[BHistory]:
-    # get list length
-    response = player.session.get(f"https://tinygrail.com/api/chara/user/balance/1/1", timeout=REQUEST_TIMEOUT)
-    length = response.as_model(RHistory).value.total_items
-    # get full list
-    resp2 = player.session.get(f"https://tinygrail.com/api/chara/user/balance/1/{length}", timeout=REQUEST_TIMEOUT)
-    try:
-        lst = resp2.as_model(RHistory).value.items
-    except requests_as_model.APIResponseSchemeNotMatch:
-        raw_histories = resp2.json()['Value']['Items']
-        for raw_history in raw_histories:
-            assert isinstance(raw_history, dict)
-            try:
-                assert isinstance(HistoryParser(History=raw_history).history, BHistory)
-            except ValidationError:
-                raise requests_as_model.APIResponseSchemeNotMatch(resp2, raw_history) from None
-        raise
-    return lst
-
-
-def get_history_since_id(player: Player, since_id: int = 0, page_limit: int = None) -> List[BHistory]:
+def get_history(player: Player, *, since_id: int = 0, page_limit: int = None, page_size: int = 50) -> List[BHistory]:
     # get list length
     fetched: Dict[int, BHistory] = {}
     page_id_iterator = (itertools.count(1) if page_limit is None else range(1, page_limit + 1))
     for page in page_id_iterator:
-        response = player.session.get(f"https://tinygrail.com/api/chara/user/balance/{page}/50",
+        response = player.session.get(f"https://tinygrail.com/api/chara/user/balance/{page}/{page_size}",
                                       timeout=REQUEST_TIMEOUT)
         try:
             lst: List[BHistory] = response.as_model(RHistory).value.items
