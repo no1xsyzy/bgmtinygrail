@@ -39,8 +39,7 @@ class TraderDaemon(Daemon):
         if full_update or self.last_history_id == 0:
             histories = get_history(self.player, page_limit=1)
             self.last_history_id = histories[0].id
-            return sorted({*all_bidding_ids(self.player),
-                           *all_holding_ids(self.player)})
+            return []
         histories = get_history(self.player, since_id=self.last_history_id)
         update_characters = set()
         for history in histories:
@@ -119,6 +118,10 @@ class TraderDaemon(Daemon):
         self.urgent_chars.update(ahi-abi)
         logger.debug(f"{sorted(self.urgent_chars)=}")
         return True
+
+    def start(self):
+        super().start()
+        self._update_character_due_to_history(full_update=True)
 
 
 if __name__ == '__main__':
