@@ -7,7 +7,8 @@ from bgmd.api import person_work_voice_character
 from bgmd.model import Person
 from db import accounts as db_accounts
 from tinygrail.api import batch_character_info, user_temples, chara_user_character
-from tinygrail.model import Player, TICO
+from tinygrail.model import TICO
+from tinygrail.player import Player
 
 
 def parse_target(target_str):

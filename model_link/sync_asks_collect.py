@@ -3,7 +3,7 @@
 from bgmd.api import *
 from bgmd.model import Login
 from tinygrail.api import *
-from tinygrail.model import Player
+from tinygrail.player import Player
 
 
 def compare_asks_collect(player: Player, login: Login):

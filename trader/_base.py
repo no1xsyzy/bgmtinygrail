@@ -3,7 +3,8 @@ from abc import ABCMeta, abstractmethod
 from functools import lru_cache
 
 from tinygrail.bigc import BigC
-from tinygrail.model import Player, TAsk, TBid
+from tinygrail.model import TAsk, TBid
+from tinygrail.player import Player
 
 logger = logging.getLogger('strategy')
 

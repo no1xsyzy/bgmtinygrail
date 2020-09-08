@@ -5,6 +5,7 @@ from pydantic import ValidationError
 
 import requests_as_model
 from .model import *
+from .player import Player
 
 requests_as_model.monkey_patch()
 

@@ -6,7 +6,8 @@ from typing import *
 
 from tinygrail.api import get_initial_price, user_character, character_info
 from tinygrail.bigc import BigC
-from tinygrail.model import Player, TAsk, TBid
+from tinygrail.model import TAsk, TBid
+from tinygrail.player import Player
 
 logger = logging.getLogger('strategy')
 

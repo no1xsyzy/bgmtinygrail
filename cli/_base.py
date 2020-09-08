@@ -1,6 +1,6 @@
 import click
 
-from tinygrail.model import Player
+from tinygrail.player import Player
 
 
 class TGPlayerParamType(click.ParamType):

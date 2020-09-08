@@ -5,7 +5,7 @@ import lazy_object_proxy
 from bgmd.api import user_info
 from bgmd.model import Login
 from db import accounts as db_accounts
-from tinygrail.model import Player
+from tinygrail.player import Player
 
 __all__ = []
 
