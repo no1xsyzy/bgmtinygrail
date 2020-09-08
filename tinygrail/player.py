@@ -68,7 +68,7 @@ class Player:
         pass
 
     @overload
-    def get_data(self, url, **kwargs) -> dict:
+    def get_data(self, url, as_model: None, **kwargs) -> dict:
         pass
 
     def get_data(self, url, as_model: Type[_MT] = None, **kwargs) -> _MT:
@@ -87,10 +87,10 @@ class Player:
         pass
 
     @overload
-    def post_data(self, url, data, **kwargs) -> dict:
+    def post_data(self, url, data, as_model: None, **kwargs) -> dict:
         pass
 
-    def post_data(self, url, data=None, as_model=None, **kwargs):
+    def post_data(self, url, data=None, as_model: Type[_MT] = None, **kwargs):
         kwargs.setdefault('timeout', 10)
         kwargs.setdefault('json', data)
         response = self.session.get(url, **kwargs)
