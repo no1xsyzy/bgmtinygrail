@@ -94,13 +94,13 @@ class Player:
         kwargs.setdefault('timeout', 10)
         kwargs.setdefault('json', data)
         response = self.session.get(url, **kwargs)
-        data = response.json()
+        rd = response.json()
         if as_model is None:
-            return data
+            return rd
         try:
-            return as_model(**data)
+            return as_model(**rd)
         except ValidationError:
-            raise APIResponseSchemeNotMatch(response, data)
+            raise APIResponseSchemeNotMatch(response, rd)
 
     @property
     def aio_session(self):
