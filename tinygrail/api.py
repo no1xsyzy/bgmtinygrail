@@ -14,36 +14,35 @@ logger = logging.getLogger('tinygrail.api')
 REQUEST_TIMEOUT = 10
 
 
-def batch_character_info(player, lst, splits=50) -> List[Union[TCharacter, TICO]]:
+def batch_character_info(player: Player, lst: List[int], splits=50) -> List[Union[TCharacter, TICO]]:
     lst = list(lst)
     ans = []
     while lst:
         head50 = lst[:splits]
         lst = lst[splits:]
-        response = player.session.post('https://tinygrail.com/api/chara/list', json=head50, timeout=REQUEST_TIMEOUT)
-        obj = response.as_model(RCharacterList)
+        obj = player.post_data('https://tinygrail.com/api/chara/list', head50, as_model=RCharacterList)
         ans.extend(obj.value)
     return ans
 
 
-def character_info(player, cid) -> RCharacterish:
+def character_info(player: Player, cid: int) -> RCharacterish:
     response = player.session.get(f"https://tinygrail.com/api/chara/{cid}", timeout=REQUEST_TIMEOUT)
     return response.as_model(RCharacterish)
 
 
-def depth(player, cid) -> TDepth:
+def depth(player: Player, cid: int) -> TDepth:
     response = player.session.get(f"https://tinygrail.com/api/chara/depth/{cid}", timeout=REQUEST_TIMEOUT)
     obj = response.as_model(RDepth)
     return obj.value
 
 
-def user_character(player, cid) -> RUserCharacter:
+def user_character(player: Player, cid: int) -> RUserCharacter:
     response = player.session.get(f"https://tinygrail.com/api/chara/user/{cid}", timeout=REQUEST_TIMEOUT)
     obj = response.as_model(RUserCharacter)
     return obj
 
 
-def chara_user_character(player) -> List[TCharaUserChara]:
+def chara_user_character(player: Player) -> List[TCharaUserChara]:
     # get list length
     response = player.session.get(f"https://tinygrail.com/api/chara/user/chara/1/1", timeout=REQUEST_TIMEOUT)
     length = response.as_model(RCharaUserChara).value.total_items
@@ -54,7 +53,7 @@ def chara_user_character(player) -> List[TCharaUserChara]:
     return lst
 
 
-def blueleaf_chara_all(player) -> RBlueleafCharaAll:
+def blueleaf_chara_all(player: Player) -> RBlueleafCharaAll:
     # get list length
     response = player.session.get(f"https://tinygrail.com/api/chara/user/chara/blueleaf/1/1", timeout=REQUEST_TIMEOUT)
     length = response.as_model(RBlueleafCharaAll).value.total_items
@@ -65,7 +64,7 @@ def blueleaf_chara_all(player) -> RBlueleafCharaAll:
     return lst
 
 
-def chara_charts(player, cid) -> List[TChartum]:
+def chara_charts(player: Player, cid: int) -> List[TChartum]:
     response = player.session.get(f"https://tinygrail.com/api/chara/charts/{cid}/2019-08-08", timeout=REQUEST_TIMEOUT)
     obj = response.as_model(RCharts)
     return obj.value
