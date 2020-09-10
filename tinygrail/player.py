@@ -93,7 +93,7 @@ class Player:
     def post_data(self, url, data=None, as_model: Type[_MT] = None, **kwargs):
         kwargs.setdefault('timeout', 10)
         kwargs.setdefault('json', data)
-        response = self.session.get(url, **kwargs)
+        response = self.session.post(url, **kwargs)
         rd = response.json()
         if as_model is None:
             return rd
