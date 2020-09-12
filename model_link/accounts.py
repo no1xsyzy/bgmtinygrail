@@ -33,5 +33,6 @@ all_accounts: Dict[str, LoginPlayer] = {}
 
 for friendly_name in db_accounts.list_all():
     for dict_row in db_accounts.retrieve(friendly_name):
-        globals()[friendly_name] = all_accounts[friendly_name] = lazy_object_proxy.Proxy(lambda: translate(dict_row))
+        globals()[friendly_name] = all_accounts[friendly_name] = lazy_object_proxy.Proxy(
+            (lambda dr: lambda: translate(dr))(dict_row))
         __all__.append(friendly_name)
