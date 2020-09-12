@@ -759,6 +759,22 @@ class THistoryStardust(BHistory):
     _amount_match = parsed_match('amount', 5, translate=int)
 
 
+class THistoryStardustTemple(BHistory):
+    type: Literal[18]
+
+    DESCRIPTION_PARSER: ClassVar[re.Pattern] = re.compile(r"使用 #(\d+)「\$(.+)」固定资产通过「星光碎片」为 #(\d+)「(.+)」充能(\d+)股")
+    supplier_character_id: int = None
+    supplier_character_name: str = None
+    demand_character_id: int = None
+    demand_character_name: str = None
+    _parse_supplier_character_id = parsed_group('supplier_character_id', 1)
+    _parse_supplier_character_name = parsed_group('supplier_character_name', 2)
+    _parse_demand_character_id = parsed_group('demand_character_id', 3)
+    _parse_demand_character_name = parsed_group('demand_character_name', 4)
+    _cid_match = parsed_match('related_id', 1, translate=int)
+    _amount_match = parsed_match('amount', 5, translate=int)
+
+
 class HistoryParser(TinygrailModel):
     history: Union[(*BHistory.__subclasses__(),)]
 
