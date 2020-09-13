@@ -11,7 +11,7 @@ from .model import *
 
 logger = logging.getLogger('bgmd.api')
 
-__all__ = [
+__all__ = (
     'user_info',
     'user_mono',
     'person_work_voice_character',
@@ -19,7 +19,9 @@ __all__ = [
     'erase_collect_mono',
     'character_collection',
     'character_detail',
-    'inbox']
+    'inbox',
+    'get_gh',
+)
 
 empty_session = requests.Session()
 
@@ -148,3 +150,16 @@ def inbox(login: Login):
                 pm_content = pm_content[4:]
                 pg[pm_code] = (None, pm_title, pm_content)
     return pg
+
+
+def get_gh(login: Login):
+    response = login.session.get(f"https://bgm.tv/character/1")
+    soup = BeautifulSoup(response.content, 'html.parser')
+    collector = soup.select_one('span.collect a')
+    if collector is None:
+        raise ValueError("Not login")
+    from urllib.parse import urlsplit
+    for kv in urlsplit(collector.attrs['href']).query.split('&'):
+        k, v = kv.split('=', 1)
+        if k == 'gh':
+            return v
