@@ -17,7 +17,9 @@ __all__ = [
     'person_work_voice_character',
     'collect_mono',
     'erase_collect_mono',
-    'character_detail']
+    'character_collection',
+    'character_detail',
+    'inbox']
 
 empty_session = requests.Session()
 
