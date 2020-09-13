@@ -5,7 +5,7 @@ from typing import *
 
 import requests
 
-from .helper import *
+from ._helper import *
 from .login import Login
 from .model import *
 
