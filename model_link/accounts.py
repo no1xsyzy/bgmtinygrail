@@ -3,7 +3,7 @@ from typing import *
 import lazy_object_proxy
 
 from bgmd.api import user_info
-from bgmd.model import Login
+from bgmd.login import Login
 from db import accounts as db_accounts
 from tinygrail.player import Player
 

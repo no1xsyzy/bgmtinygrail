@@ -10,7 +10,7 @@ from typing import *
 
 from requests.exceptions import ReadTimeout, ConnectionError
 
-from bgmd.model import Login
+from bgmd.login import Login
 from requests_as_model import APIResponseSchemeNotMatch
 from tinygrail.player import Player
 

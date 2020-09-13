@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from bgmd.api import *
-from bgmd.model import Login
+from bgmd.login import Login
 from tinygrail.api import *
 from tinygrail.player import Player
 
