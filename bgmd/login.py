@@ -1,5 +1,5 @@
-from functools import lru_cache
 from typing import Optional
+from urllib.parse import quote_plus
 
 import requests
 
@@ -7,18 +7,18 @@ from bgmd.model import *
 
 
 class Login:
-    cfduid: str
     chii_auth: str
     _gh: str
     ua: str  # BGM copy session way seems UA-related
     user: Optional[User]
+    _session: Optional[requests.Session]
 
     def __init__(self, *, cfduid, chii_auth, gh=None, ua, user=None):
-        self.cfduid = cfduid
         self.chii_auth = chii_auth
         self._gh = gh
         self.ua = ua
         self.user = user
+        self._session = None
 
     @property
     def gh(self):
@@ -28,14 +28,9 @@ class Login:
         return self._gh
 
     @property
-    @lru_cache
     def session(self) -> requests.Session:
-        sess = requests.Session()
-
-        sess.cookies['chii_theme'] = 'light'
-        sess.cookies['__cfduid'] = self.cfduid
-        sess.cookies['chii_cookietime'] = '0'
-        sess.cookies['chii_auth'] = self.chii_auth
-        sess.headers['User-Agent'] = self.ua
-
-        return sess
+        if self._session is None:
+            self._session = requests.Session()
+            self._session.cookies['chii_auth'] = quote_plus(self.chii_auth)
+            self._session.headers['User-Agent'] = self.ua
+        return self._session
