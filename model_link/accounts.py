@@ -20,6 +20,7 @@ def translate(dr: Dict) -> LoginPlayer:
     identity = dr.pop('tinygrail_identity')
     user = user_info(dr.pop('id'))
     name = dr.pop('friendly_name')
+    del dr['gh']
     bangumi = Login(**dr, user=user)
 
     def update_identity(new_identity):
