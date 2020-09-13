@@ -9,16 +9,23 @@ from bgmd.model import *
 class Login:
     cfduid: str
     chii_auth: str
-    gh: str
+    _gh: str
     ua: str  # BGM copy session way seems UA-related
     user: Optional[User]
 
-    def __init__(self, cfduid, chii_auth, gh, ua, user=None):
+    def __init__(self, *, cfduid, chii_auth, gh=None, ua, user=None):
         self.cfduid = cfduid
         self.chii_auth = chii_auth
-        self.gh = gh
+        self._gh = gh
         self.ua = ua
         self.user = user
+
+    @property
+    def gh(self):
+        if self._gh is None:
+            from bgmd.api import get_gh
+            self._gh = get_gh(self)
+        return self._gh
 
     @property
     @lru_cache
