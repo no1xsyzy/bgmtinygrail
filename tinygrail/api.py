@@ -31,9 +31,7 @@ def character_info(player: Player, cid: int) -> RCharacterish:
 
 
 def depth(player: Player, cid: int) -> TDepth:
-    response = player.session.get(f"https://tinygrail.com/api/chara/depth/{cid}", timeout=REQUEST_TIMEOUT)
-    obj = response.as_model(RDepth)
-    return obj.value
+    return player.get_data(f"https://tinygrail.com/api/chara/depth/{cid}", as_model=RDepth).value
 
 
 def user_character(player: Player, cid: int) -> RUserCharacter:
