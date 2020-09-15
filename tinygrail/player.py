@@ -47,14 +47,8 @@ class Player:
         session.cookies['.AspNetCore.Identity.Application'] = self.identity
 
         session.headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:72.0) Gecko/20100101 Firefox/72.0',
-            'Accept': '*/*',
-            'Accept-Language': 'zh-CN,zh;q=0.7,en-US;q=0.3',
+            'User-Agent': 'bgmtinygrail/ea',
             'Content-Type': 'application/json',
-            'Origin': 'https://bgm.tv',
-            'DNT': '1',
-            'Connection': 'keep-alive',
-            'Referer': 'https://bgm.tv/rakuen/topiclist',
         }
 
         session.hooks['response'].append(self._update_identity_with_response)
@@ -108,18 +102,12 @@ class Player:
             return self._aio_session
 
         session = aiohttp.ClientSession(
-            cookies=http.cookies.SimpleCookie({'.AspNetCore.Identity.Application': self.identity}))
-
-        session.headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:72.0) Gecko/20100101 Firefox/72.0',
-            'Accept': '*/*',
-            'Accept-Language': 'zh-CN,zh;q=0.7,en-US;q=0.3',
-            'Content-Type': 'application/json',
-            'Origin': 'https://bgm.tv',
-            'DNT': '1',
-            'Connection': 'keep-alive',
-            'Referer': 'https://bgm.tv/rakuen/topiclist',
-        }
+            cookies=http.cookies.SimpleCookie({'.AspNetCore.Identity.Application': self.identity}),
+            headers={
+                'User-Agent': 'bgmtinygrail/beta',
+                'Content-Type': 'application/json',
+            }
+        )
 
         self._aio_session = session
 
