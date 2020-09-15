@@ -27,7 +27,7 @@ def check_targets(player, targets: List[str], from_file: List[LazyFile], show_ex
                 yield t
 
     parsed_targets = parse_target(chain(iterates()))
-    if any(i != (0, 0) for i in parsed_targets.items()):
+    if not any(i != (0, 0) for i in parsed_targets.items()):
         print("no target specified at all")
         raise click.exceptions.Exit(11)
     characters = get_full_holding(player)
