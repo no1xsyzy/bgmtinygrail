@@ -82,7 +82,7 @@ class BigC:
     def update_character_info(self, ignore_throttle=False):
         if not ignore_throttle and self._ci_update > datetime.now():
             return
-        ci = character_info(self.player, self.character).value
+        ci = character_info(self.player, self.character)
         self.name = ci.name
         if isinstance(ci, TICO):
             self.is_ICO = True

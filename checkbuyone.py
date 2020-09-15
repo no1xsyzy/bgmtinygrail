@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 import sys
-from tinygrail.api import *
-from data import *
+
 from accounts import *
+from data import *
+from tinygrail.api import *
 
 fn = None
 
@@ -19,7 +20,7 @@ else:
     lst = loadlines(fn, factory=int)
 
 for chara in lst:
-    name = character_info(no1xsyzy, chara).value.name
+    name = character_info(no1xsyzy, chara).name
     hbid = depth(no1xsyzy, chara).highest_bid
     mybids = user_character(no1xsyzy, chara).value.bids
     if not mybids:

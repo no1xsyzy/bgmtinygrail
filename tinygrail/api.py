@@ -25,9 +25,8 @@ def batch_character_info(player: Player, lst: List[int], splits=50) -> List[Unio
     return ans
 
 
-def character_info(player: Player, cid: int) -> RCharacterish:
-    response = player.session.get(f"https://tinygrail.com/api/chara/{cid}", timeout=REQUEST_TIMEOUT)
-    return response.as_model(RCharacterish)
+def character_info(player: Player, cid: int) -> Union[TCharacter, TICO]:
+    return player.get_data(f"https://tinygrail.com/api/chara/{cid}", as_model=RCharacterish).value
 
 
 def depth(player: Player, cid: int) -> TDepth:

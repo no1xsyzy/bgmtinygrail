@@ -53,7 +53,7 @@ class ABCCharaStrategy(ABC):
         return user_character(self.player, self.cid).value
 
     def character_info(self):
-        return character_info(self.player, self.cid).value
+        return character_info(self.player, self.cid)
 
     def current_price(self):
         return round(self.character_info().current, 2)

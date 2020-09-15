@@ -9,7 +9,7 @@ def all_holding_ids(player):
 
 def pv(player, cid) -> Tuple[int, str, float]:
     price = character_auction(player, cid).price
-    chara_info = character_info(player, cid).value
+    chara_info = character_info(player, cid)
     assert isinstance(chara_info, TCharacter)
     value = chara_info.rate
     return chara_info.character_id, chara_info.name, value / price
