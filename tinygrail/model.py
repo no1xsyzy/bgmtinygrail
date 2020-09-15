@@ -240,6 +240,8 @@ class BHistory(TinygrailModel):
 
     # noinspection PyMethodParameters
     # validator returns class method
+    # noinspection PyUnusedLocal
+    # validator passes more kwargs in
     @validator('parsed_description', always=True)
     def parse_description(cls, v, values, **kwargs):
         if v is not None:
