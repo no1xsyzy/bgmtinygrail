@@ -8,7 +8,7 @@ from tinygrail.api import *
 
 @functools.lru_cache(maxsize=1000)
 def all_bl_char():
-    return blueleaf_chara_all(no1xsyzy).value.items
+    return blueleaf_chara_all(no1xsyzy)
 
 
 depth = functools.lru_cache(maxsize=1000)(depth)

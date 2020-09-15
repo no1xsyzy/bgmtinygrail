@@ -133,13 +133,13 @@ class TBlueleafCharacter(TCharacter):
     state: int  # 持有
 
 
-class TBlueleafCharaAll(TinygrailModel):
+class LBlueleafCharacter(TinygrailModel):
     total_items: int
     items: List[TBlueleafCharacter]
 
 
-class RBlueleafCharaAll(TinygrailModel):
-    value: TBlueleafCharaAll
+class RBlueleafCharacter(TinygrailModel):
+    value: LBlueleafCharacter
 
 
 class TChartum(TinygrailModel):

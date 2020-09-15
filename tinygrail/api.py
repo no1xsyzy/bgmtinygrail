@@ -43,14 +43,11 @@ def chara_user_character(player: Player) -> List[TCharaUserChara]:
     return player.get_data(f"https://tinygrail.com/api/chara/user/chara/1/{length}", RCharaUserChara).value.items
 
 
-def blueleaf_chara_all(player: Player) -> RBlueleafCharaAll:
-    # get list length
-    response = player.session.get(f"https://tinygrail.com/api/chara/user/chara/blueleaf/1/1", timeout=REQUEST_TIMEOUT)
-    length = response.as_model(RBlueleafCharaAll).value.total_items
-    # get full list
-    resp2 = player.session.get(f"https://tinygrail.com/api/chara/user/chara/blueleaf/1/{length}",
-                               timeout=REQUEST_TIMEOUT)
-    lst = resp2.as_model(RBlueleafCharaAll)
+def blueleaf_chara_all(player: Player) -> List[TBlueleafCharacter]:
+    length = player.get_data(f"https://tinygrail.com/api/chara/user/chara/blueleaf/1/1",
+                             RBlueleafCharacter).value.total_items
+    lst = player.get_data(f"https://tinygrail.com/api/chara/user/chara/blueleaf/1/{length}",
+                          RBlueleafCharacter).value.items
     return lst
 
 
