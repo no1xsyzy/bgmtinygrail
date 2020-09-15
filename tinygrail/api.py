@@ -100,6 +100,16 @@ def all_holding(player: Player) -> List[THolding]:
     return lst
 
 
+def get_full_holding(player: Player) -> Dict[int, Tuple[int, int]]:
+    characters = {}
+    for c in chara_user_character(player):
+        characters[c.id] = (c.state, c.sacrifices)
+    for c in user_temples(player):
+        if c.character_id not in characters:
+            characters[c.character_id] = 0, c.sacrifices
+    return characters
+
+
 def create_bid(player: Player, cid: int, bid: TBid):
     url = f"https://tinygrail.com/api/chara/bid/{cid}/{bid.price}/{bid.amount}"
     if bid.type == 1:
