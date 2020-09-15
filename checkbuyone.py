@@ -22,7 +22,7 @@ else:
 for chara in lst:
     name = character_info(no1xsyzy, chara).name
     hbid = depth(no1xsyzy, chara).highest_bid
-    mybids = user_character(no1xsyzy, chara).value.bids
+    mybids = user_character(no1xsyzy, chara).bids
     if not mybids:
         print(f"https://bgm.tv/character/{chara:<5}   not buying? {name}")
         continue

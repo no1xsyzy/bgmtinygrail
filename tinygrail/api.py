@@ -33,10 +33,8 @@ def depth(player: Player, cid: int) -> TDepth:
     return player.get_data(f"https://tinygrail.com/api/chara/depth/{cid}", as_model=RDepth).value
 
 
-def user_character(player: Player, cid: int) -> RUserCharacter:
-    response = player.session.get(f"https://tinygrail.com/api/chara/user/{cid}", timeout=REQUEST_TIMEOUT)
-    obj = response.as_model(RUserCharacter)
-    return obj
+def user_character(player: Player, cid: int) -> TUserCharacter:
+    return player.get_data(f"https://tinygrail.com/api/chara/user/{cid}", as_model=RUserCharacter).value
 
 
 def chara_user_character(player: Player) -> List[TCharaUserChara]:

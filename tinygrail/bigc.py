@@ -72,7 +72,7 @@ class BigC:
     def update_user_character(self, ignore_throttle=False):
         if not ignore_throttle and self._uc_update > datetime.now():
             return
-        uc = user_character(self.player, self.character).value
+        uc = user_character(self.player, self.character)
         self.bids = uc.bids
         self.asks = uc.asks
         self.amount = uc.amount

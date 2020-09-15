@@ -50,7 +50,7 @@ class ABCCharaStrategy(ABC):
         self.kwargs = kwargs
 
     def user_character(self):
-        return user_character(self.player, self.cid).value
+        return user_character(self.player, self.cid)
 
     def character_info(self):
         return character_info(self.player, self.cid)
