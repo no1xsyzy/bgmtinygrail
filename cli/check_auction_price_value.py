@@ -1,6 +1,7 @@
 import click
 
 from tinygrail.api import *
+from ._base import TG_PLAYER
 
 
 def all_holding_ids(player):
@@ -16,16 +17,15 @@ def pv(player, cid) -> Tuple[int, str, float]:
 
 
 @click.command()
-def check_auction_price_value():
-    from accounts import tg_xsb_player
-
+@click.argument("player_name", type=TG_PLAYER)
+def check_auction_price_value(player_name):
     result = []
 
-    all_holdings = all_holding_ids(tg_xsb_player)
+    all_holdings = all_holding_ids(player_name)
 
     for n, cid in enumerate(all_holdings):
         print(f"fetching {n + 1}/{len(all_holdings)}: {cid}", end="\r")
-        r = pv(tg_xsb_player, cid)
+        r = pv(player_name, cid)
         result.append(r)
 
     result = sorted(result, key=lambda t: t[2])
