@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import logging.config
 import math
+from random import sample
 from typing import *
 
 from model_link.sync_asks_collect import sync_asks_collect
@@ -9,7 +10,6 @@ from tinygrail.api import get_history
 from tinygrail.api import scratch_bonus2, scratch_gensokyo, scratch_gensokyo_price
 from trader import *
 from ._base import Daemon
-from random import sample
 
 logger = logging.getLogger('daemon')
 
