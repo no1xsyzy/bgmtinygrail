@@ -39,12 +39,12 @@ def user_character(player: Player, cid: int) -> TUserCharacter:
 
 def chara_user_character(player: Player) -> List[TCharaUserChara]:
     # get list length
-    length = player.get_data(f"https://tinygrail.com/api/chara/user/chara/1/1", RCharaUserChara).value.total_items
+    length = player.get_data("https://tinygrail.com/api/chara/user/chara/1/1", RCharaUserChara).value.total_items
     return player.get_data(f"https://tinygrail.com/api/chara/user/chara/1/{length}", RCharaUserChara).value.items
 
 
 def blueleaf_chara_all(player: Player) -> List[TBlueleafCharacter]:
-    length = player.get_data(f"https://tinygrail.com/api/chara/user/chara/blueleaf/1/1",
+    length = player.get_data("https://tinygrail.com/api/chara/user/chara/blueleaf/1/1",
                              RBlueleafCharacter).value.total_items
     lst = player.get_data(f"https://tinygrail.com/api/chara/user/chara/blueleaf/1/{length}",
                           RBlueleafCharacter).value.items
@@ -59,7 +59,7 @@ def chara_charts(player: Player, cid: int) -> List[TChartum]:
 
 def all_asks(player: Player) -> List[TCharacter]:
     # get list length
-    response = player.session.get(f"https://tinygrail.com/api/chara/asks/0/1/1", timeout=REQUEST_TIMEOUT)
+    response = player.session.get("https://tinygrail.com/api/chara/asks/0/1/1", timeout=REQUEST_TIMEOUT)
     length = response.as_model(RAllAsks).value.total_items
     # get full list
     resp2 = player.session.get(f"https://tinygrail.com/api/chara/asks/0/1/{length}", timeout=REQUEST_TIMEOUT)
@@ -69,7 +69,7 @@ def all_asks(player: Player) -> List[TCharacter]:
 
 def all_bids(player: Player) -> List[TCharacter]:
     # get list length
-    response = player.session.get(f"https://tinygrail.com/api/chara/bids/0/1/1", timeout=REQUEST_TIMEOUT)
+    response = player.session.get("https://tinygrail.com/api/chara/bids/0/1/1", timeout=REQUEST_TIMEOUT)
     length = response.as_model(RAllAsks).value.total_items
     # get full list
     resp2 = player.session.get(f"https://tinygrail.com/api/chara/bids/0/1/{length}", timeout=REQUEST_TIMEOUT)
@@ -79,7 +79,7 @@ def all_bids(player: Player) -> List[TCharacter]:
 
 def all_holding(player: Player) -> List[THolding]:
     # get list length
-    response = player.session.get(f"https://tinygrail.com/api/chara/user/chara/0/1/1", timeout=REQUEST_TIMEOUT)
+    response = player.session.get("https://tinygrail.com/api/chara/user/chara/0/1/1", timeout=REQUEST_TIMEOUT)
     length = response.as_model(RHolding).value.total_items
     # get full list
     resp2 = player.session.get(f"https://tinygrail.com/api/chara/user/chara/0/1/{length}", timeout=REQUEST_TIMEOUT)
@@ -144,7 +144,7 @@ def character_auction(player: Player, cid: int) -> TAuction:
 
 def user_temples(player: Player) -> List[TTemple]:
     # get list length
-    response = player.session.get(f"https://tinygrail.com/api/chara/user/temple/0/1/1", timeout=REQUEST_TIMEOUT)
+    response = player.session.get("https://tinygrail.com/api/chara/user/temple/0/1/1", timeout=REQUEST_TIMEOUT)
     length = response.as_model(RAllTemples).value.total_items
     # get full list
     resp2 = player.session.get(f"https://tinygrail.com/api/chara/user/temple/0/1/{length}", timeout=REQUEST_TIMEOUT)

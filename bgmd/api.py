@@ -153,7 +153,7 @@ def inbox(login: Login):
 
 
 def get_gh(login: Login):
-    response = login.session.get(f"https://bgm.tv/character/1")
+    response = login.session.get("https://bgm.tv/character/1")
     soup = BeautifulSoup(response.content, 'html.parser')
     collector = soup.select_one('span.collect a')
     if collector is None:
