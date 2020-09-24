@@ -6,12 +6,12 @@ from .base import get_db
 def create(friendly_name, uid, cfduid, chii_auth, gh, ua, tinygrail_identity):
     exists = bool(
         get_db().execute("""
-            SELECT 
-                friendly_name 
-            FROM 
-                accounts 
-            WHERE 
-                friendly_name=? 
+            SELECT
+                friendly_name
+            FROM
+                accounts
+            WHERE
+                friendly_name=?
             LIMIT 1
         """, (friendly_name,)).fetchall()
     )
@@ -20,7 +20,7 @@ def create(friendly_name, uid, cfduid, chii_auth, gh, ua, tinygrail_identity):
     db = get_db()
     db.execute("""
         INSERT INTO accounts
-            (friendly_name, id, cfduid, chii_auth, gh, ua, tinygrail_identity) 
+            (friendly_name, id, cfduid, chii_auth, gh, ua, tinygrail_identity)
         VALUES
             (?, ?, ?, ?, ?, ?, ?)""", (friendly_name, uid, cfduid, chii_auth, gh, ua, tinygrail_identity))
     db.commit()
