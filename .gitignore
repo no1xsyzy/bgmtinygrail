@@ -9,3 +9,5 @@ e.py
 !requirements.txt
 *.log
 *.db
+*.egg-info
+.pytest_cache
