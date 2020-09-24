@@ -122,14 +122,3 @@ class TraderDaemon(Daemon):
     def start(self):
         super().start()
         self._update_character_due_to_history(full_update=True)
-
-
-if __name__ == '__main__':
-    from accounts import *
-
-    daemon = TraderDaemon(tg_xsb_player, bgm_xsb_player)
-    if daemon.as_systemd_unit:
-        logging.config.fileConfig('logging-journald.conf')
-    else:
-        logging.config.fileConfig('logging.conf')
-    daemon.daemon()
