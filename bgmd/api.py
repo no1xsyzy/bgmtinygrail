@@ -36,7 +36,7 @@ def user_info(uid: Optional[int] = None, username: Optional[str] = None) -> User
 
 
 def user_mono(user: User, monotype: Literal['both', 'character', 'person']) -> List[Union[Character, Person]]:
-    assert monotype in {'both', 'character', 'person'}, ValueError
+    assert monotype in {'both', 'character', 'person'}, 'no available mono type'
     if monotype == 'both':
         return user_mono(user, 'character') + user_mono(user, 'person')
     return [Character(id=int(link['href'].split("/")[-1]))
