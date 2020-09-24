@@ -39,7 +39,7 @@ def user_mono(user: User, monotype: Literal['both', 'character', 'person']) -> L
     assert monotype in {'both', 'character', 'person'}, 'no available mono type'
     if monotype == 'both':
         return user_mono(user, 'character') + user_mono(user, 'person')
-    return [Character(id=int(link['href'].split("/")[-1]))
+    return [(Character if monotype == 'character' else Person)(id=int(link['href'].split("/")[-1]))
             for link in multi_page(empty_session.get, f"https://bgm.tv/user/{user.username}/mono/{monotype}",
                                    f"a[href^=\"/{monotype}/\"]")]
 
