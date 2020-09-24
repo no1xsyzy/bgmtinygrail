@@ -3,11 +3,8 @@ import logging
 
 from pydantic import ValidationError
 
-import requests_as_model
 from .model import *
-from .player import Player
-
-requests_as_model.monkey_patch()
+from .player import Player, APIResponseSchemeNotMatch
 
 logger = logging.getLogger('tinygrail.api')
 
@@ -194,7 +191,7 @@ def get_history(player: Player, *, since_id: int = 0, page_limit: int = None, pa
                                       timeout=REQUEST_TIMEOUT)
         try:
             lst: List[BHistory] = response.as_model(RHistory).value.items
-        except requests_as_model.APIResponseSchemeNotMatch:
+        except APIResponseSchemeNotMatch:
             lst = []
             raw_histories = response.json()['Value']['Items']
             for raw_history in raw_histories:
@@ -218,7 +215,7 @@ def iter_history(player: Player, *, page_size: int = 50) -> Iterator[BHistory]:
                                       timeout=REQUEST_TIMEOUT)
         try:
             lst: List[BHistory] = response.as_model(RHistory).value.items
-        except requests_as_model.APIResponseSchemeNotMatch:
+        except APIResponseSchemeNotMatch:
             raw_histories = response.json()['Value']['Items']
             for raw_history in raw_histories:
                 try:
