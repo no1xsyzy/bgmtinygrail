@@ -1,5 +1,6 @@
-from pydantic import BaseModel
 from typing import *
+
+from pydantic import BaseModel
 
 __all__ = ['User', 'MonoBase', 'Images', 'Mono',
            'Character', 'Person']
