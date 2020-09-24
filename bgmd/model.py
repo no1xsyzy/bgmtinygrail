@@ -52,5 +52,3 @@ class Character(Mono):
 class Person(Mono):
     def __eq__(self, other):
         return isinstance(other, Person) and other.id == self.id
-
-
