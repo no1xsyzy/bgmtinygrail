@@ -8,7 +8,6 @@ from typing import *
 # there is no systemd in windows
 from systemd.daemon import notify, Notification
 
-from accounts import *
 from model_link.sync_asks_collect import sync_asks_collect
 from strategy import *
 from tinygrail.api import all_holding, all_bids
@@ -88,7 +87,7 @@ class StrategyDaemon(Daemon):
             self._tick_chara(cid)
             if self.as_systemd_unit:
                 notify(Notification.WATCHDOG)
-        sync_asks_collect(tg_xsb_player, bgm_xsb_player, True)
+        sync_asks_collect(self.player, self.login, True)
         self._dumps("now_strategy.txt")
 
     def start(self):
