@@ -1,7 +1,5 @@
 from pydantic import validator
 
-__all__ = ['parsed_group', 'parsed_match']
-
 
 def parsed_group(func, group=None):
     if group is None:
