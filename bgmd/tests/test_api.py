@@ -1,4 +1,6 @@
 import pytest
+from pytest_mock import MockerFixture
+
 from bgmd.api import *
 from bgmd.model import *
 
@@ -48,3 +50,40 @@ class TestPersonWorkVoiceCharacter:
         assert len(result) == 57
         assert isinstance(result[0], Character) and result[0].id == 15542
         assert isinstance(result[-1], Character) and result[-1].id == 75791
+
+
+class TestCollectMono:
+    def test_calls_with_cid(self, mocker: MockerFixture):
+        from bgmd.login import Login
+        import requests
+        from requests.structures import CaseInsensitiveDict
+
+        login = Login(cfduid='cfduid', chii_auth='chii_auth', ua='ua', gh='gh')
+
+        response = requests.Response()
+        response.status_code = 302
+        response.headers = CaseInsensitiveDict({'location': '/character/42'})
+
+        mocked_get = mocker.patch.object(login.session, 'get')
+        mocked_get.return_value = response
+        assert collect_mono(login, 42) is True
+        mocked_get.assert_called_once_with("https://bgm.tv/character/42/collect?gh=gh", allow_redirects=False)
+
+    def test_calls_with_character(self, mocker: MockerFixture):
+        from bgmd.login import Login
+        import requests
+        from requests.structures import CaseInsensitiveDict
+
+        login = Login(cfduid='cfduid', chii_auth='chii_auth', ua='ua', gh='gh')
+
+        response = requests.Response()
+        response.status_code = 302
+        response.headers = CaseInsensitiveDict({'location': '/character/42'})
+
+        mocked_get = mocker.patch.object(login.session, 'get')
+        mocked_get.return_value = response
+        assert collect_mono(login, Character(id=42)) is True
+        mocked_get.assert_called_once_with("https://bgm.tv/character/42/collect?gh=gh", allow_redirects=False)
+
+    def test_remote_changes(self):
+        pytest.skip("Test user not implemented now")
