@@ -124,3 +124,11 @@ class TestEraseCollectMono:
 
     def test_remote_changes(self):
         pytest.skip("Test user not implemented now")
+
+
+class TestCharacterCollection:
+    def test_shokuhou_misaki_call_with_cid(self):
+        assert '/user/no1xsyzy' in character_collection(17949)
+
+    def test_yonomori_kobeni_call_with_character(self):
+        assert '/user/no1xsyzy' in character_collection(Character(id=21418))
