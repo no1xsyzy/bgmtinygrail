@@ -87,3 +87,40 @@ class TestCollectMono:
 
     def test_remote_changes(self):
         pytest.skip("Test user not implemented now")
+
+
+class TestEraseCollectMono:
+    def test_calls_with_cid(self, mocker: MockerFixture):
+        from bgmd.login import Login
+        import requests
+        from requests.structures import CaseInsensitiveDict
+
+        login = Login(cfduid='cfduid', chii_auth='chii_auth', ua='ua', gh='gh')
+
+        response = requests.Response()
+        response.status_code = 302
+        response.headers = CaseInsensitiveDict({'location': '/character/42'})
+
+        mocked_get = mocker.patch.object(login.session, 'get')
+        mocked_get.return_value = response
+        assert erase_collect_mono(login, 42) is True
+        mocked_get.assert_called_once_with("https://bgm.tv/character/42/erase_collect?gh=gh", allow_redirects=False)
+
+    def test_calls_with_character(self, mocker: MockerFixture):
+        from bgmd.login import Login
+        import requests
+        from requests.structures import CaseInsensitiveDict
+
+        login = Login(cfduid='cfduid', chii_auth='chii_auth', ua='ua', gh='gh')
+
+        response = requests.Response()
+        response.status_code = 302
+        response.headers = CaseInsensitiveDict({'location': '/character/42'})
+
+        mocked_get = mocker.patch.object(login.session, 'get')
+        mocked_get.return_value = response
+        assert erase_collect_mono(login, Character(id=42)) is True
+        mocked_get.assert_called_once_with("https://bgm.tv/character/42/erase_collect?gh=gh", allow_redirects=False)
+
+    def test_remote_changes(self):
+        pytest.skip("Test user not implemented now")
