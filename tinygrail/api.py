@@ -49,39 +49,22 @@ def blueleaf_chara_all(player: Player) -> List[TBlueleafCharacter]:
 
 
 def chara_charts(player: Player, cid: int) -> List[TChartum]:
-    response = player.session.get(f"https://tinygrail.com/api/chara/charts/{cid}/2019-08-08", timeout=REQUEST_TIMEOUT)
-    obj = response.as_model(RCharts)
-    return obj.value
+    return player.get_data(f"https://tinygrail.com/api/chara/charts/{cid}/2019-08-08", as_model=RCharts).value
 
 
 def all_asks(player: Player) -> List[TCharacter]:
-    # get list length
-    response = player.session.get("https://tinygrail.com/api/chara/asks/0/1/1", timeout=REQUEST_TIMEOUT)
-    length = response.as_model(RAllAsks).value.total_items
-    # get full list
-    resp2 = player.session.get(f"https://tinygrail.com/api/chara/asks/0/1/{length}", timeout=REQUEST_TIMEOUT)
-    lst = resp2.as_model(RAllAsks).value.items
-    return lst
+    length = player.get_data("https://tinygrail.com/api/chara/asks/0/1/1", as_model=RAllAsks).value.total_items
+    return player.get_data(f"https://tinygrail.com/api/chara/asks/0/1/{length}", as_model=RAllAsks).value.items
 
 
 def all_bids(player: Player) -> List[TCharacter]:
-    # get list length
-    response = player.session.get("https://tinygrail.com/api/chara/bids/0/1/1", timeout=REQUEST_TIMEOUT)
-    length = response.as_model(RAllAsks).value.total_items
-    # get full list
-    resp2 = player.session.get(f"https://tinygrail.com/api/chara/bids/0/1/{length}", timeout=REQUEST_TIMEOUT)
-    lst = resp2.as_model(RAllAsks).value.items
-    return lst
+    length = player.get_data("https://tinygrail.com/api/chara/bids/0/1/1", as_model=RAllAsks).value.total_items
+    return player.get_data(f"https://tinygrail.com/api/chara/bids/0/1/{length}", as_model=RAllAsks).value.items
 
 
 def all_holding(player: Player) -> List[THolding]:
-    # get list length
-    response = player.session.get("https://tinygrail.com/api/chara/user/chara/0/1/1", timeout=REQUEST_TIMEOUT)
-    length = response.as_model(RHolding).value.total_items
-    # get full list
-    resp2 = player.session.get(f"https://tinygrail.com/api/chara/user/chara/0/1/{length}", timeout=REQUEST_TIMEOUT)
-    lst = resp2.as_model(RHolding).value.items
-    return lst
+    length = player.get_data("https://tinygrail.com/api/chara/user/chara/0/1/1", as_model=RHolding).value.total_items
+    return player.get_data(f"https://tinygrail.com/api/chara/user/chara/0/1/{length}", as_model=RHolding).value.items
 
 
 def get_full_holding(player: Player) -> Dict[int, Tuple[int, int]]:
@@ -98,34 +81,26 @@ def create_bid(player: Player, cid: int, bid: TBid):
     url = f"https://tinygrail.com/api/chara/bid/{cid}/{bid.price}/{bid.amount}"
     if bid.type == 1:
         url += "/true"
-    response = player.session.post(url, json=None, timeout=REQUEST_TIMEOUT)
-    result = response.as_model(RString)
-    return result
+    return player.post_data(url, data=None, as_model=RString)
 
 
 def create_ask(player: Player, cid: int, ask: TAsk):
     url = f"https://tinygrail.com/api/chara/ask/{cid}/{ask.price}/{ask.amount}"
     if ask.type == 1:
         url += "/true"
-    response = player.session.post(url, json=None, timeout=REQUEST_TIMEOUT)
-    result = response.as_model(RString)
-    return result
+    return player.post_data(url, data=None, as_model=RString)
 
 
 def cancel_bid(player: Player, bid: TBid):
     assert bid.id is not None, ValueError
     url = f"https://tinygrail.com/api/chara/bid/cancel/{bid.id}"
-    response = player.session.post(url, json=None, timeout=REQUEST_TIMEOUT)
-    result = response.as_model(RString)
-    return result
+    return player.post_data(url, data=None, as_model=RString)
 
 
 def cancel_ask(player: Player, ask: TAsk):
     assert ask.id is not None, ValueError
     url = f"https://tinygrail.com/api/chara/ask/cancel/{ask.id}"
-    response = player.session.post(url, json=None, timeout=REQUEST_TIMEOUT)
-    result = response.as_model(RString)
-    return result
+    return player.post_data(url, data=None, as_model=RString)
 
 
 def get_initial_price(player: Player, cid: int):
@@ -135,32 +110,24 @@ def get_initial_price(player: Player, cid: int):
 
 def character_auction(player: Player, cid: int) -> TAuction:
     url = f"https://tinygrail.com/api/chara/user/{cid}/tinygrail/false"
-    response = player.session.get(url, timeout=REQUEST_TIMEOUT)
-    return response.as_model(RAuction).value
+    return player.get_data(url, as_model=RAuction).value
 
 
 def user_temples(player: Player) -> List[TTemple]:
-    # get list length
-    response = player.session.get("https://tinygrail.com/api/chara/user/temple/0/1/1", timeout=REQUEST_TIMEOUT)
-    length = response.as_model(RAllTemples).value.total_items
-    # get full list
-    resp2 = player.session.get(f"https://tinygrail.com/api/chara/user/temple/0/1/{length}", timeout=REQUEST_TIMEOUT)
-    lst = resp2.as_model(RAllTemples).value.items
-    return lst
+    length = player.get_data("https://tinygrail.com/api/chara/user/temple/0/1/1",
+                             as_model=RAllTemples).value.total_items
+    return player.get_data(f"https://tinygrail.com/api/chara/user/temple/0/1/{length}",
+                           as_model=RAllTemples).value.items
 
 
 def magic_chaos(player: Player, attacker_cid: int) -> TScratchBonus:
     url = f"https://tinygrail.com/api/magic/chaos/{attacker_cid}"
-    response = player.session.post(url, json=None, timeout=REQUEST_TIMEOUT)
-    jso = response.as_model(RScratchLikeOnce).value
-    return jso
+    return player.post_data(url, data=None, as_model=RScratchLikeOnce).value
 
 
 def magic_guidepost(player: Player, attacker_cid: int, target_cid: int) -> TScratchBonus:
     url = f"https://tinygrail.com/api/magic/guidepost/{attacker_cid}/{target_cid}"
-    response = player.session.post(url, json=None, timeout=REQUEST_TIMEOUT)
-    jso = response.as_model(RScratchLikeOnce).value
-    return jso
+    return player.post_data(url, data=None, as_model=RScratchLikeOnce).value
 
 
 def magic_stardust(player: Player, supplier_cid: int, demand_cid: int, amount: int,
@@ -178,8 +145,7 @@ def magic_stardust(player: Player, supplier_cid: int, demand_cid: int, amount: i
 
 
 def get_my_ico(player: Player, ico_id: int) -> TMyICO:
-    response = player.session.get(f"https://tinygrail.com/api/chara/initial/{ico_id}", timeout=REQUEST_TIMEOUT)
-    return response.as_model(RMyICO).value
+    return player.get_data(f"https://tinygrail.com/api/chara/initial/{ico_id}", as_model=RMyICO).value
 
 
 def get_history(player: Player, *, since_id: int = 0, page_limit: int = None, page_size: int = 50) -> List[BHistory]:
@@ -190,7 +156,8 @@ def get_history(player: Player, *, since_id: int = 0, page_limit: int = None, pa
         response = player.session.get(f"https://tinygrail.com/api/chara/user/balance/{page}/{page_size}",
                                       timeout=REQUEST_TIMEOUT)
         try:
-            lst: List[BHistory] = response.as_model(RHistory).value.items
+            jso = response.json()
+            lst: List[BHistory] = RHistory(**jso).value.items
         except APIResponseSchemeNotMatch:
             lst = []
             raw_histories = response.json()['Value']['Items']
@@ -214,7 +181,8 @@ def iter_history(player: Player, *, page_size: int = 50) -> Iterator[BHistory]:
         response = player.session.get(f"https://tinygrail.com/api/chara/user/balance/{page}/{page_size}",
                                       timeout=REQUEST_TIMEOUT)
         try:
-            lst: List[BHistory] = response.as_model(RHistory).value.items
+            jso = response.json()
+            lst: List[BHistory] = RHistory(**jso).value.items
         except APIResponseSchemeNotMatch:
             raw_histories = response.json()['Value']['Items']
             for raw_history in raw_histories:
@@ -230,15 +198,13 @@ def iter_history(player: Player, *, page_size: int = 50) -> Iterator[BHistory]:
 
 
 def scratch_bonus2(player: Player) -> List[TScratchBonus]:
-    response = player.session.get("https://tinygrail.com/api/event/scratch/bonus2", timeout=REQUEST_TIMEOUT)
-    return response.as_model(RScratchBonus).value
+    return player.get_data("https://tinygrail.com/api/event/scratch/bonus2", as_model=RScratchBonus).value
 
 
 def scratch_gensokyo(player: Player) -> List[TScratchBonus]:
-    response = player.session.get("https://tinygrail.com/api/event/scratch/bonus2/true", timeout=REQUEST_TIMEOUT)
-    return response.as_model(RScratchBonus).value
+    return player.get_data("https://tinygrail.com/api/event/scratch/bonus2/true", as_model=RScratchBonus).value
 
 
 def scratch_gensokyo_price(player: Player) -> int:
-    response = player.session.get("https://tinygrail.com/api/event/daily/count/10", timeout=REQUEST_TIMEOUT)
-    return 2000 * (2 ** response.as_model(RInteger).value)
+    sp = player.get_data("https://tinygrail.com/api/event/daily/count/10", as_model=RInteger).value
+    return 2000 * (2 ** sp)
