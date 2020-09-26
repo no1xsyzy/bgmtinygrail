@@ -11,8 +11,7 @@ from typing import *
 from requests.exceptions import ReadTimeout, ConnectionError
 
 from bgmd.login import Login
-from requests_as_model import APIResponseSchemeNotMatch
-from tinygrail.player import Player
+from tinygrail.player import Player, APIResponseSchemeNotMatch
 
 logger = logging.getLogger('daemon')
 
