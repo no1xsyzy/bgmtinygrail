@@ -8,4 +8,5 @@ pydantic
 pytest
 pytest_mock
 requests
+sqlalchemy
 systemd
