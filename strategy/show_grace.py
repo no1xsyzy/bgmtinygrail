@@ -32,10 +32,8 @@ class ShowGraceStrategy(ABCCharaStrategy):
             return self._transact(IgnoreStrategy)
         self._fast_seller(self.big_c.amount, low=self.big_c.initial_price_rounded, high=self.sell_price)
         if self.big_c.amount or self.big_c.asks:
+            self.earned_value += self.big_c.fundamental_rounded * self.big_c.total_holding
             return self._transact(BalanceStrategy)
 
     def output(self):
-        self._fast_seller(self.big_c.amount, low=self.big_c.initial_price_rounded, high=self.sell_price)
-        if self.big_c.amount or self.big_c.asks:
-            self._output_balanced()
-        return self.big_c.fundamental_rounded
+        pass
