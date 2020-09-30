@@ -11,7 +11,7 @@ class IgnoreStrategy(ABCCharaStrategy):
                 logger.info("new stock")
                 self._fast_seller(low=self._exchange_price)
                 if self.big_c.amount or self.big_c.asks:
-                    return BalanceStrategy(self.player, self.cid)
+                    return self._transact(BalanceStrategy)
         return self
 
     def output(self):

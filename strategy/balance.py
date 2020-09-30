@@ -7,7 +7,7 @@ class BalanceStrategy(ABCCharaStrategy):
     def transition(self):
         from .ignore import IgnoreStrategy
         if self.big_c.total_holding == 0:
-            return IgnoreStrategy(self.player, self.cid)
+            return self._transact(IgnoreStrategy)
         if self.big_c.amount > 0:
             logger.info("there is some part not selling")
             if not self.big_c.bids:

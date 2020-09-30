@@ -48,6 +48,10 @@ class ABCCharaStrategy(ABC):
     def __post_init__(self):
         pass
 
+    def _transact(self, strategy_class: 'Type[ABCCharaStrategy]' = None, **kwargs):
+        strategy_class = strategy_class or self.__class__
+        return strategy_class(self.player, self.cid, trader=self.trader, **kwargs)
+
     @property
     def big_c(self):
         res = _big_c(self.player, self.cid)
