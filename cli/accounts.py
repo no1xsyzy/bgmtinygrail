@@ -11,13 +11,11 @@ def accounts():
 @accounts.command()
 @click.argument('friendly_name')
 @click.argument('uid', type=int)
-@click.argument('cfduid')
 @click.argument('chii_auth')
-@click.argument('gh')
 @click.argument('ua')
 @click.argument('tinygrail_identity')
-def add(friendly_name, uid, cfduid, chii_auth, gh, ua, tinygrail_identity):
-    db_accounts.create(friendly_name, uid, cfduid, chii_auth, gh, ua, tinygrail_identity)
+def add(friendly_name, uid, chii_auth, ua, tinygrail_identity):
+    db_accounts.create(friendly_name, uid, chii_auth, ua, tinygrail_identity)
 
 
 @accounts.command()
@@ -29,9 +27,7 @@ def remove(friendly_name):
 @accounts.command()
 @click.argument('friendly_name')
 @click.option('--uid', 'id', type=int)
-@click.option('--cfduid')
 @click.option('--chii-auth')
-@click.option('--gh')
 @click.option('--ua')
 @click.option('--tinygrail-identity')
 def update(friendly_name, **kwargs):
