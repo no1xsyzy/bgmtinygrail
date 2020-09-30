@@ -260,3 +260,22 @@ class RString(TinygrailModel):
 class RInteger(TinygrailModel):
     state: int
     value: int
+
+
+class TUserAssets(TinygrailModel):
+    id: int
+    name: str
+    avatar: str
+    nickname: str
+    balance: float
+    assets: float
+    type: int
+    state: int
+    last_index: int
+    show_weekly: bool
+    show_daily: bool
+
+
+class RUserAssets(TinygrailModel):
+    state: int
+    value: TUserAssets
