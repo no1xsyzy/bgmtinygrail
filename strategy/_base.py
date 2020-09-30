@@ -79,14 +79,11 @@ class ABCCharaStrategy(ABC):
         big_c = self.big_c
         price = price or self._exchange_price
         amount = 100
-        big_c.ensure_bids([])
-        big_c.update_user_character(ignore_throttle=True)
+        big_c.ensure_bids([], force_updates='after')
         while not big_c.bids:
-            big_c.ensure_bids([TBid(Price=price, Amount=amount)])
-            big_c.update_user_character(ignore_throttle=True)
+            big_c.ensure_bids([TBid(Price=price, Amount=amount)], force_updates='after')
             amount *= 2
-        big_c.ensure_bids([TBid(Price=price, Amount=100)])
-        big_c.update_user_character(ignore_throttle=True)
+        big_c.ensure_bids([], force_updates='after')
 
     def _fast_seller(self, amount=None, low=10, high=100000):
         logger.debug(f"fast seller #{self.cid:<5} | ({low}-{high}) / {amount}")
