@@ -37,3 +37,10 @@ def set_strategy(character_id: int, username: str, strategy_id: int, kwargs: str
 def get_strategy(character_id: int, username: str, *, session=None) -> Tuple[int, str]:
     return session.query(CharacterStrategy.strategy_id, CharacterStrategy.kwargs) \
         .filter_by(character_id=character_id, username=username).one()
+
+
+@auto_session(DbMainSession)
+def purge_strategy(character_id: int, username: str, *, session=None):
+    the_strategy: CharacterStrategy = session.query(CharacterStrategy) \
+        .filter_by(character_id=character_id, username=username).one()
+    session.delete(the_strategy)
