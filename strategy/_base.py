@@ -108,7 +108,6 @@ class ABCCharaStrategy(ABC):
 
     def _output_balanced(self):
         exchange_price = self._exchange_price
-        logger.debug(f"output balanced #{self.cid:<5} | {exchange_price}")
         big_c = self.big_c
         big_c.update_user_character(ignore_throttle=True)
         if big_c.total_holding:
