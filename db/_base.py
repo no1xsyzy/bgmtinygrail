@@ -22,7 +22,40 @@ def create_all():
     RuntimeBase.metadata.create_all(engine_runtime)
 
 
+def auto_session(session_cls, *,
+                 writes: bool = True, commits: bool = None, rollbacks: bool = None,
+                 closes: bool = True):
+    if rollbacks is None:
+        rollbacks = writes
+    if commits is None:
+        commits = writes
+
+    def wrapper(func):
+        from functools import wraps
+
+        @wraps(func)
+        def wrapped(*args, session=None, **kwargs):
+            if session is not None:
+                return func(*args, session=session, **kwargs)
+            try:
+                session = session_cls()
+                return func(*args, session=session, **kwargs)
+            except:
+                if rollbacks:
+                    session.rollback()
+                raise
+            finally:
+                if commits:
+                    session.commit()
+                if closes:
+                    session.close()
+
+        return wrapped
+
+    return wrapper
+
+
 __all__ = ['DbMainSession', 'DbCacheSession', 'DbRuntimeSession',
            'MainBase', 'CacheBase', 'RuntimeBase',
            'Column', 'Integer', 'String',
-           'create_all']
+           'create_all', 'auto_session']

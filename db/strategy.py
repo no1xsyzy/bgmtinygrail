@@ -1,5 +1,6 @@
-from typing import Tuple, Any
+from typing import Tuple
 
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm.exc import NoResultFound
 
 from ._base import *
@@ -19,18 +20,8 @@ class CharacterStrategy(MainBase):
                 f"strategy_id={self.strategy_id!r}, kwargs={self.kwargs!r})>")
 
 
-def set_strategy(character_id, username, strategy_id, kwargs: Any, *, session=None):
-    if session is None:
-        try:
-            session = DbMainSession()
-            return set_strategy(character_id, username, strategy_id, kwargs, session=session)
-        except:
-            session.rollback()
-            raise
-        finally:
-            session.commit()
-            session.close()
-
+@auto_session(DbMainSession)
+def set_strategy(character_id: int, username: str, strategy_id: int, kwargs: str, *, session):
     try:
         the_strategy: CharacterStrategy = session.query(CharacterStrategy) \
             .filter_by(character_id=character_id, username=username).one()
@@ -42,13 +33,7 @@ def set_strategy(character_id, username, strategy_id, kwargs: Any, *, session=No
         session.add(the_strategy)
 
 
-def get_strategy(character_id, username, *, session=None) -> Tuple[int, Any]:
-    if session is None:
-        try:
-            session = DbMainSession()
-            return get_strategy(character_id, username, session=session)
-        finally:
-            session.close()
-
+@auto_session(DbMainSession, writes=False)
+def get_strategy(character_id: int, username: str, *, session=None) -> Tuple[int, str]:
     return session.query(CharacterStrategy.strategy_id, CharacterStrategy.kwargs) \
         .filter_by(character_id=character_id, username=username).one()

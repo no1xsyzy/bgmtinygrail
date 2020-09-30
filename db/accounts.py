@@ -18,60 +18,35 @@ class Account(MainBase):
                 f"tinygrail_identity={self.tinygrail_identity!r})>")
 
 
+@auto_session(DbMainSession)
 def create(friendly_name: str, uid: int,
            chii_auth: str, ua: str,
            tinygrail_identity: str, *, session=None):
-    if session is None:
-        try:
-            session = DbMainSession()
-            return create(friendly_name, uid, chii_auth, ua, tinygrail_identity, session=session)
-        finally:
-            session.commit()
-            session.close()
-
     new_acc = Account(id=uid, friendly_name=friendly_name,
                       chii_auth=chii_auth, ua=ua,
                       tinygrail_identity=tinygrail_identity)
     session.add(new_acc)
 
 
+@auto_session(DbMainSession, writes=False)
 def retrieve(friendly_name: str, *, session: DbMainSession = None) -> Account:
-    if session is None:
-        try:
-            session = DbMainSession()
-            return retrieve(friendly_name, session=session)
-        finally:
-            session.close()
     return session.query(Account).filter_by(friendly_name=friendly_name).one()
 
 
+@auto_session(DbMainSession)
 def update(friendly_name: str, *, session=None, **kwargs):
-    if session is None:
-        try:
-            session = DbMainSession()
-            return update(friendly_name, **kwargs, session=session)
-        finally:
-            session.commit()
-            session.close()
-
     obj = session.query(Account).filter_by(friendly_name=friendly_name)
     for k, v in kwargs.items():
         setattr(obj, k, v)
 
 
+@auto_session(DbMainSession)
 def delete(friendly_name: str, *, session=None):
-    if session is None:
-        try:
-            session = DbMainSession()
-            return delete(friendly_name, session=session)
-        finally:
-            session.commit()
-            session.close()
-
     obj = session.query(Account).filter_by(friendly_name=friendly_name)
     session.delete(obj)
 
 
+@auto_session(DbMainSession, writes=False)
 def list_all(*, session=None) -> List[str]:
     if session is None:
         try:
