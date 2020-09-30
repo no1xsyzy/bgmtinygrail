@@ -208,3 +208,7 @@ def scratch_gensokyo(player: Player) -> List[TScratchBonus]:
 def scratch_gensokyo_price(player: Player) -> int:
     sp = player.get_data("https://tinygrail.com/api/event/daily/count/10", as_model=RInteger).value
     return 2000 * (2 ** sp)
+
+
+def user_assets(player: Player) -> TUserAssets:
+    return player.get_data("https://tinygrail.com/api/chara/user/assets", as_model=RUserAssets).value
