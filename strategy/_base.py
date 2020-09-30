@@ -62,12 +62,6 @@ class ABCCharaStrategy(ABC):
     def _exchange_price(self):
         return max(self.big_c.initial_price_rounded, self._fundamental())
 
-    def ensure_bids(self, bids: List[TBid]):
-        self.big_c.ensure_bids(bids)
-
-    def ensure_asks(self, asks: List[TAsk]):
-        self.big_c.ensure_asks(asks)
-
     @abstractmethod
     def transition(self) -> 'ABCCharaStrategy':
         return self
