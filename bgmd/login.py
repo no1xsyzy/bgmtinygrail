@@ -13,7 +13,7 @@ class Login:
     user: Optional[User]
     _session: Optional[requests.Session]
 
-    def __init__(self, *, cfduid, chii_auth, gh=None, ua, user=None):
+    def __init__(self, *, chii_auth, gh=None, ua, user=None):
         self.chii_auth = chii_auth
         self._gh = gh
         self.ua = ua

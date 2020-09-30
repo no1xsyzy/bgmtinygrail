@@ -58,7 +58,7 @@ class TestCollectMono:
         import requests
         from requests.structures import CaseInsensitiveDict
 
-        login = Login(cfduid='cfduid', chii_auth='chii_auth', ua='ua', gh='gh')
+        login = Login(chii_auth='chii_auth', ua='ua', gh='gh')
 
         response = requests.Response()
         response.status_code = 302
@@ -74,7 +74,7 @@ class TestCollectMono:
         import requests
         from requests.structures import CaseInsensitiveDict
 
-        login = Login(cfduid='cfduid', chii_auth='chii_auth', ua='ua', gh='gh')
+        login = Login(chii_auth='chii_auth', ua='ua', gh='gh')
 
         response = requests.Response()
         response.status_code = 302
@@ -95,7 +95,7 @@ class TestEraseCollectMono:
         import requests
         from requests.structures import CaseInsensitiveDict
 
-        login = Login(cfduid='cfduid', chii_auth='chii_auth', ua='ua', gh='gh')
+        login = Login(chii_auth='chii_auth', ua='ua', gh='gh')
 
         response = requests.Response()
         response.status_code = 302
@@ -111,7 +111,7 @@ class TestEraseCollectMono:
         import requests
         from requests.structures import CaseInsensitiveDict
 
-        login = Login(cfduid='cfduid', chii_auth='chii_auth', ua='ua', gh='gh')
+        login = Login(chii_auth='chii_auth', ua='ua', gh='gh')
 
         response = requests.Response()
         response.status_code = 302
