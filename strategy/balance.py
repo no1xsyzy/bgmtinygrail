@@ -6,18 +6,16 @@ class BalanceStrategy(ABCCharaStrategy):
 
     def transition(self):
         from .ignore import IgnoreStrategy
+        if (not self.big_c.bids_all or
+                max(self.big_c.bids_all).price <= self.big_c.initial_price_rounded):
+            logger.info("justice! no under initial")
+            return self
         if self.big_c.total_holding == 0:
+            logger.info("forget it")
             return self._transact(IgnoreStrategy)
-        if self.big_c.amount > 0:
-            logger.info("there is some part not selling")
-            if not self.big_c.bids:
-                logger.info("and bids ran out")
-                self._fast_forward()
-            return self
-        elif self.big_c.asks[0].price != self._exchange_price:
-            logger.info(f"exchange price not match ({self.big_c.asks[0].price} != {self._exchange_price})")
-            return self
         return self
 
     def output(self):
+        if not self.big_c.bids:
+            self._fast_forward()
         self._output_balanced()
