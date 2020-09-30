@@ -16,24 +16,21 @@ class LoginPlayer(NamedTuple):
     tinygrail: Player
 
 
-def translate(dr: Dict) -> LoginPlayer:
-    identity = dr.pop('tinygrail_identity')
-    user = user_info(dr.pop('id'))
-    name = dr.pop('friendly_name')
-    del dr['gh']
-    bangumi = Login(**dr, user=user)
+def translate(acc: db_accounts.Account) -> LoginPlayer:
+    user = user_info(acc.id)
+    bangumi = Login(chii_auth=acc.chii_auth, ua=acc.ua, user=user)
 
     def update_identity(new_identity):
-        db_accounts.update(name, tinygrail_identity=new_identity)
+        db_accounts.update(acc.friendly_name, tinygrail_identity=new_identity)
 
-    tinygrail = Player(identity, on_identity_refresh=update_identity)
-    return LoginPlayer(name, bangumi, tinygrail)
+    tinygrail = Player(acc.tinygrail_identity, on_identity_refresh=update_identity)
+    return LoginPlayer(acc.friendly_name, bangumi, tinygrail)
 
 
 all_accounts: Dict[str, LoginPlayer] = {}
 
 for friendly_name in db_accounts.list_all():
-    for dict_row in db_accounts.retrieve(friendly_name):
-        globals()[friendly_name] = all_accounts[friendly_name] = lazy_object_proxy.Proxy(
-            (lambda dr: lambda: translate(dr))(dict_row))
-        __all__.append(friendly_name)
+    account = db_accounts.retrieve(friendly_name)
+    globals()[friendly_name] = all_accounts[friendly_name] = lazy_object_proxy.Proxy(
+        (lambda acc: lambda: translate(acc))(account))
+    __all__.append(friendly_name)

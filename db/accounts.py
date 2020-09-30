@@ -1,74 +1,83 @@
 from typing import List
 
-from .base import get_db
+from ._base import *
 
 
-def create(friendly_name, uid, cfduid, chii_auth, gh, ua, tinygrail_identity):
-    exists = bool(
-        get_db().execute("""
-            SELECT
-                friendly_name
-            FROM
-                accounts
-            WHERE
-                friendly_name=?
-            LIMIT 1
-        """, (friendly_name,)).fetchall()
-    )
-    if exists:
-        return f"Account {friendly_name} has already been added"
-    db = get_db()
-    db.execute("""
-        INSERT INTO accounts
-            (friendly_name, id, cfduid, chii_auth, gh, ua, tinygrail_identity)
-        VALUES
-            (?, ?, ?, ?, ?, ?, ?)""", (friendly_name, uid, cfduid, chii_auth, gh, ua, tinygrail_identity))
-    db.commit()
+class Account(MainBase):
+    __tablename__ = 'accounts'
+
+    id = Column(Integer, primary_key=True)
+    friendly_name = Column(String(64), index=True, nullable=False, unique=True)
+    chii_auth = Column(String(128), nullable=False)
+    ua = Column(String(128), nullable=False)
+    tinygrail_identity = Column(String(1000), nullable=False)
+
+    def __repr__(self):
+        return (f"<Accounts(friendly_name={self.friendly_name!r}, id={self.id!r}, "
+                f"chii_auth={self.chii_auth!r}, ua={self.ua!r}, "
+                f"tinygrail_identity={self.tinygrail_identity!r})>")
 
 
-def retrieve(friendly_name):
-    res = get_db().execute("""
-        SELECT
-            friendly_name, id, cfduid, chii_auth, gh, ua, tinygrail_identity
-        FROM
-            accounts
-        WHERE
-            friendly_name=?
-    """, (friendly_name,))
-    return [dict(row) for row in res]
+def create(friendly_name: str, uid: int,
+           chii_auth: str, ua: str,
+           tinygrail_identity: str, *, session=None):
+    if session is None:
+        try:
+            session = DbMainSession()
+            return create(friendly_name, uid, chii_auth, ua, tinygrail_identity, session=session)
+        finally:
+            session.commit()
+            session.close()
+
+    new_acc = Account(id=uid, friendly_name=friendly_name,
+                      chii_auth=chii_auth, ua=ua,
+                      tinygrail_identity=tinygrail_identity)
+    session.add(new_acc)
 
 
-def update(friendly_name, **kwargs):
-    ks = []
-    vs = []
+def retrieve(friendly_name: str, *, session: DbMainSession = None) -> Account:
+    if session is None:
+        try:
+            session = DbMainSession()
+            return retrieve(friendly_name, session=session)
+        finally:
+            session.close()
+    return session.query(Account).filter_by(friendly_name=friendly_name).one()
+
+
+def update(friendly_name: str, *, session=None, **kwargs):
+    if session is None:
+        try:
+            session = DbMainSession()
+            return update(friendly_name, **kwargs, session=session)
+        finally:
+            session.commit()
+            session.close()
+
+    obj = session.query(Account).filter_by(friendly_name=friendly_name)
     for k, v in kwargs.items():
-        if v is not None:
-            ks.append(k)
-            vs.append(v)
-    assert len(ks) == len(vs)
-    db = get_db()
-    db.execute(f"""
-        UPDATE accounts
-        SET {",".join(k + "=?" for k in ks)}
-        WHERE friendly_name=?
-    """, (*vs, friendly_name))
-    db.commit()
+        setattr(obj, k, v)
 
 
-def delete(friendly_name):
-    db = get_db()
-    db.execute("""
-        DELETE FROM accounts
-        WHERE friendly_name=?
-    """, (friendly_name,))
-    db.commit()
+def delete(friendly_name: str, *, session=None):
+    if session is None:
+        try:
+            session = DbMainSession()
+            return delete(friendly_name, session=session)
+        finally:
+            session.commit()
+            session.close()
+
+    obj = session.query(Account).filter_by(friendly_name=friendly_name)
+    session.delete(obj)
 
 
-def list_all() -> List[str]:
-    res = get_db().execute("""
-        SELECT
-            friendly_name
-        FROM
-            accounts
-    """)
-    return [row[0] for row in res]
+def list_all(*, session=None) -> List[str]:
+    if session is None:
+        try:
+            session = DbMainSession()
+            return list_all(session=session)
+        finally:
+            session.close()
+
+    return [friendly_name[0] for friendly_name in session.query(Account.friendly_name)]

@@ -9,8 +9,8 @@ class TGPlayerParamType(click.ParamType):
     def convert(self, value, param, ctx):
         try:
             from db import accounts
-            dct = accounts.retrieve(value)[0]
-            return Player(dct['tinygrail_identity'])
+            acc = accounts.retrieve(value)
+            return Player(acc.tinygrail_identity)
         except IndexError:
             self.fail(f"no such player {value!r}", param, ctx)
 
