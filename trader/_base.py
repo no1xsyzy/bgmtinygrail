@@ -6,7 +6,7 @@ from tinygrail.bigc import BigC
 from tinygrail.model import TAsk, TBid
 from tinygrail.player import Player
 
-logger = logging.getLogger('strategy')
+logger = logging.getLogger('trader')
 
 __all__ = ['ABCTrader', 'TAsk', 'TBid', 'logger']
 
