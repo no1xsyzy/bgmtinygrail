@@ -17,7 +17,7 @@ def sync_asks_collect(player: Player, login: Login, sets=True, logs=lambda x: No
     anf, fna = compare_asks_collect(player, login)
 
     for i in anf:
-        logs(f"- https://bgm.tv/character/{i}")
+        logs(f"+ https://bgm.tv/character/{i}")
         if sets:
             collect_mono(login, i)
 
