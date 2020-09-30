@@ -18,4 +18,4 @@ def sync_asks_collect(account, override_bangumi, sets):
     if override_bangumi is not None:
         _, login, _ = translate(accounts.retrieve(override_bangumi))
 
-    api_sync_asks_collect(player, login, logs=logger.info)
+    api_sync_asks_collect(player, login, logs=logger.info, sets=sets)
