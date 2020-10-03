@@ -36,10 +36,7 @@ class StrategyMap(dict, Dict[int, ABCCharaStrategy]):
 
     def __setitem__(self, cid, strategy: ABCCharaStrategy):
         super(StrategyMap, self).__setitem__(cid, strategy)
-        set_strategy(cid, self.player_id_str, strategy.strategy, json.dumps(strategy.kwargs))
-
-    def __getitem__(self, cid) -> ABCCharaStrategy:
-        return super(StrategyMap, self).__getitem__(cid)
+        set_strategy(cid, self.player_id_str, strategy.strategy.value, json.dumps(strategy.kwargs))
 
     def __delitem__(self, cid):
         super(StrategyMap, self).__delitem__(cid)
