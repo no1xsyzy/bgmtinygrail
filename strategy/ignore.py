@@ -6,6 +6,10 @@ class IgnoreStrategy(ABCCharaStrategy):
 
     def transition(self):
         from strategy import BalanceStrategy
+        if len(self.big_c.asks) == 1 and len(self.big_c.bids) == 1 \
+                and self.big_c.asks[0].price == self.big_c.bids[0].price:
+            logger.info("already in balance")
+            return self._transact(BalanceStrategy)
         if self.big_c.total_holding > 0:
             logger.info("new stock")
             self._fast_seller(low=self._exchange_price)
