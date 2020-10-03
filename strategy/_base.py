@@ -64,7 +64,7 @@ class ABCCharaStrategy(ABC):
 
     @property
     def _exchange_price(self):
-        return max(self.big_c.initial_price_rounded, self._fundamental())
+        return max(self.big_c.initial_price_rounded, self._fundamental)
 
     @abstractmethod
     def transition(self) -> 'ABCCharaStrategy':
