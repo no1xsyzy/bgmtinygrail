@@ -31,6 +31,7 @@ class StrategyMap(dict, Dict[int, ABCCharaStrategy]):
             strategy = all_strategies[Strategy(strategy_id)](self.player, cid, trader=self.trader, **json.loads(kwargs))
             super(StrategyMap, self).__setitem__(cid, strategy)
         except NoResultFound:
+            logger.debug("Emerge as Ignore")
             self[cid] = IgnoreStrategy(self.player, cid, trader=self.trader)
             return self[cid]
 
@@ -61,6 +62,7 @@ class StrategicalTrader(ABCTrader):
         next_state = now_state.transition()
         if next_state is now_state:
             if next_state.strategy is Strategy.IGNORE:
+                logger.debug("kept ignore, purge record")
                 del self.strategy_map[cid]
         elif next_state.strategy != now_state.strategy:
             self.strategy_map[cid] = next_state
@@ -68,5 +70,6 @@ class StrategicalTrader(ABCTrader):
                            f"from `{now_state.strategy.name}' "
                            f"to `{next_state.strategy.name}'")
         else:
+            logger.debug("update")
             self.strategy_map[cid] = next_state
         next_state.output()
