@@ -25,7 +25,7 @@ def set_strategy(character_id: int, username: str, strategy_id: int, kwargs: str
     try:
         the_strategy: CharacterStrategy = session.query(CharacterStrategy) \
             .filter_by(character_id=character_id, username=username).one()
-        the_strategy.strategy = strategy_id
+        the_strategy.strategy_id = strategy_id
         the_strategy.kwargs = kwargs
     except NoResultFound:
         the_strategy = CharacterStrategy(character_id=character_id, username=username,
