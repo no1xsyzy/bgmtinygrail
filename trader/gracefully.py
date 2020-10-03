@@ -8,17 +8,16 @@ scratch_translate = {
 
 
 class GracefulTrader(FundamentalTrader):
-    def graceful_tick(self, cid, sell_price) -> float:
+    def graceful_tick(self, cid, sell_price):
         """indicated for daily bonus"""
         big_c = self.big_c(cid)
         if big_c.asks or sell_price < big_c.initial_price_rounded:
             self.tick(cid)
-            return big_c.fundamental_rounded
+            return
         logger.debug(f"try sell all #{cid}, {sell_price=}, amount={big_c.amount}")
         big_c.create_ask(TAsk(Price=sell_price, Amount=big_c.amount), force_updates=True)
         if not big_c.asks:
-            return sell_price
+            return
         self._fast_seller(cid, big_c.amount, low=big_c.initial_price_rounded, high=sell_price)
         if big_c.amount or big_c.asks:
             self._output_balanced(cid)
-        return big_c.fundamental_rounded

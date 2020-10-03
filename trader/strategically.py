@@ -7,6 +7,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from db.strategy import get_strategy, set_strategy, purge_strategy, loads_strategy
 from strategy import IgnoreStrategy, ABCCharaStrategy, Strategy, all_strategies
+from strategy.show_grace import ShowGraceStrategy
 from tinygrail.api import user_assets
 from tinygrail.player import Player
 from ._base import *
@@ -73,3 +74,7 @@ class StrategicalTrader(ABCTrader):
             logger.debug("update")
             self.strategy_map[cid] = next_state
         next_state.output()
+
+    def graceful_tick(self, cid, sell_price):
+        if cid not in self.strategy_map:
+            self.strategy_map[cid] = ShowGraceStrategy(self.player, cid, sell_price=sell_price)

@@ -72,7 +72,7 @@ class TraderDaemon(Daemon):
     def daily(self):
         logger.info("daily")
         self.notify_watchdog()
-        if isinstance(self.trader, GracefulTrader):
+        if hasattr(self.trader, 'graceful_tick'):
             ticker = self.trader.graceful_tick
         else:
             ticker = self.trader.tick
@@ -87,6 +87,7 @@ class TraderDaemon(Daemon):
             for sb in scratch_result:
                 logger.debug(f"scratch_bonus2   | got #{sb.id:<5} | {sb.amount=}, {sb.sell_price=}")
                 self.safe_run(ticker, sb.id, sb.sell_price)
+
         # gensokyo
         got_value = 4000
         s_price = scratch_gensokyo_price(self.player)
@@ -98,9 +99,7 @@ class TraderDaemon(Daemon):
                 break
             for sb in scratch_result:
                 logger.debug(f"scratch_gensokyo | got #{sb.id:<5} | {sb.amount=}, {sb.sell_price=}")
-                actual_value = self.safe_run(ticker, sb.id, sb.sell_price) or 0
-                got_value += actual_value * sb.amount
-            got_value = 0
+                self.safe_run(ticker, sb.id, sb.sell_price)
             s_price = scratch_gensokyo_price(self.player)
         else:
             logger.debug("scratch_gensokyo | over")
