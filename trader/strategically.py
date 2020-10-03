@@ -40,6 +40,7 @@ class StrategyMap(dict, Dict[int, ABCCharaStrategy]):
 
     def __delitem__(self, cid):
         super(StrategyMap, self).__delitem__(cid)
+        purge_strategy(cid, self.player_id_str)
 
 
 class StrategicalTrader(ABCTrader):
