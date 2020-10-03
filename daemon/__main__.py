@@ -16,8 +16,9 @@ def daemon():
 @click.option("--fork/--no-fork", default=True)
 @click.option("--pid-file", default=None)
 @click.option("--daemon-type", type=click.Choice(['trader', 'strategy']), default='trader')
+@click.option("--trader-type", type=click.Choice(['fundamental', 'graceful', 'strategical']), default='strategical')
 @click.option("--account")
-def start(fork, pid_file, daemon_type, account):
+def start(fork, pid_file, daemon_type, trader_type, account):
     if daemon_type == 'trader':
         from .trader_daemon import TraderDaemon
         daemon_cls = TraderDaemon
@@ -25,12 +26,25 @@ def start(fork, pid_file, daemon_type, account):
         from .strategy_daemon import StrategyDaemon
         daemon_cls = StrategyDaemon
     else:
-        print("no such trader")
+        print("no such daemon")
         raise click.exceptions.Exit(13)
 
     _, login, player = translate(db_accounts.retrieve(account))
 
-    d = daemon_cls(player, login)
+    if trader_type == 'fundamental':
+        from trader import FundamentalTrader
+        trader_cls = FundamentalTrader
+    elif trader_type == 'graceful':
+        from trader import GracefulTrader
+        trader_cls = GracefulTrader
+    elif trader_type == 'strategical':
+        from trader import StrategicalTrader
+        trader_cls = StrategicalTrader
+    else:
+        print("no such trader")
+        raise click.exceptions.Exit(14)
+
+    d = daemon_cls(player, login, trader_cls=trader_cls)
 
     if fork:
         child_pid = os.fork()
