@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import logging.config
-import math
 from random import sample
 from typing import *
 
@@ -54,7 +53,7 @@ class TraderDaemon(Daemon):
 
     def tick(self):
         self.urgent_chars.update(self._update_character_due_to_history())
-        to_update = sorted({*self.urgent_chars, *sample(self.slow_chars, k=math.ceil(len(self.slow_chars) / 5))})
+        to_update = sorted({*self.urgent_chars, *sample(self.slow_chars, k=3)})
         logger.debug(f"{to_update=}")
         for cid in to_update:
             logger.info(f"on {cid}")
