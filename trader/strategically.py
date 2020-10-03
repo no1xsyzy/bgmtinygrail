@@ -5,7 +5,7 @@ from weakref import proxy
 
 from sqlalchemy.orm.exc import NoResultFound
 
-from db.strategy import get_strategy, set_strategy
+from db.strategy import get_strategy, set_strategy, purge_strategy, loads_strategy
 from strategy import IgnoreStrategy, ABCCharaStrategy, Strategy, all_strategies
 from tinygrail.api import user_assets
 from tinygrail.player import Player
@@ -20,6 +20,9 @@ class StrategyMap(dict, Dict[int, ABCCharaStrategy]):
         self.player = player
         self.player_id_str = str(user_assets(player).id)
         self.trader = proxy(trader)
+        for cid, (strategy_id, kw) in loads_strategy(self.player_id_str).items():
+            strategy = all_strategies[Strategy(strategy_id)](self.player, cid, trader=self.trader, **json.loads(kw))
+            super(StrategyMap, self).__setitem__(cid, strategy)
         super().__init__(*args, **kwargs)
 
     def __missing__(self, cid):
