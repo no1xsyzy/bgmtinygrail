@@ -75,9 +75,9 @@ class ABCCharaStrategy(ABC):
         pass
 
     def _fast_forward(self, price=None):
+        price = price or self._exchange_price
         logger.debug(f"fast forward #{self.cid:<5} | {price}")
         big_c = self.big_c
-        price = price or self._exchange_price
         amount = 100
         big_c.ensure_bids([], force_updates='after')
         while not big_c.bids:
@@ -86,12 +86,12 @@ class ABCCharaStrategy(ABC):
         big_c.ensure_bids([], force_updates='after')
 
     def _fast_seller(self, amount=None, low=10, high=100000):
+        if amount is None:
+            amount = self.big_c.amount
         logger.debug(f"fast seller #{self.cid:<5} | ({low}-{high}) / {amount}")
         big_c = self.big_c
         big_c.ensure_bids([], force_updates='before')
         big_c.ensure_asks([], force_updates='after')
-        if amount is None:
-            amount = big_c.amount
         while amount:
             pin = round(0.618 * high + 0.382 * low, 2)
             if pin == high or pin == low:
