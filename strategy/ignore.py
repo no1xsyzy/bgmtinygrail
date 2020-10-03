@@ -18,7 +18,7 @@ class IgnoreStrategy(ABCCharaStrategy):
         elif self.big_c.bids and self.big_c.bids[0].price == 2.0 and self.big_c.bids[0].amount == 2:
             logger.info("forced view")
             self._fast_forward(self._exchange_price)
-            self._output_balanced()
+            return self._transact(BalanceStrategy)
         return self
 
     def output(self):
