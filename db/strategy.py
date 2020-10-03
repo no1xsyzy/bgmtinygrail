@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Dict
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm.exc import NoResultFound
@@ -44,3 +44,15 @@ def purge_strategy(character_id: int, username: str, *, session=None):
     the_strategy: CharacterStrategy = session.query(CharacterStrategy) \
         .filter_by(character_id=character_id, username=username).one()
     session.delete(the_strategy)
+
+
+@auto_session(DbMainSession)
+def loads_strategy(username: str, *, session=None) -> Dict[int, Tuple[int, str]]:
+    result = {}
+    for cid, sid, kwargs in session.query(
+            CharacterStrategy.character_id,
+            CharacterStrategy.strategy_id,
+            CharacterStrategy.kwargs
+    ).filter_by(username=username):
+        result[cid] = sid, kwargs
+    return result
