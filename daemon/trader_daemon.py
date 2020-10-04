@@ -53,7 +53,8 @@ class TraderDaemon(Daemon):
 
     def tick(self):
         self.urgent_chars.update(self._update_character_due_to_history())
-        to_update = sorted({*self.urgent_chars, *sample(self.slow_chars, k=3)})
+        to_update = sorted(self.urgent_chars.union(sample(self.slow_chars, k=3) if len(self.slow_chars) > 3
+                                                   else self.slow_chars))
         logger.debug(f"{to_update=}")
         for cid in to_update:
             logger.info(f"on {cid}")
@@ -113,7 +114,7 @@ class TraderDaemon(Daemon):
         logger.debug(f"{sorted(self.slow_chars)=}")
 
         # holding but not bidding, indicating worn out bidding
-        self.urgent_chars.update(ahi-abi)
+        self.urgent_chars.update(ahi - abi)
         logger.debug(f"{sorted(self.urgent_chars)=}")
         return True
 
