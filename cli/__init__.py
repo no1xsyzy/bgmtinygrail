@@ -6,6 +6,7 @@ from .accounts import accounts
 from .check_auction_price_value import check_auction_price_value
 from .check_cv import check_cv
 from .check_targets import check_targets
+from .daemon import daemon
 from .dump import dump
 from .force_view import force_view
 from .magic import magic
@@ -24,6 +25,7 @@ entry_point.add_command(accounts)
 entry_point.add_command(check_auction_price_value)
 entry_point.add_command(check_cv)
 entry_point.add_command(check_targets)
+entry_point.add_command(daemon)
 entry_point.add_command(dump)
 entry_point.add_command(force_view)
 entry_point.add_command(magic)

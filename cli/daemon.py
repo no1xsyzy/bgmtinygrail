@@ -20,10 +20,10 @@ def daemon():
 @click.option("--account")
 def start(fork, pid_file, daemon_type, trader_type, account):
     if daemon_type == 'trader':
-        from .trader_daemon import TraderDaemon
+        from daemon.trader_daemon import TraderDaemon
         daemon_cls = TraderDaemon
     elif daemon_type == 'strategy':
-        from .strategy_daemon import StrategyDaemon
+        from daemon.strategy_daemon import StrategyDaemon
         daemon_cls = StrategyDaemon
     else:
         print("no such daemon")
@@ -63,6 +63,3 @@ def start(fork, pid_file, daemon_type, trader_type, account):
     finally:
         if fork:
             os.remove(pid_file)
-
-
-daemon()
