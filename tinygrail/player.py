@@ -68,6 +68,11 @@ class Player:
     def get_data(self, url, as_model: Type[_MT] = None, **kwargs) -> _MT:
         kwargs.setdefault('timeout', 10)
         response = self.session.get(url, **kwargs)
+        new_identity = response.cookies.get('.AspNetCore.Identity.Application', domain='tinygrail.com')
+        if new_identity is not None:
+            self.identity = new_identity
+            for f in self.on_identity_refresh:
+                f(new_identity)
         data = response.json()
         if as_model is None:
             return data
@@ -88,6 +93,11 @@ class Player:
         kwargs.setdefault('timeout', 10)
         kwargs.setdefault('json', data)
         response = self.session.post(url, **kwargs)
+        new_identity = response.cookies.get('.AspNetCore.Identity.Application', domain='tinygrail.com')
+        if new_identity is not None:
+            self.identity = new_identity
+            for f in self.on_identity_refresh:
+                f(new_identity)
         rd = response.json()
         if as_model is None:
             return rd
