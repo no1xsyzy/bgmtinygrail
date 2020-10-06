@@ -34,12 +34,6 @@ def user_character(player: Player, cid: int) -> TUserCharacter:
     return player.get_data(f"https://tinygrail.com/api/chara/user/{cid}", as_model=RUserCharacter).value
 
 
-def chara_user_character(player: Player) -> List[TCharaUserChara]:
-    # get list length
-    length = player.get_data("https://tinygrail.com/api/chara/user/chara/1/1", RCharaUserChara).value.total_items
-    return player.get_data(f"https://tinygrail.com/api/chara/user/chara/1/{length}", RCharaUserChara).value.items
-
-
 def blueleaf_chara_all(player: Player) -> List[TBlueleafCharacter]:
     length = player.get_data("https://tinygrail.com/api/chara/user/chara/blueleaf/1/1",
                              RBlueleafCharacter).value.total_items
@@ -69,7 +63,7 @@ def all_holding(player: Player) -> List[THolding]:
 
 def get_full_holding(player: Player) -> Dict[int, Tuple[int, int]]:
     characters = {}
-    for c in chara_user_character(player):
+    for c in all_holding(player):
         characters[c.id] = (c.state, c.sacrifices)
     for c in user_temples(player):
         if c.character_id not in characters:
