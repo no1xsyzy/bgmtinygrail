@@ -37,6 +37,8 @@ def user_character(player: Player, cid: int) -> TUserCharacter:
 def blueleaf_chara_all(player: Player) -> List[TBlueleafCharacter]:
     length = player.get_data("https://tinygrail.com/api/chara/user/chara/blueleaf/1/1",
                              RBlueleafCharacter).value.total_items
+    if length == 0:
+        return []
     lst = player.get_data(f"https://tinygrail.com/api/chara/user/chara/blueleaf/1/{length}",
                           RBlueleafCharacter).value.items
     return lst
@@ -48,16 +50,22 @@ def chara_charts(player: Player, cid: int) -> List[TChartum]:
 
 def all_asks(player: Player) -> List[TCharacter]:
     length = player.get_data("https://tinygrail.com/api/chara/asks/0/1/1", as_model=RAllAsks).value.total_items
+    if length == 0:
+        return []
     return player.get_data(f"https://tinygrail.com/api/chara/asks/0/1/{length}", as_model=RAllAsks).value.items
 
 
 def all_bids(player: Player) -> List[TCharacter]:
     length = player.get_data("https://tinygrail.com/api/chara/bids/0/1/1", as_model=RAllAsks).value.total_items
+    if length == 0:
+        return []
     return player.get_data(f"https://tinygrail.com/api/chara/bids/0/1/{length}", as_model=RAllAsks).value.items
 
 
 def all_holding(player: Player) -> List[THolding]:
     length = player.get_data("https://tinygrail.com/api/chara/user/chara/0/1/1", as_model=RHolding).value.total_items
+    if length == 0:
+        return []
     return player.get_data(f"https://tinygrail.com/api/chara/user/chara/0/1/{length}", as_model=RHolding).value.items
 
 
@@ -110,6 +118,8 @@ def character_auction(player: Player, cid: int) -> TAuction:
 def user_temples(player: Player) -> List[TTemple]:
     length = player.get_data("https://tinygrail.com/api/chara/user/temple/0/1/1",
                              as_model=RAllTemples).value.total_items
+    if length == 0:
+        return []
     return player.get_data(f"https://tinygrail.com/api/chara/user/temple/0/1/{length}",
                            as_model=RAllTemples).value.items
 
