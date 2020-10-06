@@ -1,8 +1,10 @@
 import queue
 import threading
 
-from accounts import tg_xsb_player
-from tinygrail.api import *
+from bgmtinygrail.model_link.accounts import all_accounts
+from bgmtinygrail.tinygrail.api import *
+
+xsb_player = all_accounts['xsb_player']
 
 NUM_F_WORKERS = 4
 
@@ -26,7 +28,7 @@ def main():
 def f_worker():
     while True:
         cid = call.get()
-        j = character_auction(tg_xsb_player, cid)
+        j = character_auction(xsb_player.tinygrail, cid)
         back.put((cid, j))
         call.task_done()
 

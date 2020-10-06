@@ -1,5 +1,5 @@
 #!/bin/sh
-python -m cli check-cv 5076 --account no1xsyzy --target 0/2500,11614=0/0,56822=0/0
+python -m bgmtinygrail check-cv 5076 --account no1xsyzy --target 0/2500,11614=0/0,56822=0/0
 
 # Description:
 # python -m cli check-cv               ---  The command it self
