@@ -40,7 +40,7 @@ class ABCCharaStrategy(ABC):
         assert hasattr(player, 'session'), ValueError
         assert isinstance(cid, int), ValueError
         self.player = player
-        if not (trader ^ callable(trader_cls)):
+        if not (bool(trader) ^ callable(trader_cls)):
             raise TypeError("strategies must be inited with either of these keyword arguments: "
                             "'trader', 'trader_cls'") from None
         self.trader = trader or trader_cls(player)
