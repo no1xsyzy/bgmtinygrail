@@ -1,5 +1,4 @@
 import logging.config
-import os
 
 import click
 
@@ -13,12 +12,10 @@ def daemon():
 
 
 @daemon.command()
-@click.option("--fork/--no-fork", default=True)
-@click.option("--pid-file", default=None)
 @click.option("--daemon-type", type=click.Choice(['trader', 'strategy']), default='trader')
 @click.option("--trader-type", type=click.Choice(['fundamental', 'graceful', 'strategical']), default='strategical')
 @click.option("--account")
-def start(fork, pid_file, daemon_type, trader_type, account):
+def start(daemon_type, trader_type, account):
     if daemon_type == 'trader':
         from ..daemon.trader_daemon import TraderDaemon
         daemon_cls = TraderDaemon
@@ -46,20 +43,9 @@ def start(fork, pid_file, daemon_type, trader_type, account):
 
     d = daemon_cls(player, login, trader_cls=trader_cls)
 
-    if fork:
-        child_pid = os.fork()
-        if pid_file is not None:
-            with open(pid_file, mode='w', encoding='ascii') as fp:
-                print(child_pid, file=fp)
-        return
-
     if d.as_systemd_unit:
         logging.config.fileConfig('logging-journald.conf')
     else:
         logging.config.fileConfig('logging.conf')
 
-    try:
-        d.run_forever(20)
-    finally:
-        if fork:
-            os.remove(pid_file)
+    d.run_forever(20)
