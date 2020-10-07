@@ -1,4 +1,5 @@
 import logging.config
+import os
 
 import click
 
@@ -49,3 +50,31 @@ def start(daemon_type, trader_type, account):
         logging.config.fileConfig('logging.conf')
 
     d.run_forever(20)
+
+
+@daemon.group()
+def generate_config():
+    pass
+
+
+@generate_config.command()
+@click.option('-d', '--working-directory', type=click.Path(exists=True, file_okay=False), default=None)
+@click.option('-e', '--virtualenv', type=click.Path(exists=True, file_okay=False), default=None)
+@click.option('-s', '--watchdog-seconds', type=int, default=60)
+def systemd(working_directory, virtualenv, watchdog_seconds):
+    virtualenv = virtualenv or os.environ['VIRTUAL_ENV']
+    if virtualenv is None:
+        print("Should run with virtualenv")
+        raise click.exceptions.Exit(15)
+    print("[Unit]")
+    print("Description=Bangumi TinyGrail Daemon")
+    print()
+    print("[Service]")
+    print(f"WorkingDirectory={working_directory or os.getcwd()}")
+    print(f"ExecStart={virtualenv or os.environ['VIRTUAL_ENV']}/bin/bgmtinygrail daemon start --account %i")
+    print("Restart=always")
+    print(f"WatchdogSec={watchdog_seconds}")
+    print("WatchdogSignal=SIGINT")
+    print()
+    print("[Install]")
+    print("WantedBy=default.target")
