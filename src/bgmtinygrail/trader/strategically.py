@@ -77,4 +77,4 @@ class StrategicalTrader(ABCTrader):
 
     def graceful_tick(self, cid, sell_price):
         if cid not in self.strategy_map:
-            self.strategy_map[cid] = ShowGraceStrategy(self.player, cid, sell_price=sell_price)
+            self.strategy_map[cid] = ShowGraceStrategy(self.player, cid, sell_price=sell_price, trader=self)
