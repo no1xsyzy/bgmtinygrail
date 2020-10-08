@@ -109,7 +109,8 @@ class Daemon(ABC):
             while True:
                 logger.info("start tick")
                 # daily
-                today = date.today()
+                # daily should be run at 1:00 am, prevents Saturday-Sunday auction settlement
+                today = (datetime.now() - timedelta(hours=1)).date()
                 if self.last_daily is None or self.last_daily < today:
                     update = self.safe_run(daily_function or self.daily)
                     if update:
