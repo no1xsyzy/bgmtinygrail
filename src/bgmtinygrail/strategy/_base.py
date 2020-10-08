@@ -19,7 +19,7 @@ class Strategy(Enum):
     SELF_SERVICE = 4
     BUY_IN = 5
     SHOW_GRACE = 6
-    USER_DEFINED = 100
+    MANUAL_CONTROL = 100
 
 
 @lru_cache()
