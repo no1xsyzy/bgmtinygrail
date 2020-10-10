@@ -115,6 +115,8 @@ class TraderDaemon(Daemon):
 
         # holding but not bidding, indicating worn out bidding
         self.urgent_chars.update(ahi - abi)
+        # bidding but not holding, includes force-view
+        self.urgent_chars.update(abi - ahi)
         logger.debug(f"{sorted(self.urgent_chars)=}")
         return True
 
