@@ -1,5 +1,6 @@
 import logging.config
 import os
+from pathlib import Path
 
 import click
 
@@ -61,7 +62,17 @@ def generate_config():
 @click.option('-d', '--working-directory', type=click.Path(exists=True, file_okay=False), default=None)
 @click.option('-e', '--virtualenv', type=click.Path(exists=True, file_okay=False), default=None)
 @click.option('-s', '--watchdog-seconds', type=int, default=60)
-def systemd(working_directory, virtualenv, watchdog_seconds):
+@click.option('-D', "--daemon-type", type=click.Choice(['trader', 'strategy']), default=None)
+@click.option('-T', "--trader-type", type=click.Choice(['fundamental', 'graceful', 'strategical']), default=None)
+@click.option('-A', "--account")
+@click.option("--dynamical-account", 'account',
+              flag_value='%i', default=True)
+@click.option('-o', '--output', type=click.File())
+@click.option('--output-stdout', 'output',
+              flag_value='-', default=True)
+@click.option('--output-default', 'output',
+              flag_value=str(Path('~/.config/systemd/user/bgmtinygraildaemon@.service').expanduser().resolve()))
+def systemd(working_directory, virtualenv, watchdog_seconds, daemon_type, trader_type, account, output):
     virtualenv = virtualenv or os.environ['VIRTUAL_ENV']
     if virtualenv is None:
         click.echo("Should run with virtualenv", err=True)
@@ -71,10 +82,27 @@ def systemd(working_directory, virtualenv, watchdog_seconds):
     print()
     print("[Service]")
     print(f"WorkingDirectory={working_directory or os.getcwd()}")
-    print(f"ExecStart={virtualenv or os.environ['VIRTUAL_ENV']}/bin/bgmtinygrail daemon start --account %i")
+    print(f"ExecStart={virtualenv or os.environ['VIRTUAL_ENV']}/bin/bgmtinygrail daemon start --account {account}"
+          + (f" --daemon-type {daemon_type}" if daemon_type is not None else "")
+          + (f" --trader-type {trader_type}" if trader_type is not None else ""))
     print("Restart=always")
     print(f"WatchdogSec={watchdog_seconds}")
     print("WatchdogSignal=SIGINT")
     print()
     print("[Install]")
     print("WantedBy=default.target")
+
+
+@generate_config.command()
+@click.argument('section-name')
+@click.option('-D', "--daemon-type", type=click.Choice(['trader', 'strategy']), default=None)
+@click.option('-T', "--trader-type", type=click.Choice(['fundamental', 'graceful', 'strategical']), default=None)
+@click.option('-A', "--account", required=True)
+def tab(section_name, daemon_type, trader_type, account):
+    print(f"[{section_name}]")
+    print(f"account={account}")
+    if daemon_type is not None:
+        print(f"daemon-type={daemon_type}")
+    if trader_type is not None:
+        print(f"trader-type={trader_type}")
+    print()
