@@ -64,7 +64,7 @@ def generate_config():
 def systemd(working_directory, virtualenv, watchdog_seconds):
     virtualenv = virtualenv or os.environ['VIRTUAL_ENV']
     if virtualenv is None:
-        print("Should run with virtualenv")
+        click.echo("Should run with virtualenv", err=True)
         raise click.exceptions.Exit(15)
     print("[Unit]")
     print("Description=Bangumi TinyGrail Daemon")
