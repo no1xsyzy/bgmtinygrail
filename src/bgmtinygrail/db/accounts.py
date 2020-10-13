@@ -35,9 +35,10 @@ def retrieve(friendly_name: str, *, session: DbMainSession = None) -> Account:
 
 @auto_session(DbMainSession)
 def update(friendly_name: str, *, session=None, **kwargs):
-    obj = session.query(Account).filter_by(friendly_name=friendly_name)
+    obj = session.query(Account).filter_by(friendly_name=friendly_name).one()
     for k, v in kwargs.items():
-        setattr(obj, k, v)
+        if v is not None:
+            setattr(obj, k, v)
 
 
 @auto_session(DbMainSession)
