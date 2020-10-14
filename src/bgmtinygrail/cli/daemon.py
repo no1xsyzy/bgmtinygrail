@@ -14,16 +14,13 @@ def daemon():
 
 
 @daemon.command()
-@click.option("--daemon-type", type=click.Choice(['trader', 'strategy']), default='trader')
+@click.option("--daemon-type", type=click.Choice(['trader']), default='trader')
 @click.option("--trader-type", type=click.Choice(['fundamental', 'graceful', 'strategical']), default='strategical')
 @click.option("--account")
 def start(daemon_type, trader_type, account):
     if daemon_type == 'trader':
         from ..daemon.trader_daemon import TraderDaemon
         daemon_cls = TraderDaemon
-    elif daemon_type == 'strategy':
-        from ..daemon.strategy_daemon import StrategyDaemon
-        daemon_cls = StrategyDaemon
     else:
         print("no such daemon")
         raise click.exceptions.Exit(13)
