@@ -1,0 +1,2 @@
+-r prod.in
+-r tests.in

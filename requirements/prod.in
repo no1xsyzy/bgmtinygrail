@@ -1,12 +1,10 @@
 aiohttp-requests
 beautifulsoup4
 click
+flask
 inflection
 lazy-object-proxy
-matplotlib
 pydantic
-pytest
-pytest_mock
 requests
 sqlalchemy
-systemd
+systemd;platform_system!="Windows"

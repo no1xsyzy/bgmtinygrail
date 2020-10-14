@@ -6,7 +6,7 @@ venv*
 /accounts.py
 e.py
 *.txt
-!requirements.txt
+!requirements/*.txt
 *.log
 *.db
 *.egg-info
