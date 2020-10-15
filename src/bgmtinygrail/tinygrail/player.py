@@ -5,15 +5,28 @@ import aiohttp
 import requests
 from pydantic import BaseModel, ValidationError
 
+from .model import RErrorMessage
+
 _MT = TypeVar("_MT", bound=BaseModel)
 
-__all__ = ['APIResponseSchemeNotMatch', 'Player']
+__all__ = ['APIResponseSchemeNotMatch', 'ServerNotReachable', 'ServerSentError', 'Player']
 
 
 class APIResponseSchemeNotMatch(ValueError):
     def __init__(self, response, data):
         self.response = response
         self.data = data
+
+
+class ServerNotReachable(IOError):
+    def __init__(self, status_code):
+        self.status_code = status_code
+
+
+class ServerSentError(Exception):
+    def __init__(self, state, message):
+        self.state = state
+        self.message = message
 
 
 class Player:
@@ -57,6 +70,26 @@ class Player:
 
         return session
 
+    def _process_response(self, response, *, as_model: Type[_MT] = None):
+        if 500 <= response.status_code < 600:
+            raise ServerNotReachable(response.status_code)
+        new_identity = response.cookies.get('.AspNetCore.Identity.Application', domain='tinygrail.com')
+        if new_identity is not None:
+            self.identity = new_identity
+            for f in self.on_identity_refresh:
+                f(new_identity)
+        rd = response.json()
+        if as_model is None:
+            return rd
+        try:
+            return as_model(**rd)
+        except ValidationError:
+            try:
+                err_msg = RErrorMessage(**rd)
+                raise ServerSentError(err_msg.state, err_msg.message) from None
+            except ValidationError:
+                raise APIResponseSchemeNotMatch(response, rd) from None
+
     @overload
     def get_data(self, url, as_model: Type[_MT], **kwargs) -> _MT:
         pass
@@ -68,18 +101,7 @@ class Player:
     def get_data(self, url, as_model: Type[_MT] = None, **kwargs) -> _MT:
         kwargs.setdefault('timeout', 10)
         response = self.session.get(url, **kwargs)
-        new_identity = response.cookies.get('.AspNetCore.Identity.Application', domain='tinygrail.com')
-        if new_identity is not None:
-            self.identity = new_identity
-            for f in self.on_identity_refresh:
-                f(new_identity)
-        data = response.json()
-        if as_model is None:
-            return data
-        try:
-            return as_model(**data)
-        except ValidationError:
-            raise APIResponseSchemeNotMatch(response, data)
+        return self._process_response(response, as_model=as_model)
 
     @overload
     def post_data(self, url, data, as_model: Type[_MT], **kwargs) -> _MT:
@@ -93,18 +115,7 @@ class Player:
         kwargs.setdefault('timeout', 10)
         kwargs.setdefault('json', data)
         response = self.session.post(url, **kwargs)
-        new_identity = response.cookies.get('.AspNetCore.Identity.Application', domain='tinygrail.com')
-        if new_identity is not None:
-            self.identity = new_identity
-            for f in self.on_identity_refresh:
-                f(new_identity)
-        rd = response.json()
-        if as_model is None:
-            return rd
-        try:
-            return as_model(**rd)
-        except ValidationError:
-            raise APIResponseSchemeNotMatch(response, rd)
+        return self._process_response(response, as_model=as_model)
 
     @property
     def aio_session(self):
