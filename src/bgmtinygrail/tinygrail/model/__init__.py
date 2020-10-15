@@ -279,3 +279,8 @@ class TUserAssets(TinygrailModel):
 class RUserAssets(TinygrailModel):
     state: int
     value: TUserAssets
+
+
+class RErrorMessage(TinygrailModel):
+    state: int
+    message: str
