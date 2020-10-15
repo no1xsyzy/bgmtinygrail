@@ -12,7 +12,7 @@ REQUEST_TIMEOUT = 10
 
 
 def batch_character_info(player: Player, lst: List[int], splits=50) -> List[Union[TCharacter, TICO]]:
-    lst = list(lst)
+    lst = [int(c) for c in lst]
     ans = []
     while lst:
         head50 = lst[:splits]
