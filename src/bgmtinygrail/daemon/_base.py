@@ -11,7 +11,7 @@ from typing import *
 from requests.exceptions import ReadTimeout, ConnectionError
 
 from ..bgmd.login import Login
-from ..tinygrail.player import Player, APIResponseSchemeNotMatch
+from ..tinygrail.player import Player, APIResponseSchemeNotMatch, ServerNotReachable, ServerSentError
 
 logger = logging.getLogger('daemon')
 
@@ -75,12 +75,15 @@ class Daemon(ABC):
             while self.error_time and now - self.error_time[0] < timedelta(minutes=self.error_tolerance_period):
                 self.error_time.pop(0)
             if isinstance(e, ReadTimeout):
-                logger.warning("Read Timeout")
+                logger.warning("Server not reachable: Read Timeout")
             elif isinstance(e, ConnectionError):
-                logger.warning("Connection Error")
+                logger.warning("Server not reachable: Connection Error")
+            elif isinstance(e, ServerNotReachable):
+                logger.warning(f"Server not reachable:s HTTP {e.status_code}")
+            elif isinstance(e, ServerSentError):
+                logger.warning(f"Server Error: {e.state=!r}, {e.message=!r}")
             else:
                 with open(f"exception@{now.isoformat().replace(':', '.')}.log", mode='w', encoding='utf-8') as fp:
-                    traceback.print_exc(file=fp)
                     if isinstance(e, json.decoder.JSONDecodeError):
                         print('JSONDecodeError, original doc:', file=fp)
                         print(e.doc, file=fp)
