@@ -58,6 +58,7 @@ class RDepth(TinygrailModel):
 
 class TCharacter(TinygrailModel):
     id: int
+    character_id: int
     name: str
     level: int
     price: float
@@ -68,10 +69,6 @@ class TCharacter(TinygrailModel):
     last_deal: datetime
     sacrifices: int
     rate: float
-
-    @property
-    def character_id(self) -> int:
-        return self.id
 
 
 class TICO(TinygrailModel):
