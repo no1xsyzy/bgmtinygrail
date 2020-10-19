@@ -328,3 +328,17 @@ class BigC:
     def all_bids(self):
         self.refreshes('all_bids')
         return self._depth.bids
+
+    @property
+    def asks_all(self):
+        """Deprecated: ambiguous name"""
+        warn(DeprecationWarning("ambiguous name 'asks_all', use 'all_asks' instead"))
+        self.refreshes('all_asks')
+        return self._depth.asks
+
+    @property
+    def bids_all(self):
+        """Deprecated: ambiguous name"""
+        warn(DeprecationWarning("ambiguous name 'bids_all', use 'all_bids' instead"))
+        self.refreshes('all_bids')
+        return self._depth.bids
