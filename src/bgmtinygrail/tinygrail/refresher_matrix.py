@@ -1,7 +1,7 @@
 from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import *
-from weakref import WeakSet, WeakKeyDictionary
+from weakref import WeakMethod
 
 Refresher = Callable[[], Any]
 Token = str
@@ -15,8 +15,7 @@ class RefreshMatrix:
     tokens: Set[Token]
     last_refresh: DefaultDict[Token, Optional[datetime]]
     interval: DefaultDict[Token, Optional[timedelta]]
-    token_refresher: DefaultDict[Token, 'WeakSet[Refresher]']
-    refresher_refreshes: 'WeakKeyDictionary[Refresher, Set[Token]]'
+    refresher_pairs: List[Tuple[Token, 'WeakMethod[Refresher]']]
 
     def __init__(self, tokens: List[str], *,
                  default_interval: timedelta = timedelta(2),
@@ -24,8 +23,7 @@ class RefreshMatrix:
         self.tokens = set(tokens)
         self.last_refresh = defaultdict(lambda: None)
         self.interval = defaultdict(lambda: default_interval)
-        self.token_refresher = defaultdict(WeakSet)
-        self.refresher_refreshes = WeakKeyDictionary()
+        self.refresher_pairs = []
         self.allow_new_token_on_register = allow_new_token_on_register
 
     def more_tokens(self, *tokens):
@@ -37,9 +35,7 @@ class RefreshMatrix:
                 self.tokens.add(token)
             else:
                 raise InvalidRefreshToken(f"Token `{token}` is not a registered token")
-        self.token_refresher[token].add(func)
-        self.refresher_refreshes.setdefault(func, set())
-        self.refresher_refreshes[func].add(token)
+        self.refresher_pairs.append((token, WeakMethod(func)))
 
     def batch_register(self, batches: List[Tuple[Token, Refresher]]):
         for token, func in batches:
@@ -51,12 +47,15 @@ class RefreshMatrix:
             interval = self.interval.get(token, None)
             if last_refresh is None or (interval is not None
                                         and last_refresh + interval < datetime.now()):
-                if len(self.token_refresher[token]) == 0:
+                refreshers: List[Refresher] = [wfr() for tok, wfr in self.refresher_pairs
+                                               if tok == token and wfr() is not None]
+                if not refreshers:
                     raise InvalidRefreshToken(f"Token `{token}` does not have a refresher")
-                refresher = next(iter(self.token_refresher[token]))
+                refresher = refreshers[0]
                 refresher()
-                for update_token in self.refresher_refreshes.get(refresher, []):
-                    self.last_refresh[update_token] = datetime.now()
+                for update_token, weak_func_ref in self.refresher_pairs:
+                    if weak_func_ref() == refresher:
+                        self.last_refresh[update_token] = datetime.now()
 
     def invalidates(self, *tokens):
         for token in tokens:
