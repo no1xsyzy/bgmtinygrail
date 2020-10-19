@@ -71,21 +71,18 @@ class BigC:
         if 'ignore_throttle' in kwargs:
             warn(DeprecationWarning("ignore_throttle is deprecated"))
         self._character_info = character_info(self.player, self.character)
-        if self.is_ico:
-            self._my_ico = get_my_ico(self.player, self._character_info.id)
-        else:
-            self._my_ico = None
 
     def update_character_info_ico_only(self):
-        self._character_info = character_info(self.player, self.character)
+        self.refreshes('ico_or_character')
         if not self.is_ico:
             raise ValueError(f"cid={self.character} is not in ICO")
 
     def update_my_ico(self):
+        self.refreshes('ico')
         self._my_ico = get_my_ico(self.player, self.ico_id)
 
     def update_character_info_on_market_only(self):
-        self._character_info = character_info(self.player, self.character)
+        self.refreshes('ico_or_character')
         if not self.is_on_market:
             raise ValueError(f"cid={self.character} is not on market")
 
