@@ -1,6 +1,7 @@
-from datetime import timedelta
+from warnings import warn
 
 from .api import *
+from .refresher_matrix import *
 
 logger = logging.getLogger('big_c')
 
@@ -12,112 +13,91 @@ _CHARTS_THROTTLE_DELTA = timedelta(seconds=2)
 _DEPTH_THROTTLE_DELTA = timedelta(seconds=2)
 
 
-def _helper_detect_stage(this_stage: str, stage_desc: Union[bool, str]) -> bool:
-    if stage_desc is False:
-        return False
-    if stage_desc is True:
-        return True
-    try:
-        return this_stage in stage_desc
-    except TypeError:
-        return False
-
-
 class BigC:
     # user character
     player: Player
     character: int
-    bids: List[TBid]
-    asks: List[TAsk]
-    amount: int
-    total_holding: int
-    # character info
-    name: str
-    is_ICO: bool
-    is_on_market: bool
-    ICO_begin: Optional[datetime]
-    ICO_end: Optional[datetime]
-    ICO_total_backed: Optional[float]
-    ICO_my_backed: Optional[float]
-    ICO_users: Optional[int]
-    global_holding: Optional[int]
-    current_price: Optional[float]
-    last_order: Optional[datetime]
-    last_deal: Optional[datetime]
-    global_sacrifices: Optional[int]
-    rate: Optional[float]
-    price: Optional[float]
-    # charts
-    charts: List[TChartum]
-    # depth
-    bids_all: List[TBid]
-    asks_all: List[TAsk]
+    refresh_matrix: RefreshMatrix
 
-    _uc_update: Optional[datetime]
-    _ci_update: Optional[datetime]
-    _ch_update: Optional[datetime]
-    _dp_update: Optional[datetime]
+    _user_character: TUserCharacter
+    _character_info: Union[TCharacter, TICO]
+    _my_ico: Optional[TMyICO]
+    _charts: List[TChartum]
+    _depth: TDepth
 
     def __init__(self, player: Player, character: int):
         self.player = player
         self.character = character
-        self.update(ignore_throttle=True)
+        self.refresh_matrix = RefreshMatrix([
+            'my_asks', 'my_bids', 'amount', 'user_character',
+            'ico_or_character', 'ico', 'character', 'my_ico',
+            'charts', 'all_asks', 'all_bids',
+        ])
+        self.refresh_matrix.batch_register([
+            ('my_asks', self.update_user_character),
+            ('my_bids', self.update_user_character),
+            ('amount', self.update_user_character),
+            ('user_character', self.update_user_character),
+            ('ico_or_character', self.update_character_info),
+            ('ico', self.update_character_info_ico_only),
+            ('character', self.update_character_info_on_market_only),
+            ('my_ico', self.update_my_ico),
+            ('charts', self.update_charts),
+            ('all_asks', self.update_depth),
+            ('all_bids', self.update_depth),
+        ])
+        self.refresh_matrix.interval['charts'] = timedelta(days=1)
+
+    def invalidates(self, *tokens: Token):
+        self.refresh_matrix.invalidates(*tokens)
+
+    def refreshes(self, *tokens: Token):
+        self.refresh_matrix.refreshes(*tokens)
 
     def update(self, **kwargs):
-        self.update_user_character(**kwargs)
-        self.update_character_info(**kwargs)
-        self.update_charts(**kwargs)
-        self.update_depth(**kwargs)
+        if 'ignore_throttle' in kwargs:
+            warn(DeprecationWarning("ignore_throttle is deprecated"))
+        self.update_user_character()
+        self.update_character_info()
+        self.update_charts()
+        self.update_depth()
 
-    def update_user_character(self, ignore_throttle=False):
-        if not ignore_throttle and self._uc_update > datetime.now():
-            return
-        uc = user_character(self.player, self.character)
-        self.bids = uc.bids
-        self.asks = uc.asks
-        self.amount = uc.amount
-        self.total_holding = uc.total_holding
-        self._uc_update = datetime.now() + _USER_CHARACTER_THROTTLE_DELTA
+    def update_user_character(self, **kwargs):
+        if 'ignore_throttle' in kwargs:
+            warn(DeprecationWarning("ignore_throttle is deprecated"))
+        self._user_character = user_character(self.player, self.character)
 
-    def update_character_info(self, ignore_throttle=False):
-        if not ignore_throttle and self._ci_update > datetime.now():
-            return
-        ci = character_info(self.player, self.character)
-        self.name = ci.name
-        if isinstance(ci, TICO):
-            self.is_ICO = True
-            self.is_on_market = False
-            self.ICO_begin = ci.begin
-            self.ICO_end = ci.end
-            self.ICO_total_backed = ci.total
-            self.ICO_my_backed = get_my_ico(self.player, ci.id).amount
-            self.ICO_users = ci.users
-        elif isinstance(ci, TCharacter):
-            self.is_ICO = False
-            self.is_on_market = True
-            self.global_holding = ci.total
-            self.current_price = ci.current
-            self.last_order = ci.last_order
-            self.last_deal = ci.last_deal
-            self.global_sacrifices = ci.sacrifices
-            self.rate = ci.rate
-            self.price = ci.price
-        self._ci_update = datetime.now() + _CHARACTER_INFO_THROTTLE_DELTA
+    def update_character_info(self, **kwargs):
+        if 'ignore_throttle' in kwargs:
+            warn(DeprecationWarning("ignore_throttle is deprecated"))
+        self._character_info = character_info(self.player, self.character)
+        if self.is_ico:
+            self._my_ico = get_my_ico(self.player, self._character_info.id)
+        else:
+            self._my_ico = None
 
-    def update_charts(self, ignore_throttle=False):
-        if not ignore_throttle and self._ch_update > datetime.now():
-            return
-        cc = chara_charts(self.player, self.character)
-        self.charts = cc
-        self._ch_update = datetime.now() + _CHARTS_THROTTLE_DELTA
+    def update_character_info_ico_only(self):
+        self._character_info = character_info(self.player, self.character)
+        if not self.is_ico:
+            raise ValueError(f"cid={self.character} is not in ICO")
 
-    def update_depth(self, ignore_throttle=False):
-        if not ignore_throttle and self._dp_update > datetime.now():
-            return
-        the_depth = depth(self.player, self.character)
-        self.bids_all = the_depth.bids
-        self.asks_all = the_depth.asks
-        self._dp_update = datetime.now() + _DEPTH_THROTTLE_DELTA
+    def update_my_ico(self):
+        self._my_ico = get_my_ico(self.player, self.ico_id)
+
+    def update_character_info_on_market_only(self):
+        self._character_info = character_info(self.player, self.character)
+        if not self.is_on_market:
+            raise ValueError(f"cid={self.character} is not on market")
+
+    def update_charts(self, **kwargs):
+        if 'ignore_throttle' in kwargs:
+            warn(DeprecationWarning("ignore_throttle is deprecated"))
+        self._charts = chara_charts(self.player, self.character)
+
+    def update_depth(self, **kwargs):
+        if 'ignore_throttle' in kwargs:
+            warn(DeprecationWarning("ignore_throttle is deprecated"))
+        self._depth = depth(self.player, self.character)
 
     @property
     def current_price_rounded(self):
@@ -140,33 +120,48 @@ class BigC:
     def fundamental_rounded(self):
         return round(self.fundamental, 2)
 
-    def create_bid(self, bid: TBid, *, force_updates=False):
+    @property
+    def total_holding(self):
+        """Deprecated: ambiguous name"""
+        warn(DeprecationWarning("ambiguous name 'total_holding', use 'my_holding' instead"))
+        return self.amount + sum(ask.amount for ask in self.my_asks)
+
+    @property
+    def my_holding(self):
+        return self.amount + sum(ask.amount for ask in self.my_asks)
+
+    def create_bid(self, bid: TBid, **kwargs):
+        if 'force_updates' in kwargs:
+            warn(DeprecationWarning("force_updates is deprecated"))
+        self.invalidates('my_bids', 'all_bids', 'amount')
         result = create_bid(self.player, self.character, bid)
-        if force_updates:
-            self.update_user_character(ignore_throttle=True)
         return result
 
-    def create_ask(self, ask: TAsk, *, force_updates=False):
+    def create_ask(self, ask: TAsk, **kwargs):
+        if 'force_updates' in kwargs:
+            warn(DeprecationWarning("force_updates is deprecated"))
+        self.invalidates('my_asks', 'all_asks', 'amount')
         result = create_ask(self.player, self.character, ask)
-        if force_updates:
-            self.update_user_character(ignore_throttle=True)
         return result
 
-    def cancel_bid(self, bid: TBid, *, force_updates=False):
+    def cancel_bid(self, bid: TBid, **kwargs):
+        if 'force_updates' in kwargs:
+            warn(DeprecationWarning("force_updates is deprecated"))
+        self.invalidates('my_bids', 'all_bids', 'amount')
         result = cancel_bid(self.player, bid)
-        if force_updates:
-            self.update_user_character(ignore_throttle=True)
         return result
 
-    def cancel_ask(self, ask: TAsk, *, force_updates=False):
+    def cancel_ask(self, ask: TAsk, **kwargs):
+        if 'force_updates' in kwargs:
+            warn(DeprecationWarning("force_updates is deprecated"))
+        self.invalidates('my_asks', 'all_asks', 'amount')
         result = cancel_ask(self.player, ask)
-        if force_updates:
-            self.update_user_character(ignore_throttle=True)
         return result
 
-    def ensure_bids(self, bids: List[TBid], *, force_updates=True):
-        self.update_user_character(ignore_throttle=_helper_detect_stage('before', force_updates))
-        now_bids = self.bids
+    def ensure_bids(self, bids: List[TBid], **kwargs):
+        if 'force_updates' in kwargs:
+            warn(DeprecationWarning("force_updates is deprecated"))
+        now_bids = self.my_bids
         now_bids = sorted(now_bids)
         bids = sorted(bids)
         while now_bids and bids:
@@ -187,12 +182,10 @@ class BigC:
         for bid in bids:
             self.create_bid(bid)
 
-        if _helper_detect_stage('after', force_updates):
-            self.update_user_character(ignore_throttle=True)
-
-    def ensure_asks(self, asks: List[TAsk], *, force_updates=True):
-        self.update_user_character(ignore_throttle=_helper_detect_stage('before', force_updates))
-        now_asks = self.asks
+    def ensure_asks(self, asks: List[TAsk], **kwargs):
+        if 'force_updates' in kwargs:
+            warn(DeprecationWarning("force_updates is deprecated"))
+        now_asks = self.my_asks
         now_asks = sorted(now_asks)
         asks = sorted(asks)
         should_create = []
@@ -217,5 +210,124 @@ class BigC:
         for ask in asks:
             self.create_ask(ask)
 
-        if _helper_detect_stage('after', force_updates):
-            self.update_user_character(ignore_throttle=True)
+    @property
+    def bids(self):
+        """Deprecated: ambiguous name"""
+        warn(DeprecationWarning("ambiguous name 'bids', use 'my_bids' instead"))
+        return self._user_character.bids
+
+    @property
+    def asks(self):
+        """Deprecated: ambiguous name"""
+        warn(DeprecationWarning("ambiguous name 'asks', use 'my_asks' instead"))
+        return self._user_character.asks
+
+    @property
+    def my_bids(self):
+        self.refreshes('my_bids')
+        return self._user_character.bids
+
+    @property
+    def my_asks(self):
+        self.refreshes('my_asks')
+        return self._user_character.asks
+
+    @property
+    def amount(self):
+        self.refreshes('amount')
+        return self._user_character.amount
+
+    @property
+    def name(self):
+        self.refreshes('ico_or_character')
+        return self._character_info.name
+
+    @property
+    def is_ico(self):
+        self.refreshes('ico_or_character')
+        return isinstance(self._character_info, TICO)
+
+    @property
+    def is_on_market(self):
+        self.refreshes('ico_or_character')
+        return isinstance(self._character_info, TCharacter)
+
+    @property
+    def ico_id(self):
+        self.refreshes('ico')
+        return self._character_info.id
+
+    @property
+    def ico_begin(self):
+        self.refreshes('ico')
+        return self._character_info.begin
+
+    @property
+    def ico_end(self):
+        self.refreshes('ico')
+        return self._character_info.end
+
+    @property
+    def ico_total(self):
+        self.refreshes('ico')
+        return self._character_info.total
+
+    @property
+    def ico_my_amount(self):
+        self.refreshes('my_ico')
+        return self._my_ico.amount
+
+    @property
+    def ico_users(self):
+        self.refreshes('ico')
+        return self._character_info.users
+
+    @property
+    def global_holding(self):
+        self.refreshes('character')
+        return self._character_info.total
+
+    @property
+    def current_price(self):
+        self.refreshes('character')
+        return self._character_info.current
+
+    @property
+    def last_order(self):
+        self.refreshes('character')
+        return self._character_info.last_order
+
+    @property
+    def last_deal(self):
+        self.refreshes('character')
+        return self._character_info.last_deal
+
+    @property
+    def global_sacrifices(self):
+        self.refreshes('character')
+        return self._character_info.sacrifices
+
+    @property
+    def rate(self):
+        self.refreshes('character')
+        return self._character_info.rate
+
+    @property
+    def price(self):
+        self.refreshes('character')
+        return self._character_info.price
+
+    @property
+    def charts(self):
+        self.refreshes('charts')
+        return self._charts
+
+    @property
+    def all_asks(self):
+        self.refreshes('all_asks')
+        return self._depth.asks
+
+    @property
+    def all_bids(self):
+        self.refreshes('all_bids')
+        return self._depth.bids
