@@ -4,7 +4,7 @@ setup(
     name="bgmtinygrail",
     version="0.1",
     install_requires=[
-        'aiohttp-requests',
+        'aiohttp',
         'beautifulsoup4',
         'click',
         'flask',
