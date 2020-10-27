@@ -6,10 +6,10 @@ class BalanceStrategy(ABCCharaStrategy):
 
     def transition(self):
         from .ignore import IgnoreStrategy
-        if (not self.big_c.bids_all or
-                max(self.big_c.bids_all).price <= self.big_c.initial_price_rounded):
-            logger.info("justice! no under initial")
-            return self
+        # if (not self.big_c.bids_all or
+        #         max(self.big_c.bids_all).price <= self.big_c.initial_price_rounded):
+        #     logger.info("justice! no under initial")
+        #     return self
         if self.big_c.total_holding == 0:
             logger.info("forget it")
             return self._transact(IgnoreStrategy)
