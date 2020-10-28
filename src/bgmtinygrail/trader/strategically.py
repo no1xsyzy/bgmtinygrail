@@ -76,5 +76,15 @@ class StrategicalTrader(ABCTrader):
         next_state.output()
 
     def graceful_tick(self, cid, sell_price):
+        should_show_grace = False
+        logger.info(f"try show grace on #{cid}")
         if cid not in self.strategy_map:
+            logger.info("it is not even known by me, should show grace")
+            should_show_grace = True
+        elif isinstance(self.strategy_map[cid], IgnoreStrategy):
+            logger.info("I ignored it, should show some grace")
+            should_show_grace = True
+        else:
+            logger.info(f"I know it and already applied strategy '{self.strategy_map[cid].strategy.name}' on it")
+        if should_show_grace:
             self.strategy_map[cid] = ShowGraceStrategy(self.player, cid, sell_price=sell_price, trader=self)
