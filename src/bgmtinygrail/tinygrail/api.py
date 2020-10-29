@@ -225,3 +225,27 @@ def scratch_gensokyo_price(player: Player) -> int:
 
 def user_assets(player: Player) -> TUserAssets:
     return player.get_data("https://tinygrail.com/api/chara/user/assets", as_model=RUserAssets).value
+
+
+def minimal_user_character(player: Player, cid: int, user_name: Optional[Union[int, str]]) -> TMinimalUserCharacter:
+    if user_name is None:
+        user_name = 0
+    url = f"https://tinygrail.com/api/chara/user/{cid}/{user_name}/false"
+    return player.get_data(url, as_model=RMinimalUserCharacter).value
+
+
+def all_holders(player: Player, cid: int) -> List[TCharacterHolder]:
+    length = player.get_data(f"https://tinygrail.com/api/chara/users/{cid}/1/1",
+                             as_model=RCharacterHolder).value.total_items
+    if length == 0:
+        return []
+    return player.get_data(f"https://tinygrail.com/api/chara/users/{cid}/1/{length}",
+                           as_model=RCharacterHolder).value.items
+
+
+def spoil_holders(player: Player, cid: int) -> List[Tuple[TMinimalUserCharacter, TCharacterHolder]]:
+    holders = all_holders(player, cid)
+    result: List[Tuple[TMinimalUserCharacter, TCharacterHolder]] = []
+    for holder in holders:
+        result.append((minimal_user_character(player, cid, holder.name), holder))
+    return result
