@@ -281,3 +281,43 @@ class RUserAssets(TinygrailModel):
 class RErrorMessage(TinygrailModel):
     state: int
     message: str
+
+
+class TMinimalUserCharacter(TinygrailModel):
+    state: int
+    amount: int
+    bonus: int
+    character_id: int
+    icon: Optional[str]
+    id: int
+    price: float
+    sacrifices: int
+    total: int
+    user_id: int
+
+
+class RMinimalUserCharacter(TinygrailModel):
+    state: int
+    value: TMinimalUserCharacter
+
+
+class TCharacterHolder(TinygrailModel):
+    name: str
+    nickname: str
+    balance: int
+    last_active_date: datetime
+    avatar: str
+    id: int
+
+
+class LCharacterHolder(TinygrailModel):
+    current_page: int
+    total_pages: int
+    total_items: int
+    items_per_page: int
+    items: List[TCharacterHolder]
+
+
+class RCharacterHolder(TinygrailModel):
+    state: int
+    value: LCharacterHolder
