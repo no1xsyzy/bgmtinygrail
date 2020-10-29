@@ -10,6 +10,7 @@ from .daemon import daemon
 from .dump import dump
 from .force_view import force_view
 from .magic import magic
+from .spoil_holders import spoil_holders
 from .sync_asks_collect import sync_asks_collect
 
 
@@ -29,4 +30,5 @@ entry_point.add_command(daemon)
 entry_point.add_command(dump)
 entry_point.add_command(force_view)
 entry_point.add_command(magic)
+entry_point.add_command(spoil_holders)
 entry_point.add_command(sync_asks_collect)
