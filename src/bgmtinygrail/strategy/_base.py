@@ -90,7 +90,7 @@ class ABCCharaStrategy(ABC):
 
     def _fast_seller(self, amount=None, low=10, high=100000):
         if amount is None:
-            amount = self.big_c.amount
+            amount = self.big_c.total_holding
         logger.debug(f"fast seller #{self.cid:<5} | ({low}-{high}) / {amount}")
         big_c = self.big_c
         big_c.ensure_bids([], force_updates='before')
