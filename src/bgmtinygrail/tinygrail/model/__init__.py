@@ -298,7 +298,7 @@ class TMinimalUserCharacter(TinygrailModel):
 
 class RMinimalUserCharacter(TinygrailModel):
     state: int
-    value: TMinimalUserCharacter
+    value: Union[TMinimalUserCharacter, TAuction]
 
 
 class TCharacterHolder(TinygrailModel):
