@@ -40,6 +40,24 @@ class TAsk(TinygrailModel):
         return self.price == other.price and self.amount == other.amount
 
 
+class TAskHistory(TinygrailModel):
+    amount: int
+    price: float
+    id: int
+    character_id: int
+    trade_time: datetime
+    type: int  # 2 表示献祭
+
+
+class TBidHistory(TinygrailModel):
+    amount: int
+    price: float
+    id: int
+    character_id: int
+    trade_time: datetime
+    type: int  # 4 表示拍卖
+
+
 class TDepth(TinygrailModel):
     asks: List[TAsk]
     bids: List[TBid]
@@ -92,6 +110,8 @@ class RCharacterish(TinygrailModel):
 class TUserCharacter(TinygrailModel):
     bids: List[TBid]
     asks: List[TAsk]
+    ask_history: List[TAskHistory]
+    bid_history: List[TBidHistory]
     amount: int  # 持仓
 
     @property

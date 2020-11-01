@@ -232,6 +232,16 @@ class BigC:
         return self._user_character.asks
 
     @property
+    def my_bid_history(self):
+        self.refreshes('my_bids')
+        return self._user_character.bid_history
+
+    @property
+    def my_ask_history(self):
+        self.refreshes('my_asks')
+        return self._user_character.ask_history
+
+    @property
     def amount(self):
         self.refreshes('amount')
         return self._user_character.amount
