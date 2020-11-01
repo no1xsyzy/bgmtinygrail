@@ -211,12 +211,14 @@ class BigC:
     def bids(self):
         """Deprecated: ambiguous name"""
         warn(DeprecationWarning("ambiguous name 'bids', use 'my_bids' instead"))
+        self.refreshes('my_bids')
         return self._user_character.bids
 
     @property
     def asks(self):
         """Deprecated: ambiguous name"""
         warn(DeprecationWarning("ambiguous name 'asks', use 'my_asks' instead"))
+        self.refreshes('my_asks')
         return self._user_character.asks
 
     @property
