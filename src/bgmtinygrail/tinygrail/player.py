@@ -78,7 +78,12 @@ class Player:
             self.identity = new_identity
             for f in self.on_identity_refresh:
                 f(new_identity)
-        rd = response.json()
+
+        try:
+            rd = response.json()
+        except JSONDecodeError:
+            raise APIResponseSchemeNotMatch(response, None) from None
+
         if as_model is None:
             return rd
         try:
