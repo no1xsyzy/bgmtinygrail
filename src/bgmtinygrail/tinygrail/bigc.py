@@ -24,6 +24,7 @@ class BigC:
     _my_ico: Optional[TMyICO]
     _charts: List[TChartum]
     _depth: TDepth
+    _my_auction: TMyAuction
 
     def __init__(self, player: Player, character: int):
         self.player = player
@@ -31,7 +32,7 @@ class BigC:
         self.refresh_matrix = RefreshMatrix([
             'my_asks', 'my_bids', 'amount', 'user_character',
             'ico_or_character', 'ico', 'character', 'my_ico',
-            'charts', 'all_asks', 'all_bids',
+            'charts', 'all_asks', 'all_bids', 'my_auction',
         ])
         self.refresh_matrix.batch_register([
             ('my_asks', self.update_user_character),
@@ -45,6 +46,7 @@ class BigC:
             ('charts', self.update_charts),
             ('all_asks', self.update_depth),
             ('all_bids', self.update_depth),
+            ('my_auction', self.update_my_auction),
         ])
         self.refresh_matrix.interval['charts'] = timedelta(days=1)
 
@@ -95,6 +97,10 @@ class BigC:
         if 'ignore_throttle' in kwargs:
             warn(DeprecationWarning("ignore_throttle is deprecated"))
         self._depth = depth(self.player, self.character)
+
+    def update_my_auction(self):
+        self.refreshes('character')
+        self._my_auction = my_auctions(self.player, [self.character])[0]
 
     @property
     def current_price_rounded(self):
@@ -354,3 +360,34 @@ class BigC:
         warn(DeprecationWarning("ambiguous name 'bids_all', use 'all_bids' instead"))
         self.refreshes('all_bids')
         return self._depth.bids
+
+    @property
+    def my_auction_price(self):
+        self.refreshes('my_auction')
+        return self._my_auction.price
+
+    @property
+    def my_auction_amount(self):
+        self.refreshes('my_auction')
+        return self._my_auction.amount
+
+    @property
+    def my_auction_time(self) -> datetime:
+        self.refreshes('my_auction')
+        return self._my_auction.bid
+
+    @property
+    def my_auction_total_value(self):
+        self.refreshes('my_auction')
+        return self._my_auction.amount * self._my_auction.price
+
+    def do_auction(self, price: Optional[float] = None, amount: Optional[int] = None, *, allow_dec: bool = False):
+        if price is None:
+            price = self.my_auction_price
+        if amount is None:
+            amount = self.my_auction_amount
+        if price * amount < self.my_auction_total_value and not allow_dec:
+            raise ValueError("Total value is smaller and allow_dec is false")
+        self.invalidates('my_auction')
+        result = do_auction(self.player, self.character, price, amount)
+        return result
