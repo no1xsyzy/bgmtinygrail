@@ -10,7 +10,7 @@ from .model import RErrorMessage
 
 _MT = TypeVar("_MT", bound=BaseModel)
 
-__all__ = ['APIResponseSchemeNotMatch', 'ServerNotReachable', 'ServerSentError', 'Player']
+__all__ = ['APIResponseSchemeNotMatch', 'ServerNotReachable', 'ServerSentError', 'Player', 'dummy_player']
 
 
 class APIResponseSchemeNotMatch(ValueError):
@@ -109,3 +109,6 @@ class Player:
         self._aio_session = session
 
         return session
+
+
+dummy_player = Player('')

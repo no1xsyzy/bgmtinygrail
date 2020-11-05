@@ -53,3 +53,6 @@ class Player:
 
     @property
     def aio_session(self) -> aiohttp.ClientSession: ...
+
+
+dummy_player: Player
