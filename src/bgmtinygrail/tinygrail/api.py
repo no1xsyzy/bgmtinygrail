@@ -254,3 +254,8 @@ def spoil_holders(player: Player, cid: int) -> List[Tuple[TMinimalUserCharacter,
 def top_week() -> List[TTopWeek]:
     return dummy_player.get_data(f"https://tinygrail.com/api/chara/topweek",
                                  as_model=RTopWeek).value
+
+
+def my_auctions(player: Player, character_ids: List[int]) -> List[TMyAuction]:
+    return player.post_data("https://tinygrail.com/api/chara/auction/list", data=character_ids,
+                            as_model=RLMyAuction).value
