@@ -259,3 +259,8 @@ def top_week() -> List[TTopWeek]:
 def my_auctions(player: Player, character_ids: List[int]) -> List[TMyAuction]:
     return player.post_data("https://tinygrail.com/api/chara/auction/list", data=character_ids,
                             as_model=RLMyAuction).value
+
+
+def do_auction(player: Player, cid: int, price: float, amount: int):
+    return player.post_data(f"https://tinygrail.com/api/chara/auction/{cid}/{price}/{amount}", data=None,
+                            as_model=RString).value
