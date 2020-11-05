@@ -341,3 +341,18 @@ class LCharacterHolder(TinygrailModel):
 class RCharacterHolder(TinygrailModel):
     state: int
     value: LCharacterHolder
+
+
+class TTopWeek(TinygrailModel):
+    price: float
+    extra: float
+    character_id: int
+    character_name: str
+    type: int  # auction users
+    assets: int  # total auction stock
+    sacrifices: int  # total stock in valhalla
+
+
+class RTopWeek(TinygrailModel):
+    state: int
+    value: List[TTopWeek]
