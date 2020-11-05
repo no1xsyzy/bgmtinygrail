@@ -356,3 +356,16 @@ class TTopWeek(TinygrailModel):
 class RTopWeek(TinygrailModel):
     state: int
     value: List[TTopWeek]
+
+
+class TMyAuction(TinygrailModel):
+    price: float
+    amount: int
+    bid: datetime
+    character_id: int
+    type: int  # all auction stocks
+
+
+class RLMyAuction(TinygrailModel):
+    state: int
+    value: List[TMyAuction]
