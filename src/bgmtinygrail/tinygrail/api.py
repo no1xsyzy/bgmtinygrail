@@ -4,7 +4,7 @@ import logging
 from pydantic import ValidationError
 
 from .model import *
-from .player import Player, APIResponseSchemeNotMatch
+from .player import Player, APIResponseSchemeNotMatch, dummy_player
 
 logger = logging.getLogger('tinygrail.api')
 
@@ -249,3 +249,8 @@ def spoil_holders(player: Player, cid: int) -> List[Tuple[TMinimalUserCharacter,
     for holder in holders:
         result.append((minimal_user_character(player, cid, holder.name), holder))
     return result
+
+
+def top_week() -> List[TTopWeek]:
+    return dummy_player.get_data(f"https://tinygrail.com/api/chara/topweek",
+                                 as_model=RTopWeek).value
