@@ -30,6 +30,8 @@ requests==2.24.0          # via -r requirements/prod.in
 soupsieve==2.0.1          # via beautifulsoup4
 sqlalchemy==1.3.19        # via -r requirements/prod.in
 systemd==0.16.1 ; platform_system != "Windows"  # via -r requirements/prod.in
+tabulate[widechars]==0.8.7  # via -r requirements/prod.in
 urllib3==1.25.9           # via requests
+wcwidth==0.2.5            # via tabulate
 werkzeug==1.0.1           # via flask
 yarl==1.4.2               # via aiohttp

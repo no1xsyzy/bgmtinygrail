@@ -8,3 +8,4 @@ pydantic
 requests
 sqlalchemy
 systemd;platform_system!="Windows"
+tabulate[widechars]

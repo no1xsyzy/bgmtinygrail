@@ -13,7 +13,8 @@ setup(
         'pydantic',
         'requests',
         'sqlalchemy',
-        'systemd;platform_system!="Windows"'
+        'systemd;platform_system!="Windows"',
+        'tabulate[widechars]',
     ],
     extras_requires={
         'tests': ['pytest', 'pytest_mock'],
