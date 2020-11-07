@@ -40,11 +40,12 @@ def rr_top(catcher, thrower, cid, target_rank):
 
     total_can_get = ca.amount + target_extra
     base_price = ca.price
+    normalized_base_price = ceil(base_price * 100) * 0.01
 
     if not my_auctions(thrower, [cid]):
-        thrower_bc.do_auction(base_price, 1)
+        thrower_bc.do_auction(normalized_base_price, 1)
     if not my_auctions(catcher, [cid]):
-        catcher_bc.do_auction(base_price, 1)
+        catcher_bc.do_auction(normalized_base_price, 1)
 
     from datetime import datetime
 
@@ -52,7 +53,7 @@ def rr_top(catcher, thrower, cid, target_rank):
 
     if allow_dec:
         step = 1024
-        price = base_price + 0.01
+        price = max(normalized_base_price + 0.01, catcher_bc.my_auction_price)
         amount = total_can_get
         print(f"catcher_bc.do_auction({price=}, {amount=}, {allow_dec=})")
         catcher_bc.do_auction(price=price, amount=amount, allow_dec=allow_dec)
@@ -63,44 +64,46 @@ def rr_top(catcher, thrower, cid, target_rank):
 
     while (rank := get_rank()) != target_rank:
         if rank > 100:
-            price = base_price
+            price = normalized_base_price
             current_total_value = thrower_bc.my_auction_total_value
             ca = character_auction(thrower, cid)
             target_delta_value = (min(tw.score_1 for tw in now_top_week)) / ca.auction_users
-            amount = floor((current_total_value + target_delta_value) / base_price) + 1
+            amount = floor((current_total_value + target_delta_value) / price) + 1
             print(f"thrower_bc.do_auction({price=}, {amount=}, {allow_dec=})")
             thrower_bc.do_auction(price=price, amount=amount, allow_dec=allow_dec)
         elif rank > target_rank:
             if reg is True:
                 step = (step + 1) // 2
             reg = False
-            print(f"({rank=}) > ({target_rank=})")
+            print(f"{rank} == rank > target_rank == {target_rank}")
             if catcher_bc.my_auction_amount < total_can_get:
-                price = base_price + 0.01
+                price = max(normalized_base_price + 0.01, catcher_bc.my_auction_price)
                 amount = catcher_bc.my_auction_amount + 1
                 print(f"catcher_bc.do_auction({price=}, {amount=}, {allow_dec=})")
                 catcher_bc.do_auction(price=price, amount=amount, allow_dec=allow_dec)
             else:
-                price = base_price
+                price = normalized_base_price
                 current_total_value = thrower_bc.my_auction_total_value
                 print(f"{current_total_value=}")
                 target_delta_value = now_top_week[target_rank - 1].score_2 - now_top_week[rank - 1].score_2
                 print(f"{target_delta_value=}")
-                amount = floor((current_total_value + target_delta_value) / base_price) + 1
+                amount = floor((current_total_value + target_delta_value) / price) + 1
                 print(f"thrower_bc.do_auction({price=}, {amount=}, {allow_dec=})")
                 thrower_bc.do_auction(price=price, amount=amount, allow_dec=allow_dec)
         else:  # rank < target_rank
             if reg is False:
                 step = (step + 1) // 2
             reg = True
-            print(f"({rank=}) < ({target_rank=})")
+            print(f"{rank} == rank < target_rank == {target_rank}")
             if catcher_bc.my_auction_amount > total_can_get:
-                price = base_price + 0.01
+                price = max(normalized_base_price + 0.01, catcher_bc.my_auction_price)
                 amount = catcher_bc.my_auction_amount - 1
                 print(f"catcher_bc.do_auction({price=}, {amount=}, {allow_dec=})")
                 catcher_bc.do_auction(price=price, amount=amount, allow_dec=allow_dec)
             else:
-                price = base_price
-                amount = ceil(thrower_bc.my_auction_total_value / base_price) - step
+                price = normalized_base_price
+                amount = ceil(thrower_bc.my_auction_total_value / price) - step
                 print(f"thrower_bc.do_auction({price=}, {amount=}, {allow_dec=})")
                 thrower_bc.do_auction(price=price, amount=amount, allow_dec=allow_dec)
+    else:
+        print(f"{rank} == rank == target_rank == {target_rank}")
