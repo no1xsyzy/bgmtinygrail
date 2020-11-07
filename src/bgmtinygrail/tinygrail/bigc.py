@@ -100,7 +100,11 @@ class BigC:
 
     def update_my_auction(self):
         self.refreshes('character')
-        self._my_auction = my_auctions(self.player, [self.character])[0]
+        auctions = my_auctions(self.player, [self.character])
+        if auctions:
+            self._my_auction = auctions[0]
+        else:
+            self._my_auction = TMyAuction(Price=0, Amount=0, Bid='0001-01-01T01:01', CharacterId=self.character, Type=0)
 
     @property
     def current_price_rounded(self):
