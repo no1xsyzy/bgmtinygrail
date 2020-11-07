@@ -75,12 +75,12 @@ class Player:
             return rd
         try:
             return as_model(**rd)
-        except ValidationError:
+        except ValidationError as e:
             try:
                 err_msg = RErrorMessage(**rd)
                 raise ServerSentError(err_msg.state, err_msg.message) from None
             except ValidationError:
-                raise APIResponseSchemeNotMatch(response, rd) from None
+                raise APIResponseSchemeNotMatch(response, rd) from e
 
     def get_data(self, url, as_model=None, **kwargs):
         kwargs.setdefault('timeout', 10)
