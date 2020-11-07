@@ -41,6 +41,11 @@ def rr_top(catcher, thrower, cid, target_rank):
     total_can_get = ca.amount + target_extra
     base_price = ca.price
 
+    if not my_auctions(thrower, [cid]):
+        thrower_bc.do_auction(base_price, 1)
+    if not my_auctions(catcher, [cid]):
+        catcher_bc.do_auction(base_price, 1)
+
     from datetime import datetime
 
     allow_dec = datetime.today().isoweekday() != 6
@@ -57,7 +62,15 @@ def rr_top(catcher, thrower, cid, target_rank):
     reg = None
 
     while (rank := get_rank()) != target_rank:
-        if rank > target_rank:
+        if rank > 100:
+            price = base_price
+            current_total_value = thrower_bc.my_auction_total_value
+            ca = character_auction(thrower, cid)
+            target_delta_value = (min(tw.score_1 for tw in now_top_week)) / ca.auction_users
+            amount = floor((current_total_value + target_delta_value) / base_price) + 1
+            print(f"thrower_bc.do_auction({price=}, {amount=}, {allow_dec=})")
+            thrower_bc.do_auction(price=price, amount=amount, allow_dec=allow_dec)
+        elif rank > target_rank:
             if reg is True:
                 step = (step + 1) // 2
             reg = False
@@ -69,15 +82,11 @@ def rr_top(catcher, thrower, cid, target_rank):
                 catcher_bc.do_auction(price=price, amount=amount, allow_dec=allow_dec)
             else:
                 price = base_price
-                target_total_value = thrower_bc.my_auction_total_value
-                if rank < 100:
-                    target_total_value += now_top_week[target_rank - 1].score_2 - now_top_week[rank - 1].score_2
-                else:
-                    if not my_auctions(catcher, [cid]):
-                        catcher_bc.do_auction(base_price, 1)
-                    ca = character_auction(thrower, cid)
-                    target_total_value += (min(tw.score_1 for tw in now_top_week)) / ca.auction_users
-                amount = floor(target_total_value / base_price)
+                current_total_value = thrower_bc.my_auction_total_value
+                print(f"{current_total_value=}")
+                target_delta_value = now_top_week[target_rank - 1].score_2 - now_top_week[rank - 1].score_2
+                print(f"{target_delta_value=}")
+                amount = floor((current_total_value + target_delta_value) / base_price) + 1
                 print(f"thrower_bc.do_auction({price=}, {amount=}, {allow_dec=})")
                 thrower_bc.do_auction(price=price, amount=amount, allow_dec=allow_dec)
         else:  # rank < target_rank
