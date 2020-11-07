@@ -3,7 +3,7 @@ from math import ceil, floor
 import click
 
 from ._base import TG_PLAYER
-from ..tinygrail.api import top_week, character_auction
+from ..tinygrail.api import top_week, character_auction, my_auctions
 from ..tinygrail.bigc import BigC
 
 
@@ -23,7 +23,10 @@ def rr_top(catcher, thrower, cid, target_rank):
     if target_extra is None:
         raise
 
+    now_top_week = top_week()
+
     def get_rank():
+        nonlocal now_top_week
         now_top_week = top_week()
         try:
             return next(i for i, e in enumerate(now_top_week) if e.character_id == cid) + 1
@@ -66,7 +69,15 @@ def rr_top(catcher, thrower, cid, target_rank):
                 catcher_bc.do_auction(price=price, amount=amount, allow_dec=allow_dec)
             else:
                 price = base_price
-                amount = floor(thrower_bc.my_auction_total_value / base_price) + step
+                target_total_value = thrower_bc.my_auction_total_value
+                if rank < 100:
+                    target_total_value += now_top_week[target_rank - 1].score_2 - now_top_week[rank - 1].score_2
+                else:
+                    if not my_auctions(catcher, [cid]):
+                        catcher_bc.do_auction(base_price, 1)
+                    ca = character_auction(thrower, cid)
+                    target_total_value += (min(tw.score_1 for tw in now_top_week)) / ca.auction_users
+                amount = floor(target_total_value / base_price)
                 print(f"thrower_bc.do_auction({price=}, {amount=}, {allow_dec=})")
                 thrower_bc.do_auction(price=price, amount=amount, allow_dec=allow_dec)
         else:  # rank < target_rank
