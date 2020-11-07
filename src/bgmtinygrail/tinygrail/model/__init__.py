@@ -1,6 +1,8 @@
 from datetime import datetime
 from typing import *
 
+from pydantic import validator
+
 from ._base import TinygrailModel
 from .history import BHistory, UHistory
 
@@ -351,11 +353,31 @@ class TTopWeek(TinygrailModel):
     type: int  # auction users
     assets: int  # total auction stock
     sacrifices: int  # total stock in valhalla
+    average_extra: float = 1.0
+
+    @property
+    def score_1(self):
+        return self.type * self.extra
+
+    @property
+    def score_2(self):
+        if self.average_extra is None:
+            raise
+        return self.average_extra * self.type + self.extra
 
 
 class RTopWeek(TinygrailModel):
     state: int
     value: List[TTopWeek]
+
+    # noinspection PyMethodParameters
+    # validator returns class method
+    @validator('value')
+    def inject_average_extra(cls, v: List[TTopWeek]):
+        average_extra = sum((val.extra for val in v)) / sum((val.type for val in v))
+        for val in v:
+            val.average_extra = average_extra
+        return v
 
 
 class TMyAuction(TinygrailModel):
