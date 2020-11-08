@@ -21,6 +21,7 @@ __all__ = (
     'character_detail',
     'inbox',
     'get_gh',
+    'subject_character',
 )
 
 empty_session = requests.Session()
@@ -162,3 +163,14 @@ def get_gh(login: Login):
         k, v = kv.split('=', 1)
         if k == 'gh':
             return v
+
+
+def subject_character(sub_id: int, *, login: Login = None):
+    if login is None:
+        session = empty_session
+    else:
+        session = login.session
+    response = session.get(f"https://bgm.tv/subject/{sub_id}/characters")
+    soup = BeautifulSoup(response.content, 'html.parser')
+    return sorted({int(re.findall(r"/character/(\d+)", m.attrs['href'])[0])
+                   for m in soup.select("#columnInSubjectA a[href^=\"/character/\"]")})
