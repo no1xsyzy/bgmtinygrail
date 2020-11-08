@@ -1,4 +1,3 @@
-from itertools import chain
 from typing import List
 
 import click
@@ -27,7 +26,7 @@ def check_targets(player, targets: List[str], from_file: List[LazyFile], show_ex
             for t in target.split(","):
                 yield t
 
-    parsed_targets = parse_target(chain(iterates()))
+    parsed_targets = parse_target(iterates())
     if not any(i != (0, 0) for i in parsed_targets.items()):
         print("no target specified at all")
         raise click.exceptions.Exit(11)
@@ -43,17 +42,31 @@ def check_targets(player, targets: List[str], from_file: List[LazyFile], show_ex
             else:
                 ch, ct = character.state, character.sacrifices
             if (not (ch >= th and ct >= tt)) or (show_exceeds and not (ch == th and ct == tt)):
-                table[cid] = [f"#{cid}", character.name, f"target: {th}/{tt}, actual: {ch}/{ct}"]
+                def colored(actual, target):
+                    if actual < target:
+                        return f"\033[31m{actual}\033[0m"
+                    elif actual > target:
+                        return f"\033[36m{actual}\033[0m"
+                    else:
+                        return f"{actual}"
+
+                table[cid] = [f"#{cid}", character.name, f"{th}/{tt}",
+                              f"\033[32m{ch}/{ct}\033[0m" if ch + ct >= th + tt and ct < tt else
+                              f"{colored(ch, th)}/{colored(ct, tt)}"]
         else:
             if (th, tt) != (0, 0):
                 checks.append(cid)
 
     if checks:
         for c in batch_character_info(player, checks):
+            cid = c.character_id
+            th, tt = parsed_targets[cid]
             if isinstance(c, TICO):
-                table[c.character_id] = [f"#{c.character_id}", c.name, "ICO"]
+                table[cid] = [f"#{cid}", c.name, f"{th}/{tt}", f"ICO: {c.total}"]
             else:
-                table[c.character_id] = [f"#{c.character_id}", c.name, "Available"]
+                table[cid] = [f"#{cid}", c.name, f"{th}/{tt}", "-"]
+            checks.remove(cid)
 
     from tabulate import tabulate
-    click.echo(tabulate([table[key] for key in table.keys()], ('CID', 'name', 'Detail'), output_format))
+    click.echo(tabulate([table[key] for key in sorted(table.keys())], ('CID', 'name', 'Target', 'Actual'),
+                        output_format))
