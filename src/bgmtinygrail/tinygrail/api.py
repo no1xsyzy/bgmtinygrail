@@ -89,6 +89,16 @@ def get_full_holding(player: Player) -> Dict[int, Tuple[int, int]]:
     return characters
 
 
+def get_full_holding_2(player: Player) -> Dict[int, Union[TTemple, THolding]]:
+    characters = {}
+    for c in all_holding(player):
+        characters[c.character_id] = c
+    for c in user_temples(player):
+        if c.character_id not in characters:
+            characters[c.character_id] = c
+    return characters
+
+
 def create_bid(player: Player, cid: int, bid: TBid):
     url = f"https://tinygrail.com/api/chara/bid/{cid}/{bid.price}/{bid.amount}"
     if bid.type == 1:
