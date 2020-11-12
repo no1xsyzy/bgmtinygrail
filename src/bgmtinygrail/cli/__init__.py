@@ -11,7 +11,7 @@ from .dump import dump
 from .force_view import force_view
 from .list_top_week import list_top_week
 from .magic import magic
-from .rr_top import rr_top
+from .rr_top import rr_top, rr_top_catch, rr_top_throw
 from .spoil_highest_bid import spoil_highest_bid
 from .spoil_holders import spoil_holders
 from .sync_asks_collect import sync_asks_collect
@@ -35,6 +35,8 @@ entry_point.add_command(force_view)
 entry_point.add_command(list_top_week)
 entry_point.add_command(magic)
 entry_point.add_command(rr_top)
+entry_point.add_command(rr_top_catch)
+entry_point.add_command(rr_top_throw)
 entry_point.add_command(spoil_highest_bid)
 entry_point.add_command(spoil_holders)
 entry_point.add_command(sync_asks_collect)
