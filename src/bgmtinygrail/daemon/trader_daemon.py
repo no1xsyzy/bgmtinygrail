@@ -70,7 +70,6 @@ class TraderDaemon(Daemon):
             self.slow_chars.remove(cid)
 
     def daily(self):
-        logger.info("daily")
         self.notify_watchdog()
         if hasattr(self.trader, 'graceful_tick'):
             ticker = self.trader.graceful_tick
@@ -106,7 +105,6 @@ class TraderDaemon(Daemon):
         return True
 
     def hourly(self):
-        logger.info("hourly")
         abi = set(all_bidding_ids(self.player))
         ahi = set(all_holding_ids(self.player))
 

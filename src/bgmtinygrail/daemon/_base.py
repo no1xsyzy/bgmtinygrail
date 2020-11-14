@@ -110,24 +110,24 @@ class Daemon(ABC):
         try:
             self.safe_run(start_function or self.start)
             while True:
-                logger.info("start tick")
                 # daily
                 # daily should be run at 1:00 am, prevents Saturday-Sunday auction settlement
                 today = (datetime.now() - timedelta(hours=1)).date()
                 if self.last_daily is None or self.last_daily < today:
+                    logger.info("daily")
                     update = self.safe_run(daily_function or self.daily)
                     if update:
                         self.last_daily = today
                 # hourly
                 hour = datetime.now().replace(minute=0, second=0, microsecond=0)
                 if self.last_hourly is None or self.last_hourly < hour:
+                    logger.info("hourly")
                     update = self.safe_run(hourly_function or self.hourly)
                     if update:
                         self.last_hourly = hour
                 # tick
                 self.safe_run(tick_function or self.tick)
                 self.notify_watchdog()
-                logger.info("finish run, sleeping")
                 if sys.stdout.isatty():
                     for waited in range(wait_seconds):
                         sleep(1)
