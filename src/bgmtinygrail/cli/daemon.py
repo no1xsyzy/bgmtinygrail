@@ -16,8 +16,9 @@ def daemon():
 @daemon.command()
 @click.option("--daemon-type", type=click.Choice(['trader']), default='trader')
 @click.option("--trader-type", type=click.Choice(['fundamental', 'graceful', 'strategical']), default='strategical')
+@click.option("--wait-seconds", type=int, default=20)
 @click.option("--account")
-def start(daemon_type, trader_type, account):
+def start(daemon_type, trader_type, account, wait_seconds):
     if daemon_type == 'trader':
         from ..daemon.trader_daemon import TraderDaemon
         daemon_cls = TraderDaemon
@@ -47,7 +48,7 @@ def start(daemon_type, trader_type, account):
     else:
         logging.config.fileConfig('logging.conf')
 
-    d.run_forever(20)
+    d.run_forever(wait_seconds)
 
 
 @daemon.group()
