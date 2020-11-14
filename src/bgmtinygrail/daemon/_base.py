@@ -132,6 +132,7 @@ class Daemon(ABC):
                     for waited in range(wait_seconds):
                         print(f"{waited}/{wait_seconds} seconds passed", end="\r")
                         sleep(1)
+                    print(f"{wait_seconds}/{wait_seconds} seconds passed, executing...", end="\r")
                 else:
                     sleep(wait_seconds)
         except KeyboardInterrupt:
