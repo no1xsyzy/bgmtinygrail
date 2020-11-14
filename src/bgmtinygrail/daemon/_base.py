@@ -130,8 +130,8 @@ class Daemon(ABC):
                 self.notify_watchdog()
                 if sys.stdout.isatty():
                     for waited in range(wait_seconds):
+                        print(f"{waited}/{wait_seconds} seconds passed", end="\r")
                         sleep(1)
-                        print(f"{waited + 1}/{wait_seconds} seconds passed", end="\r")
                 else:
                     sleep(wait_seconds)
         except KeyboardInterrupt:
