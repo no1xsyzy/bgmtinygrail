@@ -25,10 +25,14 @@ class ServerSentError(Exception):
 class Player:
     identity: str
     on_identity_refresh: List[Callable[[str], None]]
+    api_host: str
     _session: Optional[requests.Session]
     _aio_session: Optional[aiohttp.ClientSession]
 
-    def __init__(self, identity: str, on_identity_refresh: Callable[[str], None] = None): ...
+    def __init__(self,
+                 identity: str,
+                 on_identity_refresh: Callable[[str], None] = None,
+                 api_host: Optional[str] = "https://tinygrail.com/api/"): ...
 
     @property
     def session(self) -> requests.Session: ...
@@ -38,6 +42,8 @@ class Player:
 
     @overload
     def _process_response(self, response: Response, *, as_model: None = None) -> dict: ...
+
+    def _process_url(self, url: str) -> str: ...
 
     @overload
     def get_data(self, url: str, as_model: Type[_MT], **kwargs) -> _MT: ...

@@ -31,11 +31,12 @@ class ServerSentError(Exception):
 
 
 class Player:
-    def __init__(self, identity, on_identity_refresh=None):
+    def __init__(self, identity, on_identity_refresh=None, api_host="https://tinygrail.com/api/"):
         self.identity = identity
         self.on_identity_refresh = []
         if callable(on_identity_refresh):
             self.on_identity_refresh.append(on_identity_refresh)
+        self.api_host = api_host
         self._session = None
         self._aio_session = None
 
@@ -56,6 +57,14 @@ class Player:
         self._session = session
 
         return session
+
+    def _process_url(self, url):
+        if url.startswith("https://") or url.startswith("http://"):
+            return url
+        elif url.startswith("/"):
+            return self.api_host + url[1:]
+        else:
+            return self.api_host + url
 
     def _process_response(self, response, *, as_model=None):
         if 500 <= response.status_code < 600:
@@ -83,11 +92,13 @@ class Player:
                 raise APIResponseSchemeNotMatch(response, rd) from e
 
     def get_data(self, url, as_model=None, **kwargs):
+        url = self._process_url(url)
         kwargs.setdefault('timeout', 10)
         response = self.session.get(url, **kwargs)
         return self._process_response(response, as_model=as_model)
 
     def post_data(self, url, data=None, as_model=None, **kwargs):
+        url = self._process_url(url)
         kwargs.setdefault('timeout', 10)
         kwargs.setdefault('json', data)
         response = self.session.post(url, **kwargs)
