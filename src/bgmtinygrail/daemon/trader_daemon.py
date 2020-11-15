@@ -6,6 +6,7 @@ from typing import *
 
 from ._base import Daemon
 from ..model_link.sync_asks_collect import sync_asks_collect
+from ..tinygrail import ServerSentError
 from ..tinygrail.api import all_holding, all_bids
 from ..tinygrail.api import get_daily_bonus, get_weekly_share, scratch_bonus2, scratch_gensokyo, scratch_gensokyo_price
 from ..tinygrail.api import get_history
@@ -80,26 +81,30 @@ class TraderDaemon(Daemon):
         q = None
 
         # daily bonus (cc)
-        code, s = get_daily_bonus(self.player)
-        if code == 1 and s == "今日已经领取过登录奖励。":
-            logger.info(f"get_daily_bonus  | already got")
-        elif code == 0 and (q := re.findall(r"[\d.]+(?=cc)", s)):
+        try:
+            s = get_daily_bonus(self.player)
+            q = re.findall(r"[\d.]+(?=cc)", s)
             logger.info(f"get_daily_bonus  | got {float(q[0])} cc")
-        else:
-            logger.warning(f"get_daily_bonus  | {code=!r} {s=!r}")
+        except ServerSentError as e:
+            if e.state == 1 and e.message == '今日已经领取过登录奖励。':
+                logger.debug(f"get_daily_bonus  | already got")
+            else:
+                raise
 
         # weekly share
         from datetime import date
         if date.today().isoweekday() == 6:
-            code, s = get_weekly_share(self.player)
-            if code == 1 and s == "您已经领取过本周奖励。":
-                logger.debug(f"get_weekly_share | already got")
-            elif code == 0 and (q := re.findall(r"[\d.]+(?=cc)", s)):
+            try:
+                s = get_weekly_share(self.player)
+                q = re.findall(r"[\d.]+(?=cc)", s)
                 q0 = float(q[0])
                 q1 = float(q[1])
                 logger.info(f"get_weekly_share | got {q0}-{q1}={q0 - q1} cc")
-            else:
-                logger.warning(f"get_weekly_share | {code=!r} {s=!r}")
+            except ServerSentError as e:
+                if e.state == 1 and e.message == '您已经领取过本周奖励。':
+                    logger.debug(f"get_weekly_share | already got")
+                else:
+                    raise
 
         # bonus2
         while True:
