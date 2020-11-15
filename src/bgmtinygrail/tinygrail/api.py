@@ -274,3 +274,13 @@ def my_auctions(player: Player, character_ids: List[int]) -> List[TMyAuction]:
 def do_auction(player: Player, cid: int, price: float, amount: int):
     return player.post_data(f"chara/auction/{cid}/{price}/{amount}", data=None,
                             as_model=RString).value
+
+
+def get_weekly_share(player: Player) -> Tuple[int, str]:
+    data = player.get_data(f"event/share/bonus", as_model=RString)
+    return data.state, data.value
+
+
+def get_daily_bonus(player: Player) -> Tuple[int, str]:
+    data = player.get_data(f"event/bangumi/bonus/daily", as_model=RString)
+    return data.state, data.value
