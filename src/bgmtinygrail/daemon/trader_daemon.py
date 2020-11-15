@@ -78,8 +78,6 @@ class TraderDaemon(Daemon):
         else:
             ticker = self.trader.tick
 
-        q = None
-
         # daily bonus (cc)
         try:
             s = get_daily_bonus(self.player)
