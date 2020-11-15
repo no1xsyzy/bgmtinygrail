@@ -176,14 +176,12 @@ def get_history(player: Player, *, since_id: int = 0, page_limit: int = None, pa
     fetched: Dict[int, BHistory] = {}
     page_id_iterator = (itertools.count(1) if page_limit is None else range(1, page_limit + 1))
     for page in page_id_iterator:
-        response = player.session.get(f"chara/user/balance/{page}/{page_size}",
-                                      timeout=REQUEST_TIMEOUT)
+        jso = player.get_data(f"chara/user/balance/{page}/{page_size}", as_model=None)
         try:
-            jso = response.json()
             lst: List[BHistory] = RHistory(**jso).value.items
         except APIResponseSchemeNotMatch:
             lst = []
-            raw_histories = response.json()['Value']['Items']
+            raw_histories = jso['Value']['Items']
             for raw_history in raw_histories:
                 try:
                     lst.append(HistoryParser(History=raw_history).history)
@@ -201,13 +199,11 @@ def get_history(player: Player, *, since_id: int = 0, page_limit: int = None, pa
 
 def iter_history(player: Player, *, page_size: int = 50) -> Iterator[BHistory]:
     for page in itertools.count(1):
-        response = player.session.get(f"chara/user/balance/{page}/{page_size}",
-                                      timeout=REQUEST_TIMEOUT)
+        jso = player.get_data(f"chara/user/balance/{page}/{page_size}", as_model=None)
         try:
-            jso = response.json()
             lst: List[BHistory] = RHistory(**jso).value.items
         except APIResponseSchemeNotMatch:
-            raw_histories = response.json()['Value']['Items']
+            raw_histories = jso['Value']['Items']
             for raw_history in raw_histories:
                 try:
                     yield HistoryParser(History=raw_history).history
