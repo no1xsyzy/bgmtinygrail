@@ -1,6 +1,19 @@
-from typing import overload
+from typing import Optional
 
-from ..tinygrail import Player
+from ..tinygrail import Player, BigC
+
+
+def calculate_target_extra(target_rank: int) -> int: ...
+
+
+# def wrap_do_auction(big_c: BigC, name: str) -> Callable[[float, int, bool], None]: ...
+
+
+# noinspection PyPep8Naming
+class wrap_do_auction:
+    def __init__(self, big_c: BigC, name: str): ...
+
+    def __call__(self, price: float, amount: int, allow_dec: bool): ...
 
 
 def rr_top(
@@ -12,22 +25,11 @@ def rr_top(
 ): ...
 
 
-@overload
 def rr_top_catch(
         catcher: Player,
         cid: int,
-        n: None,
-        target_rank: int,
-        catch_price: float
-): ...
-
-
-@overload
-def rr_top_catch(
-        catcher: Player,
-        cid: int,
-        n: int,
-        target_rank: None,
+        catch_amount: Optional[int],
+        target_rank: Optional[int],
         catch_price: float
 ): ...
 
