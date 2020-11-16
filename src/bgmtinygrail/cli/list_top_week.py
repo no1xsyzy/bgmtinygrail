@@ -30,7 +30,7 @@ def list_top_week(output_format):
             })
     else:
         from tabulate import tabulate
-        table = [[f'{idx + 1}', f'#{auction.character_id}', auction.character_name, f'{auction.price:.2f}',
-                  f'{auction.extra:.2f}', f'{auction.type}', f'{auction.assets}', f'{auction.sacrifices}',
-                  f'{auction.score_1:.2f}', f'{auction.score_2:.2f}', ] for idx, auction in enumerate(top)]
-        print(tabulate(table, headers=headers, tablefmt=output_format, floatfmt='.2f'))
+        table = [[f'{idx + 1}', f'#{auction.character_id}', auction.character_name, f'{auction.price}',
+                  f'{auction.extra}', f'{auction.type}', f'{auction.assets}', f'{auction.sacrifices}',
+                  f'{auction.score_1}', f'{auction.score_2}', ] for idx, auction in enumerate(top)]
+        print(tabulate(table, headers=headers, tablefmt=output_format, floatfmt='.6f'))
