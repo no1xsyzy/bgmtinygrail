@@ -82,9 +82,10 @@ class TraderDaemon(Daemon):
         try:
             s = get_daily_bonus(self.player)
             q = re.findall(r"[\d.]+(?=cc)", s)
-            if len(q) != 1:
+            if len(q) == 1:
+                logger.info(f"get_daily_bonus  | got {float(q[0])} cc")
+            elif s != '成功领取每日登录奖励。':
                 raise ValueError(f"unmatched {s=}")
-            logger.info(f"get_daily_bonus  | got {float(q[0])} cc")
         except ServerSentError as e:
             if e.state == 1 and e.message == '今日已经领取过登录奖励。':
                 logger.debug(f"get_daily_bonus  | already got")
