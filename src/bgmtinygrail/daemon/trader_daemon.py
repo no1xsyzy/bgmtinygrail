@@ -82,6 +82,8 @@ class TraderDaemon(Daemon):
         try:
             s = get_daily_bonus(self.player)
             q = re.findall(r"[\d.]+(?=cc)", s)
+            if len(q) != 1:
+                raise ValueError(f"unmatched {s=}")
             logger.info(f"get_daily_bonus  | got {float(q[0])} cc")
         except ServerSentError as e:
             if e.state == 1 and e.message == '今日已经领取过登录奖励。':
@@ -95,6 +97,8 @@ class TraderDaemon(Daemon):
             try:
                 s = get_weekly_share(self.player)
                 q = re.findall(r"[\d.]+(?=cc)", s)
+                if len(q) != 2:
+                    raise ValueError(f"unmatched {s=}")
                 q0 = float(q[0])
                 q1 = float(q[1])
                 logger.info(f"get_weekly_share | got {q0}-{q1}={q0 - q1} cc")
