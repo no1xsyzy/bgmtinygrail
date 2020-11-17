@@ -123,7 +123,7 @@ def rr_top(catcher, thrower, cid, target_rank):
 @click.argument('cid', type=int)
 @click.option('-p', '--catch-price', type=float, default=None)
 @click.option('-n', '--catch-amount', type=int, default=None)
-@click.option('-t', '--target-rank', type=int, default=None)
+@click.option('-t', '--target-rank', type=click.IntRange(1, 12), default=None)
 def rr_top_catch(catcher, cid, catch_amount, target_rank, catch_price):
     if catch_amount is None and target_rank is None:
         raise ValueError
