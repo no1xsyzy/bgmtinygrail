@@ -112,7 +112,11 @@ class BigC:
 
     @property
     def initial_price(self):
-        return self.charts[0].begin
+        try:
+            return self.charts[0].begin
+        except IndexError:
+            level = self._character_info.level
+            return sum(i * i for i in range(level + 1)) * 100000 / (2500 + 7500 * level)
 
     @property
     def initial_price_rounded(self):
