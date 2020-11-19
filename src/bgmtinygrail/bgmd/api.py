@@ -45,6 +45,10 @@ def user_mono(user: User, monotype: Literal['both', 'character', 'person']) -> L
 
 
 def person_work_voice_character(person: Person) -> List[Character]:
+    from ..db.cache_character import get, put
+    characters = get(f'cv/{person.id}')
+    if characters is not None:
+        return [Character(id=cid) for cid in characters]
     response = empty_session.get(f"https://bgm.tv/person/{person.id}/works/voice")
     soup = BeautifulSoup(response.content, 'html.parser')
     characters = [int(k[0])
@@ -52,6 +56,7 @@ def person_work_voice_character(person: Person) -> List[Character]:
                   for m in [a['href']]
                   for k in [re.findall(r"/character/(\d+)", m)]
                   if k]
+    put(f'cv/{person.id}', characters)
     return [Character(id=cid) for cid in characters]
 
 
