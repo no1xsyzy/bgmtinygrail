@@ -174,7 +174,7 @@ def subject_character(sub_id: int, *, login: Login = None):
     from ..db.cache_character import get, put
     characters = get(f'sub/{sub_id}')
     if characters is not None:
-        return [Character(id=cid) for cid in characters]
+        return characters
     if login is None:
         session = empty_session
     else:
