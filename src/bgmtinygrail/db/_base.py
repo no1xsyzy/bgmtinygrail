@@ -1,7 +1,9 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Text, DateTime
+from sqlalchemy import ForeignKey
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm.exc import NoResultFound
 
 engine_main = create_engine('sqlite:///tinygrail.db')
 engine_cache = create_engine('sqlite:///cache.db')
@@ -57,5 +59,7 @@ def auto_session(session_cls, *,
 
 __all__ = ['DbMainSession', 'DbCacheSession', 'DbRuntimeSession',
            'MainBase', 'CacheBase', 'RuntimeBase',
-           'Column', 'Integer', 'String',
+           'Column', 'Integer', 'String', 'Text', 'DateTime',
+           'ForeignKey',
+           'NoResultFound',
            'create_all', 'auto_session']
