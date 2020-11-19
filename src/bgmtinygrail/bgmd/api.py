@@ -171,11 +171,17 @@ def get_gh(login: Login):
 
 
 def subject_character(sub_id: int, *, login: Login = None):
+    from ..db.cache_character import get, put
+    characters = get(f'sub/{sub_id}')
+    if characters is not None:
+        return [Character(id=cid) for cid in characters]
     if login is None:
         session = empty_session
     else:
         session = login.session
     response = session.get(f"https://bgm.tv/subject/{sub_id}/characters")
     soup = BeautifulSoup(response.content, 'html.parser')
-    return sorted({int(re.findall(r"/character/(\d+)", m.attrs['href'])[0])
-                   for m in soup.select("#columnInSubjectA a[href^=\"/character/\"]")})
+    characters = sorted({int(re.findall(r"/character/(\d+)", m.attrs['href'])[0]) for m in
+                         soup.select("#columnInSubjectA a[href^=\"/character/\"]")})
+    put(f'sub/{sub_id}', characters)
+    return characters
