@@ -11,7 +11,7 @@ logger = logging.getLogger('tinygrail.api')
 REQUEST_TIMEOUT = 10
 
 
-def batch_character_info(player: Player, lst: List[int], splits=50) -> List[Union[TCharacter, TICO]]:
+def batch_character_info(player: Player, lst: List[int], splits=1000) -> List[Union[TCharacter, TICO]]:
     lst = [int(c) for c in lst]
     ans = []
     while lst:
