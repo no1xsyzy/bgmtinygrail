@@ -11,3 +11,6 @@ e.py
 *.db
 *.egg-info
 .pytest_cache
+
+# viztracer result
+/*.html
