@@ -89,7 +89,8 @@ class Player:
                 err_msg = RErrorMessage(**rd)
                 if err_msg.state == 1 and "Unknown column 'Infinity' in 'field list'" in err_msg.message:
                     import logging
-                    logging.getLogger('tinygrail.api').exception("Unknown column 'Infinity' in 'field list'")
+                    logging.getLogger('tinygrail.api').error("Unknown column 'Infinity' in 'field list'",
+                                                             stack_info=True)
                     return
                 raise ServerSentError(err_msg.state, err_msg.message) from None
             except ValidationError:
