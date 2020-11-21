@@ -87,6 +87,10 @@ class Player:
         except ValidationError as e:
             try:
                 err_msg = RErrorMessage(**rd)
+                if err_msg.state == 1 and "Unknown column 'Infinity' in 'field list'" in err_msg.message:
+                    import logging
+                    logging.getLogger('tinygrail.api').exception("Unknown column 'Infinity' in 'field list'")
+                    return
                 raise ServerSentError(err_msg.state, err_msg.message) from None
             except ValidationError:
                 raise APIResponseSchemeNotMatch(response, rd) from e
