@@ -194,11 +194,11 @@ class RHolding(TinygrailModel):
 
 
 class TAuction(TinygrailModel):
-    amount: int
-    total: int
-    price: float  # 拍卖底价
-    auction_users: int
-    auction_total: int
+    amount: int  # stocks available for auction
+    total: int  # seems same as `amount`
+    price: float  # lowest price
+    auction_users: int  # global auction bidding users
+    auction_total: int  # global auction bidding stocks
 
 
 class RAuction(TinygrailModel):
