@@ -1,18 +1,15 @@
 #!/usr/bin/env python3
-import logging.config
 import re
 from random import sample
 from typing import *
 
-from ._base import Daemon
+from ._base import logger, Daemon
 from ..model_link.sync_asks_collect import sync_asks_collect
 from ..tinygrail import ServerSentError
 from ..tinygrail.api import all_holding, all_bids
 from ..tinygrail.api import get_daily_bonus, get_weekly_share, scratch_bonus2, scratch_gensokyo, scratch_gensokyo_price
 from ..tinygrail.api import get_history
 from ..trader import *
-
-logger = logging.getLogger('daemon')
 
 
 def all_holding_ids(player):
