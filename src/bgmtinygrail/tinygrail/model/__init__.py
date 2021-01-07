@@ -77,28 +77,87 @@ class RDepth(TinygrailModel):
 
 
 class TCharacter(TinygrailModel):
-    id: int
     character_id: int
-    name: str
-    level: int
-    price: float
+    change: int
+    user_total: int
+    user_amount: int
+    air_date: datetime
+    asks: int
+    bids: int
+    bonus: int  # meaning what?
     current: float
-    rate: float
-    total: int
-    last_order: datetime
+    fluctuation: float
+    icon: str
+    id: int
     last_deal: datetime
-    sacrifices: int
+    last_modifier: int
+    last_order: datetime
+    level: int
+    market_value: float
+    name: str
+    price: float
     rate: float
+    sacrifices: int
+    state: int
+    subject_id: Optional[int]
+    subject_name: Optional[str]
+    total: int
+    type: int
 
 
 class TICO(TinygrailModel):
-    id: int
+    air_date: datetime
+    begin: datetime
+    bonus: int  # meaning what?
     character_id: int
+    end: datetime
+    icon: str
+    id: int  # initial id
+    last: datetime
     name: str
+    state: int
+    subject_id: Optional[int]
+    subject_name: Optional[str]
+    total: float  # 总金额
+    type: int
+    users: int
+
+
+class LICO(TinygrailModel):
+    current_page: int
+    total_pages: int
+    total_items: int
+    items_per_page: int
+    items: List[TICO]
+
+
+class RLICO(TinygrailModel):
+    state: int
+    value: LICO
+
+
+class RMultiICO(TinygrailModel):
+    state: int
+    value: List[TICO]
+
+
+class TUserInitial(TinygrailModel):
+    name: Optional[str]
+    nick_name: Optional[str]
+    avatar: Optional[str]
+    last_index: int
+    amount: float
     begin: datetime
     end: datetime
-    total: float  # 总金额
-    users: int
+    id: int
+    initial_id: int
+    state: int
+    user_id: int
+
+
+class RUserInitial(TinygrailModel):
+    state: int
+    value: TUserInitial
 
 
 class RCharacterList(TinygrailModel):

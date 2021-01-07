@@ -278,3 +278,35 @@ def get_weekly_share(player: Player) -> str:
 
 def get_daily_bonus(player: Player) -> str:
     return player.get_data(f"event/bangumi/bonus/daily", as_model=RString).value
+
+
+def iter_most_recent_initials(*, page_size: int = 50) -> Iterator[TICO]:
+    for page in itertools.count(1):
+        initials = dummy_player.get_data(f"chara/mri/{page}/{page_size}", as_model=RMultiICO).value
+        if initials:
+            yield from initials
+
+
+def iter_most_valuable_initials(*, page_size: int = 50) -> Iterator[TICO]:
+    for page in itertools.count(1):
+        initials = dummy_player.get_data(f"chara/mvi/{page}/{page_size}", as_model=RMultiICO).value
+        if initials:
+            yield from initials
+
+
+def iter_recent_active_initials(*, page_size: int = 50) -> Iterator[TICO]:
+    for page in itertools.count(1):
+        initials = dummy_player.get_data(f"chara/rai/{page}/{page_size}", as_model=RMultiICO).value
+        if initials:
+            yield from initials
+
+
+def my_initial_for_character(player: Player, initial_id: int) -> TUserInitial:
+    return player.get_data(f"chara/initial/{initial_id}", as_model=RUserInitial).value
+
+
+def iter_my_initials(player: Player, *, page_size: int) -> Iterator[TICO]:
+    for page in itertools.count(1):
+        initials = player.get_data(f"chara/user/initial/0/{page}/{page_size}", as_model=RLICO).value.items
+        if initials:
+            yield from initials
