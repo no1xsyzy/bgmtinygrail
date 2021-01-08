@@ -15,6 +15,7 @@ setup(
         'sqlalchemy',
         'systemd;platform_system!="Windows"',
         'tabulate[widechars]',
+        'termcolor',
     ],
     extras_requires={
         'tests': ['pytest', 'pytest_mock'],

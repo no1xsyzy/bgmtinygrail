@@ -3,6 +3,7 @@ from typing import List
 
 import click
 from click.utils import LazyFile
+from termcolor import colored
 
 from ._base import TG_PLAYER
 from ._helpers import parse_target
@@ -10,6 +11,29 @@ from ..tinygrail import ServerSentError, ico_minimal_investment_for_level, ico_n
     ico_now_level_by_investors, ico_minimal_investors_for_level, ico_offerings_for_level
 from ..tinygrail.api import batch_character_info, get_full_holding_2, my_initial_for_character
 from ..tinygrail.model import TICO, TTemple
+
+
+def level_colors(level):
+    if level == 0:
+        return colored(f"{level:^5}", 'grey', 'on_white', ['reverse', 'bold'])
+    elif level == 1:
+        return colored(f"{level:^5}", 'white', 'on_green')
+    elif level == 2:
+        return colored(f"{level:^5}", 'white', 'on_cyan')
+    elif level == 3:
+        return colored(f"{level:^5}", 'yellow', 'on_white', ['reverse', 'bold'])
+    elif level == 4:
+        return colored(f"{level:^5}", 'white', 'on_yellow')
+    elif level == 5:
+        return colored(f"{level:^5}", 'white', 'on_magenta')
+    elif level == 6:
+        return colored(f"{level:^5}", 'red', 'on_white', ['reverse', 'bold'])
+    else:
+        return colored(f"{level:^5}", 'black', 'on_white')
+
+
+def fall_to_met(value):
+    return (f"{value}" if value > 0 else colored("(met)", 'grey', attrs=['bold']))
 
 
 @click.command()
@@ -47,17 +71,17 @@ def check_targets(player, targets: List[str], from_file: List[LazyFile], show_ex
             else:
                 ch, ct = character.state, character.sacrifices
             if (not (ch >= th and ct >= tt)) or (show_exceeds and not (ch == th and ct == tt)):
-                def colored(actual, target):
+                def select_color(actual, target):
                     if actual < target:
-                        return f"\033[31m{actual}\033[0m"
+                        return colored(str(actual), 'red')
                     elif actual > target:
-                        return f"\033[36m{actual}\033[0m"
+                        return colored(str(actual), 'cyan')
                     else:
                         return f"{actual}"
 
                 initialized[cid] = [f"#{cid}", character.name, f"{th}/{tt}",
-                                    f"\033[32m{ch}/{ct}\033[0m" if ch + ct >= th + tt and ct < tt else
-                                    f"{colored(ch, th)}/{colored(ct, tt)}"]
+                                    colored(f"{ch}/{ct}", 'green') if ch + ct >= th + tt and ct < tt else
+                                    f"{select_color(ch, th)}/{select_color(ct, tt)}"]
         else:
             if (th, tt) != (0, 0):
                 checks.append(cid)
@@ -94,15 +118,13 @@ def check_targets(player, targets: List[str], from_file: List[LazyFile], show_ex
                         math.ceil(investment_others_part / stocks_for_others * stocks_for_me),
                         ico_minimal_investment_for_level(level) / ico_offerings_for_level(level) * stocks_for_me)
                     more_investment_my_part = investment_my_part - my_investment
-                    in_initial.append([
-                        (end_date, 1),
-                        [f"#{cid}", c.name, f"{end_date}", f"{th}/{tt}({th + tt})",
-                         f"{level}", f"{offerings}", f"{my_investment}", f"{total_investment}", f"{total_investors}",
-                         (f"{more_investment}" if more_investment > 0 else "(met)"),
-                         (f"{more_investors}" if more_investors > 0 else "(met)"),
-                         f"{investment_my_part}",
-                         (f"{more_investment_my_part}" if more_investment_my_part > 0 else "(met)"),
-                         ]])
+                    in_initial.append([(end_date, level), [
+                        f"#{cid}", c.name, f"{end_date}", f"{th}/{tt}({th + tt})",
+                        level_colors(level), f"{offerings}",
+                        f"{my_investment}", f"{total_investment}", f"{total_investors}",
+                        fall_to_met(more_investment), fall_to_met(more_investors),
+                        f"{investment_my_part}", fall_to_met(more_investment_my_part),
+                    ]])
             else:
                 initialized[cid] = [f"#{cid}", c.name, f"{th}/{tt}", "-"]
             checks.remove(cid)
@@ -120,9 +142,11 @@ def check_targets(player, targets: List[str], from_file: List[LazyFile], show_ex
     if in_initial:
         click.echo("ICOs:")
         click.echo(tabulate([x[1] for x in sorted(in_initial, key=lambda x: x[0])],
-                            ('CID', 'Name', 'End Date', 'Target',
-                             'Lv', '总发行', '自投入₵', '总投入₵', '人数',
-                             '还需₵', '还需人数', '目标投入₵', '还需投入₵'),
+                            ('CID', '名字', '结束时间', '目标',
+                             'Lv', '总发行',
+                             colored('自投入₵', 'yellow'), colored('总投入₵', 'yellow'), colored('人数', 'yellow'),
+                             '还需₵', '还需人数',
+                             '目标投入₵', '还需投入₵'),
                             output_format))
 
     if not in_initial and not initialized:
