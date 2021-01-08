@@ -1,4 +1,5 @@
 import math
+from datetime import datetime, timedelta
 from typing import List
 
 import click
@@ -101,6 +102,15 @@ def check_targets(player, targets: List[str], from_file: List[LazyFile], show_ex
                 total_investment = c.total
                 total_investors = c.users
                 end_date = c.end.replace(tzinfo=None)
+                rest = end_date - datetime.now()
+                if rest < timedelta(hours=1):
+                    colored_end_date = colored(end_date, 'red', attrs=['dark'])
+                elif rest < timedelta(hours=12):
+                    colored_end_date = colored(end_date, 'red')
+                elif rest < timedelta(days=1):
+                    colored_end_date = colored(end_date, 'red', attrs=['bold'])
+                else:
+                    colored_end_date = "%s" % end_date
                 lo_lv, up_lv = sorted((ico_now_level_by_investment(total_investment),
                                        ico_now_level_by_investors(total_investors)))
                 if lo_lv < 1:
@@ -119,7 +129,7 @@ def check_targets(player, targets: List[str], from_file: List[LazyFile], show_ex
                         ico_minimal_investment_for_level(level) / ico_offerings_for_level(level) * stocks_for_me)
                     more_investment_my_part = investment_my_part - my_investment
                     in_initial.append([(end_date, level), [
-                        f"#{cid}", c.name, f"{end_date}", f"{th}/{tt}({th + tt})",
+                        f"#{cid}", c.name, colored_end_date, f"{th}/{tt}({th + tt})",
                         level_colors(level), f"{offerings}",
                         f"{my_investment}", f"{total_investment}", f"{total_investors}",
                         fall_to_met(more_investment), fall_to_met(more_investors),
@@ -147,7 +157,8 @@ def check_targets(player, targets: List[str], from_file: List[LazyFile], show_ex
                              colored('自投入₵', 'yellow'), colored('总投入₵', 'yellow'), colored('人数', 'yellow'),
                              '还需₵', '还需人数',
                              '目标投入₵', '还需投入₵'),
-                            output_format))
+                            output_format, disable_numparse=True
+                            ))
 
     if not in_initial and not initialized:
         click.echo("Nothing to show")
