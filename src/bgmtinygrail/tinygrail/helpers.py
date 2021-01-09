@@ -12,7 +12,7 @@ def ico_minimal_investment_for_level(level):
 
 def ico_minimal_investors_for_level(level):
     if level <= 0:
-        raise ValueError("level cannot zero or negative")
+        raise ValueError("level cannot be zero or negative")
     return level * 5 + 10
 
 
@@ -39,5 +39,5 @@ def ico_now_level(total_investment, total_investors):
 
 def ico_offerings_for_level(level):
     if level <= 0:
-        raise ValueError("level cannot zero or negative")
+        raise ValueError("level cannot be zero or negative")
     return level * 7500 + 2500
