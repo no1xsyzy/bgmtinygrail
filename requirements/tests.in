@@ -1,3 +1,4 @@
 -r prod.in
 pytest
 pytest_mock
+pytest-cov
