@@ -1,8 +1,8 @@
 import pytest
 from pytest_mock import MockerFixture
 
-from src.bgmtinygrail.bgmd.api import *
-from src.bgmtinygrail.bgmd.model import *
+from bgmtinygrail.bgmd.api import *
+from bgmtinygrail.bgmd.model import *
 
 user = user_info(285822)
 
@@ -47,9 +47,9 @@ class TestUserMono:
 class TestPersonWorkVoiceCharacter:
     def test_matsuki_miyu(self):
         result = person_work_voice_character(Person(id=4353))
-        assert len(result) == 57
+        assert len(result) == 58
         assert isinstance(result[0], Character) and result[0].id == 15542
-        assert isinstance(result[-1], Character) and result[-1].id == 75791
+        assert isinstance(result[-1], Character) and result[-1].id == 88529
 
 
 class TestCollectMono:

@@ -1,5 +1,5 @@
 # noinspection PyProtectedMember
-from src.bgmtinygrail.cli._helpers import parse_target
+from bgmtinygrail.cli._helpers import parse_target
 
 
 class TestParseTarget:
@@ -23,5 +23,5 @@ class TestParseTarget:
 
     def test_cv(self):
         result = parse_target(["cv/4353=1/2"])
-        assert len(result) == 57
+        assert len(result) == 58
         assert all(v == (1, 2) for v in result.values())
