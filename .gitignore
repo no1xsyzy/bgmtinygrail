@@ -1,16 +1,24 @@
+# editors
 .vscode
 .idea
+
+# python
 __pycache__
 venv
 venv*
+*.egg-info
+
+# runtimes and configurations
 /accounts.py
 e.py
-*.txt
-!requirements/*.txt
+waitlist.txt
 *.log
 *.db
-*.egg-info
-.pytest_cache
 
 # viztracer result
 /*.html
+
+# tests and debugs
+.pytest_cache
+.coverage
+.mutmut-cache
