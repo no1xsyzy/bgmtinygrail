@@ -33,7 +33,11 @@ class TestICOHelpers:
         assert ico_now_level(1e100, 15) == 1
         assert ico_now_level(10_0000, 1000000) == 1
 
-    def ico_offerings_for_level(self):
+    def test_ico_offerings_for_level(self):
+        with pytest.raises(ValueError, match="^level cannot be zero or negative$"):
+            ico_offerings_for_level(-1)
+        with pytest.raises(ValueError, match="^level cannot be zero or negative$"):
+            ico_offerings_for_level(0)
         assert ico_offerings_for_level(1) == 1_0000
         assert ico_offerings_for_level(2) == 1_7500
         assert ico_offerings_for_level(13) == 10_0000
