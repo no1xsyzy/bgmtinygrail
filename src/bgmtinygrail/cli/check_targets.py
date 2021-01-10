@@ -75,6 +75,15 @@ def fall_to_met(value):
     return f"{value}" if value > 0 else colored("(met)", 'grey', attrs=['bold'])
 
 
+def colored_comparison(actual, target):
+    if actual < target:
+        return colored(str(actual), 'red')
+    elif actual > target:
+        return colored(str(actual), 'cyan')
+    else:
+        return f"{actual}"
+
+
 @click.command()
 @click.argument('player', type=TG_PLAYER)
 @click.argument('targets', type=str, nargs=-1)
@@ -110,17 +119,9 @@ def check_targets(player, targets: List[str], from_file: List[LazyFile], show_ex
             else:
                 ch, ct = character.state, character.sacrifices
             if (not (ch >= th and ct >= tt)) or (show_exceeds and not (ch == th and ct == tt)):
-                def select_color(actual, target):
-                    if actual < target:
-                        return colored(str(actual), 'red')
-                    elif actual > target:
-                        return colored(str(actual), 'cyan')
-                    else:
-                        return f"{actual}"
-
                 initialized[cid] = [f"#{cid}", character.name, f"{th}/{tt}",
                                     colored(f"{ch}/{ct}", 'green') if ch + ct >= th + tt and ct < tt else
-                                    f"{select_color(ch, th)}/{select_color(ct, tt)}"]
+                                    f"{colored_comparison(ch, th)}/{colored_comparison(ct, tt)}"]
         else:
             if (th, tt) != (0, 0):
                 checks.append(cid)
