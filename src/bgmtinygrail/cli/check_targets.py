@@ -34,7 +34,7 @@ def level_colors(level):
 
 
 def fall_to_met(value):
-    return (f"{value}" if value > 0 else colored("(met)", 'grey', attrs=['bold']))
+    return f"{value}" if value > 0 else colored("(met)", 'grey', attrs=['bold'])
 
 
 @click.command()
