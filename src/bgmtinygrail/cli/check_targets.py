@@ -33,6 +33,35 @@ def level_colors(level):
         return colored(f"{level:^5}", 'black', 'on_white')
 
 
+def time_color(end_date):
+    edge1 = timedelta(hours=1)
+    edge2 = timedelta(days=1)
+    edge3 = timedelta(days=7)
+
+    def dark_red(s):
+        return colored(s, 'red', attrs=['dark'])
+
+    def normal_red(s):
+        return colored(s, 'red')
+
+    def bright_red(s):
+        return colored(s, 'red', attrs=['bold'])
+
+    str_end_date = str(end_date).strip()
+    now = datetime.now().replace(microsecond=0)
+    rest = end_date - now
+    if rest < edge1:
+        prefix_len = int(len(str_end_date) * (1 - rest / edge1))
+        return dark_red(str_end_date[:prefix_len]) + normal_red(str_end_date[prefix_len:])
+    elif rest < edge2:
+        prefix_len = int(len(str_end_date) * (1 - (rest - edge1) / (edge2 - edge1)))
+        return normal_red(str_end_date[:prefix_len]) + bright_red(str_end_date[prefix_len:])
+    elif rest < edge3:
+        prefix_len = int(len(str_end_date) * (1 - (rest - edge2) / (edge3 - edge2)))
+        return bright_red(str_end_date[:prefix_len]) + str_end_date[prefix_len:]
+    return str_end_date
+
+
 def fall_to_met(value):
     return f"{value}" if value > 0 else colored("(met)", 'grey', attrs=['bold'])
 
@@ -102,15 +131,7 @@ def check_targets(player, targets: List[str], from_file: List[LazyFile], show_ex
                 total_investment = c.total
                 total_investors = c.users
                 end_date = c.end.replace(tzinfo=None)
-                rest = end_date - datetime.now()
-                if rest < timedelta(hours=1):
-                    colored_end_date = colored(end_date, 'red', attrs=['dark'])
-                elif rest < timedelta(hours=12):
-                    colored_end_date = colored(end_date, 'red')
-                elif rest < timedelta(days=1):
-                    colored_end_date = colored(end_date, 'red', attrs=['bold'])
-                else:
-                    colored_end_date = "%s" % end_date
+                colored_end_date = time_color(end_date)
                 lo_lv, up_lv = sorted((ico_now_level_by_investment(total_investment),
                                        ico_now_level_by_investors(total_investors)))
                 if lo_lv < 1:
@@ -135,6 +156,7 @@ def check_targets(player, targets: List[str], from_file: List[LazyFile], show_ex
                         fall_to_met(more_investment), fall_to_met(more_investors),
                         f"{investment_my_part}", fall_to_met(more_investment_my_part),
                     ]])
+                in_initial.append([(end_date, 100), []])
             else:
                 initialized[cid] = [f"#{cid}", c.name, f"{th}/{tt}", "-"]
             checks.remove(cid)
