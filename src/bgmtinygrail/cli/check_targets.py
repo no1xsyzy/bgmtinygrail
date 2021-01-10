@@ -1,9 +1,7 @@
 import math
 from datetime import datetime, timedelta
-from typing import List
 
 import click
-from click.utils import LazyFile
 from termcolor import colored
 
 from ._base import TG_PLAYER
@@ -90,7 +88,7 @@ def colored_comparison(actual, target):
 @click.option('-f', '--from-file', type=click.File('r', encoding='utf-8'), multiple=True, default=[])
 @click.option('-o', '--output-format', default='simple')
 @click.option('--show-exceeds/--hide-exceeds')
-def check_targets(player, targets: List[str], from_file: List[LazyFile], show_exceeds, output_format):
+def check_targets(player, targets, from_file, show_exceeds, output_format):
     def iterates():
         for file in from_file:
             for line in file:
