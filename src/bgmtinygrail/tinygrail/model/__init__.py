@@ -141,25 +141,6 @@ class RMultiICO(TinygrailModel):
     value: List[TICO]
 
 
-class TUserInitial(TinygrailModel):
-    name: Optional[str]
-    nick_name: Optional[str]
-    avatar: Optional[str]
-    last_index: int
-    amount: float
-    begin: datetime
-    end: datetime
-    id: int
-    initial_id: int
-    state: int
-    user_id: int
-
-
-class RUserInitial(TinygrailModel):
-    state: int
-    value: TUserInitial
-
-
 class RCharacterList(TinygrailModel):
     value: List[Union[TCharacter, TICO]]
 
@@ -282,7 +263,17 @@ class RAllTemples(TinygrailModel):
 
 
 class TMyICO(TinygrailModel):
+    name: Optional[str]
+    nick_name: Optional[str]
+    avatar: Optional[str]
+    last_index: int
     amount: float
+    begin: datetime
+    end: datetime
+    id: int
+    initial_id: int
+    state: int
+    user_id: int
 
 
 class RMyICO(TinygrailModel):

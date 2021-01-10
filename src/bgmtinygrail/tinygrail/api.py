@@ -301,10 +301,6 @@ def iter_recent_active_initials(*, page_size: int = 50) -> Iterator[TICO]:
             yield from initials
 
 
-def my_initial_for_character(player: Player, initial_id: int) -> TUserInitial:
-    return player.get_data(f"chara/initial/{initial_id}", as_model=RUserInitial).value
-
-
 def iter_my_initials(player: Player, *, page_size: int) -> Iterator[TICO]:
     for page in itertools.count(1):
         initials = player.get_data(f"chara/user/initial/0/{page}/{page_size}", as_model=RLICO).value.items

@@ -8,10 +8,19 @@ from termcolor import colored
 
 from ._base import TG_PLAYER
 from ._helpers import parse_target
-from ..tinygrail import ServerSentError, ico_minimal_investment_for_level, ico_now_level_by_investment, \
-    ico_now_level_by_investors, ico_minimal_investors_for_level, ico_offerings_for_level
-from ..tinygrail.api import batch_character_info, get_full_holding_2, my_initial_for_character
-from ..tinygrail.model import TICO, TTemple
+from ..tinygrail import (
+    TICO,
+    TTemple,
+    ServerSentError,
+    ico_minimal_investment_for_level,
+    ico_now_level_by_investment,
+    ico_now_level_by_investors,
+    ico_minimal_investors_for_level,
+    ico_offerings_for_level,
+    get_my_ico,
+    batch_character_info,
+    get_full_holding_2,
+)
 
 
 def level_colors(level):
@@ -122,7 +131,7 @@ def check_targets(player, targets: List[str], from_file: List[LazyFile], show_ex
             th, tt = parsed_targets[cid]
             if isinstance(c, TICO):
                 try:
-                    my_initial = my_initial_for_character(player, c.id)
+                    my_initial = get_my_ico(player, c.id)
                     my_investment = my_initial.amount
                 except ServerSentError as e:
                     if e.message != '尚未参加ICO。':
