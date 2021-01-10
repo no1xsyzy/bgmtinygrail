@@ -1,7 +1,6 @@
 import io
 import math
 import pydoc
-import sys
 from datetime import datetime, timedelta
 
 import click
@@ -96,7 +95,7 @@ def colored_comparison(actual, target):
 @click.option('--show-on-market/--hide-on-market', default=True)
 def check_targets(player, targets, from_file, show_exceeds, output_format, show_initials, show_on_market):
     if not show_initials and not show_on_market:
-        click.echo("Not showing anything", file=sys.stderr)
+        click.echo("Not showing anything", err=True)
         raise click.exceptions.Exit(99)
 
     def iterates():
@@ -214,4 +213,4 @@ def check_targets(player, targets, from_file, show_exceeds, output_format, show_
         pydoc.pager(output.getvalue())
 
     if not in_initial and not initialized:
-        click.echo("Nothing to show")
+        click.echo("Nothing to show", err=True)
