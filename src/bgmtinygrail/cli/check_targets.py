@@ -119,8 +119,8 @@ def check_targets(player, targets: List[str], from_file: List[LazyFile], show_ex
                     min_investment = ico_minimal_investment_for_level(level)
                     min_investors = ico_minimal_investors_for_level(level)
                     offerings = ico_offerings_for_level(level)
-                    more_investment = min_investment - total_investment
-                    more_investors = min_investors - total_investors
+                    more_investment = max(0, min_investment - total_investment)
+                    more_investors = max(0, min_investors - total_investors)
                     stocks_for_me = th + tt
                     stocks_for_others = offerings - stocks_for_me
                     investment_others_part = total_investment - my_investment + more_investors * 5000
