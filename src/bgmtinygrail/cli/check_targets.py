@@ -1,4 +1,5 @@
 import math
+import sys
 from datetime import datetime, timedelta
 
 import click
@@ -88,7 +89,13 @@ def colored_comparison(actual, target):
 @click.option('-f', '--from-file', type=click.File('r', encoding='utf-8'), multiple=True, default=[])
 @click.option('-o', '--output-format', default='simple')
 @click.option('--show-exceeds/--hide-exceeds')
-def check_targets(player, targets, from_file, show_exceeds, output_format):
+@click.option('--show-initials/--hide-initials', default=True)
+@click.option('--show-on-market/--hide-on-market', default=True)
+def check_targets(player, targets, from_file, show_exceeds, output_format, show_initials, show_on_market):
+    if not show_initials and not show_on_market:
+        click.echo("Not showing anything", file=sys.stderr)
+        raise click.exceptions.Exit(99)
+
     def iterates():
         for file in from_file:
             for line in file:
@@ -116,10 +123,11 @@ def check_targets(player, targets, from_file, show_exceeds, output_format):
                 ct = character.sacrifices
             else:
                 ch, ct = character.state, character.sacrifices
-            if (not (ch >= th and ct >= tt)) or (show_exceeds and not (ch == th and ct == tt)):
-                initialized[cid] = [f"#{cid}", character.name, f"{th}/{tt}",
-                                    colored(f"{ch}/{ct}", 'green') if ch + ct >= th + tt and ct < tt else
-                                    f"{colored_comparison(ch, th)}/{colored_comparison(ct, tt)}"]
+            if show_on_market:
+                if (not (ch >= th and ct >= tt)) or (show_exceeds and not (ch == th and ct == tt)):
+                    initialized[cid] = [f"#{cid}", character.name, f"{th}/{tt}",
+                                        colored(f"{ch}/{ct}", 'green') if ch + ct >= th + tt and ct < tt else
+                                        f"{colored_comparison(ch, th)}/{colored_comparison(ct, tt)}"]
         else:
             if (th, tt) != (0, 0):
                 checks.append(cid)
@@ -129,44 +137,46 @@ def check_targets(player, targets, from_file, show_exceeds, output_format):
             cid = c.character_id
             th, tt = parsed_targets[cid]
             if isinstance(c, TICO):
-                try:
-                    my_initial = get_my_ico(player, c.id)
-                    my_investment = my_initial.amount
-                except ServerSentError as e:
-                    if e.message != '尚未参加ICO。':
-                        raise
-                    my_investment = 0
-                total_investment = c.total
-                total_investors = c.users
-                end_date = c.end.replace(tzinfo=None)
-                colored_end_date = time_color(end_date)
-                lo_lv, up_lv = sorted((ico_now_level_by_investment(total_investment),
-                                       ico_now_level_by_investors(total_investors)))
-                if lo_lv < 1:
-                    lo_lv = 1
-                for level in range(lo_lv, up_lv + 2):
-                    min_investment = ico_minimal_investment_for_level(level)
-                    min_investors = ico_minimal_investors_for_level(level)
-                    offerings = ico_offerings_for_level(level)
-                    more_investment = max(0, min_investment - total_investment)
-                    more_investors = max(0, min_investors - total_investors)
-                    stocks_for_me = th + tt
-                    stocks_for_others = offerings - stocks_for_me
-                    investment_others_part = total_investment - my_investment + more_investors * 5000
-                    investment_my_part = max(
-                        math.ceil(investment_others_part / stocks_for_others * stocks_for_me),
-                        ico_minimal_investment_for_level(level) / ico_offerings_for_level(level) * stocks_for_me)
-                    more_investment_my_part = investment_my_part - my_investment
-                    in_initial.append([(end_date, level), [
-                        f"#{cid}", c.name, colored_end_date, f"{th}/{tt}({th + tt})",
-                        level_colors(level), f"{offerings}",
-                        f"{my_investment}", f"{total_investment}", f"{total_investors}",
-                        fall_to_met(more_investment), fall_to_met(more_investors),
-                        f"{investment_my_part}", fall_to_met(more_investment_my_part),
-                    ]])
-                in_initial.append([(end_date, 100), []])
+                if show_initials:
+                    try:
+                        my_initial = get_my_ico(player, c.id)
+                        my_investment = my_initial.amount
+                    except ServerSentError as e:
+                        if e.message != '尚未参加ICO。':
+                            raise
+                        my_investment = 0
+                    total_investment = c.total
+                    total_investors = c.users
+                    end_date = c.end.replace(tzinfo=None)
+                    colored_end_date = time_color(end_date)
+                    lo_lv, up_lv = sorted((ico_now_level_by_investment(total_investment),
+                                           ico_now_level_by_investors(total_investors)))
+                    if lo_lv < 1:
+                        lo_lv = 1
+                    for level in range(lo_lv, up_lv + 2):
+                        min_investment = ico_minimal_investment_for_level(level)
+                        min_investors = ico_minimal_investors_for_level(level)
+                        offerings = ico_offerings_for_level(level)
+                        more_investment = max(0, min_investment - total_investment)
+                        more_investors = max(0, min_investors - total_investors)
+                        stocks_for_me = th + tt
+                        stocks_for_others = offerings - stocks_for_me
+                        investment_others_part = total_investment - my_investment + more_investors * 5000
+                        investment_my_part = max(
+                            math.ceil(investment_others_part / stocks_for_others * stocks_for_me),
+                            ico_minimal_investment_for_level(level) / ico_offerings_for_level(level) * stocks_for_me)
+                        more_investment_my_part = investment_my_part - my_investment
+                        in_initial.append([(end_date, level), [
+                            f"#{cid}", c.name, colored_end_date, f"{th}/{tt}({th + tt})",
+                            level_colors(level), f"{offerings}",
+                            f"{my_investment}", f"{total_investment}", f"{total_investors}",
+                            fall_to_met(more_investment), fall_to_met(more_investors),
+                            f"{investment_my_part}", fall_to_met(more_investment_my_part),
+                        ]])
+                    in_initial.append([(end_date, 100), []])
             else:
-                initialized[cid] = [f"#{cid}", c.name, f"{th}/{tt}", "-"]
+                if show_on_market:
+                    initialized[cid] = [f"#{cid}", c.name, f"{th}/{tt}", "-"]
             checks.remove(cid)
 
     from tabulate import tabulate
