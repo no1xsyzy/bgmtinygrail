@@ -101,10 +101,11 @@ def check_targets(player, targets, from_file, show_exceeds, output_format, show_
 
     def iterates():
         for file in from_file:
-            for line in file:
-                line = line.rstrip()
-                if line and not line.startswith("--"):
-                    yield line
+            with file:
+                for line in file:
+                    line = line.rstrip()
+                    if line and not line.startswith("--"):
+                        yield line
         for target in targets:
             for t in target.split(","):
                 yield t
