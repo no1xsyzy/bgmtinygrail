@@ -1,8 +1,11 @@
+import io
 import math
+import pydoc
 import sys
 from datetime import datetime, timedelta
 
 import click
+from tabulate import tabulate
 from termcolor import colored
 
 from ._base import TG_PLAYER
@@ -179,26 +182,35 @@ def check_targets(player, targets, from_file, show_exceeds, output_format, show_
                     initialized[cid] = [f"#{cid}", c.name, f"{th}/{tt}", "-"]
             checks.remove(cid)
 
-    from tabulate import tabulate
-    if initialized:
-        click.echo("In market:")
-        click.echo(tabulate([initialized[key] for key in sorted(initialized.keys())],
-                            ('CID', 'Name', 'Target', 'Actual'),
-                            output_format))
+    if not initialized and not in_initial:
+        click.echo("Nothing to show")
+        raise click.exceptions.Exit(99)
 
-    if in_initial and initialized:
-        click.echo()
+    with io.StringIO() as output:
+        if initialized:
+            print("In market:", file=output)
+            print(tabulate([initialized[key] for key in sorted(initialized.keys())],
+                           ('CID', 'Name', 'Target', 'Actual'),
+                           output_format), file=output)
 
-    if in_initial:
-        click.echo("ICOs:")
-        click.echo(tabulate([x[1] for x in sorted(in_initial, key=lambda x: x[0])],
-                            ('CID', '名字', '结束时间', '目标',
-                             'Lv', '总发行',
-                             colored('自投入₵', 'yellow'), colored('总投入₵', 'yellow'), colored('人数', 'yellow'),
-                             '还需₵', '还需人数',
-                             '目标投入₵', '还需投入₵'),
-                            output_format, disable_numparse=True
-                            ))
+        if in_initial and initialized:
+            print(file=output)
+
+        if in_initial:
+            print("ICOs:", file=output)
+            sorted_in_initial = [x[1] for x in sorted(in_initial, key=lambda x: x[0])]
+            while not sorted_in_initial[-1]:
+                del sorted_in_initial[-1]
+            print(tabulate(sorted_in_initial,
+                           ('CID', '名字', '结束时间', '目标',
+                            'Lv', '总发行',
+                            colored('自投入₵', 'yellow'), colored('总投入₵', 'yellow'), colored('人数', 'yellow'),
+                            '还需₵', '还需人数',
+                            '目标投入₵', '还需投入₵'),
+                           output_format, disable_numparse=True
+                           ), file=output)
+
+        pydoc.pager(output.getvalue())
 
     if not in_initial and not initialized:
         click.echo("Nothing to show")
