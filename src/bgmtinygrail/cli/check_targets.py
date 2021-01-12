@@ -8,7 +8,7 @@ from tabulate import tabulate
 from termcolor import colored
 
 from ._base import TG_PLAYER
-from ._helpers import parse_target
+from ._helpers import Targets
 from ..tinygrail import (
     TICO,
     TTemple,
@@ -76,13 +76,27 @@ def fall_to_met(value):
     return f"{value}" if value > 0 else colored("(met)", 'grey', attrs=['bold'])
 
 
-def colored_comparison(actual, target):
-    if actual < target:
-        return colored(str(actual), 'red')
-    elif actual > target:
-        return colored(str(actual), 'cyan')
-    else:
-        return f"{actual}"
+def _check_current(parsed_targets, player, show_exceeds, show_on_market):
+    initialized = {}
+    checks = []
+    characters = get_full_holding_2(player)
+    for cid, parsed_target in parsed_targets.items():
+        if character := characters.get(cid):
+            if isinstance(character, TTemple):
+                ch = 0
+                ct = character.sacrifices
+            else:
+                ch, ct = character.state, character.sacrifices
+            if show_on_market:
+                check = parsed_target.check(ch, ct)
+                if check == 'sacrifice' or check[0] == 'low' or check[1] == 'low' or (
+                        show_exceeds and check != ('match', 'match')):
+                    initialized[cid] = [f"#{cid}", character.name, str(parsed_target),
+                                        parsed_target.colored_comparison(ch, ct)]
+        else:
+            if parsed_target:
+                checks.append(cid)
+    return checks, initialized
 
 
 @click.command()
@@ -93,52 +107,47 @@ def colored_comparison(actual, target):
 @click.option('--show-exceeds/--hide-exceeds')
 @click.option('--show-initials/--hide-initials', default=True)
 @click.option('--show-on-market/--hide-on-market', default=True)
-def check_targets(player, targets, from_file, show_exceeds, output_format, show_initials, show_on_market):
-    if not show_initials and not show_on_market:
+@click.option('--show-targets/--hide-targets')
+def check_targets(player, targets, from_file, output_format, show_exceeds, show_initials, show_on_market, show_targets):
+    if not show_initials and not show_on_market and not show_targets:
         click.echo("Not showing anything", err=True)
         raise click.exceptions.Exit(99)
 
-    def iterates():
-        for file in from_file:
-            with file:
-                for line in file:
-                    line = line.rstrip()
-                    if line and not line.startswith("--"):
-                        yield line
-        for target in targets:
-            for t in target.split(","):
-                yield t
+    parsed_targets = Targets()
+    parsed_targets.init_macros()
 
-    parsed_targets = parse_target(iterates())
-    if not any(i != (0, 0) for i in parsed_targets.items()):
+    for file in from_file:
+        with file:
+            for line in file:
+                line = line.rstrip()
+                try:
+                    parsed_targets.load_line(line)
+                except:
+                    click.echo(f"error when parsing line `{line}'", err=True)
+                    raise
+    for target in targets:
+        for t in target.split(","):
+            parsed_targets.load_line(t)
+
+    parsed_targets.cleanup_macros()
+
+    if show_targets:
+        for key in sorted(parsed_targets.keys()):
+            parsed_target = parsed_targets[key]
+            click.echo(f"{key} = {parsed_target}")
+
+    if not any(parsed_targets.values()):
         print("no target specified at all")
         raise click.exceptions.Exit(11)
-    characters = get_full_holding_2(player)
 
-    initialized = {}
     in_initial = []
-
-    checks = []
-    for cid, (th, tt) in parsed_targets.items():
-        if character := characters.get(cid):
-            if isinstance(character, TTemple):
-                ch = 0
-                ct = character.sacrifices
-            else:
-                ch, ct = character.state, character.sacrifices
-            if show_on_market:
-                if (not (ch >= th and ct >= tt)) or (show_exceeds and not (ch == th and ct == tt)):
-                    initialized[cid] = [f"#{cid}", character.name, f"{th}/{tt}",
-                                        colored(f"{ch}/{ct}", 'green') if ch + ct >= th + tt and ct < tt else
-                                        f"{colored_comparison(ch, th)}/{colored_comparison(ct, tt)}"]
-        else:
-            if (th, tt) != (0, 0):
-                checks.append(cid)
+    checks, initialized = _check_current(parsed_targets, player, show_exceeds, show_on_market)
 
     if checks:
         for c in batch_character_info(player, checks):
             cid = c.character_id
-            th, tt = parsed_targets[cid]
+            parsed_target = parsed_targets[cid]
+            stocks_for_me = parsed_target.holding_min + parsed_target.tower_min
             if isinstance(c, TICO):
                 if show_initials:
                     try:
@@ -162,7 +171,6 @@ def check_targets(player, targets, from_file, show_exceeds, output_format, show_
                         offerings = ico_offerings_for_level(level)
                         more_investment = max(0, min_investment - total_investment)
                         more_investors = max(0, min_investors - total_investors)
-                        stocks_for_me = th + tt
                         stocks_for_others = offerings - stocks_for_me
                         investment_others_part = total_investment - my_investment + more_investors * 5000
                         investment_my_part = max(
@@ -170,7 +178,7 @@ def check_targets(player, targets, from_file, show_exceeds, output_format, show_
                             ico_minimal_investment_for_level(level) / ico_offerings_for_level(level) * stocks_for_me)
                         more_investment_my_part = investment_my_part - my_investment
                         in_initial.append([(end_date, level), [
-                            f"#{cid}", c.name, colored_end_date, f"{th}/{tt}({th + tt})",
+                            f"#{cid}", c.name, colored_end_date, f"{parsed_target}({stocks_for_me})",
                             level_colors(level), f"{offerings}",
                             f"{my_investment}", f"{total_investment}", f"{total_investors}",
                             fall_to_met(more_investment), fall_to_met(more_investors),
@@ -179,11 +187,12 @@ def check_targets(player, targets, from_file, show_exceeds, output_format, show_
                     in_initial.append([(end_date, 100), []])
             else:
                 if show_on_market:
-                    initialized[cid] = [f"#{cid}", c.name, f"{th}/{tt}", "-"]
+                    initialized[cid] = [f"#{cid}", c.name, str(parsed_target),
+                                        parsed_target.colored_comparison(0, 0)]
             checks.remove(cid)
 
     if not initialized and not in_initial:
-        click.echo("Nothing to show")
+        click.echo("Nothing to show", err=True)
         raise click.exceptions.Exit(99)
 
     with io.StringIO() as output:

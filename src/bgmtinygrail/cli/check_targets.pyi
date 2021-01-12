@@ -3,6 +3,7 @@ from typing import List
 
 from click.utils import LazyFile
 
+from ._helpers import Targets
 from ..tinygrail import Player
 
 
@@ -15,9 +16,8 @@ def time_color(end_date: datetime) -> str: ...
 def fall_to_met(value: float) -> str: ...
 
 
-def colored_comparison(actual: int, target: int) -> str: ...
+def _check_current(parsed_targets: Targets, player: Player, show_exceeds: bool, show_on_market: bool): ...
 
 
-def check_targets(player: Player, targets: List[str], from_file: List[LazyFile],
-                  show_exceeds: bool, output_format: str,
-                  show_initials: bool, show_on_market: bool) -> None: ...
+def check_targets(player: Player, targets: List[str], from_file: List[LazyFile], output_format: str,
+                  show_exceeds: bool, show_initials: bool, show_on_market: bool, show_targets: bool) -> None: ...
