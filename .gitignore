@@ -22,3 +22,4 @@ waitlist.txt
 .pytest_cache
 .coverage
 .mutmut-cache
+htmlcov
