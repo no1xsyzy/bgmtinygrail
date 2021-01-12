@@ -43,8 +43,11 @@ def update(friendly_name: str, *, session=None, **kwargs):
 
 @auto_session(DbMainSession)
 def delete(friendly_name: str, *, session=None):
-    obj = session.query(Account).filter_by(friendly_name=friendly_name)
-    session.delete(obj)
+    try:
+        obj = session.query(Account).filter_by(friendly_name=friendly_name).one()
+        session.delete(obj)
+    except NoResultFound:
+        raise KeyError(f"User `{friendly_name}' not found")
 
 
 @auto_session(DbMainSession, writes=False)
