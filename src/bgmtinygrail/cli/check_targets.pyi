@@ -17,4 +17,5 @@ def _check_current(parsed_targets: Targets, player: Player, show_exceeds: bool, 
 
 
 def check_targets(player: Player, targets: List[str], from_file: List[LazyFile], output_format: str,
-                  show_exceeds: bool, show_initials: bool, show_on_market: bool, show_targets: bool) -> None: ...
+                  show_exceeds: bool, show_initials: bool, show_on_market: bool, show_faulty_targets: bool,
+                  show_targets: bool) -> None: ...

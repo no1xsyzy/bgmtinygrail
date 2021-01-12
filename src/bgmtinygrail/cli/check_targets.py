@@ -88,8 +88,10 @@ def _check_current(parsed_targets, player, show_exceeds, show_on_market):
 @click.option('--show-exceeds/--hide-exceeds')
 @click.option('--show-initials/--hide-initials', default=True)
 @click.option('--show-on-market/--hide-on-market', default=True)
+@click.option('--show-faulty-targets/--hide-faulty-targets', default=True)
 @click.option('--show-targets/--hide-targets')
-def check_targets(player, targets, from_file, output_format, show_exceeds, show_initials, show_on_market, show_targets):
+def check_targets(player, targets, from_file, output_format,
+                  show_exceeds, show_initials, show_on_market, show_faulty_targets, show_targets):
     if not show_initials and not show_on_market and not show_targets:
         click.echo("Not showing anything", err=True)
         raise click.exceptions.Exit(99)
@@ -116,6 +118,14 @@ def check_targets(player, targets, from_file, output_format, show_exceeds, show_
         for key in sorted(parsed_targets.keys()):
             parsed_target = parsed_targets[key]
             click.echo(f"{key} = {parsed_target}")
+    elif show_faulty_targets:
+        for key in sorted(parsed_targets.keys()):
+            parsed_target = parsed_targets[key]
+            if (None not in (parsed_target.holding_min, parsed_target.holding_max)
+                and parsed_target.holding_min > parsed_target.holding_max) or \
+                    (None not in (parsed_target.tower_min, parsed_target.tower_max)
+                     and parsed_target.tower_min > parsed_target.tower_max):
+                click.echo(f"{key} = {parsed_target}")
 
     if not any(parsed_targets.values()):
         print("no target specified at all")
