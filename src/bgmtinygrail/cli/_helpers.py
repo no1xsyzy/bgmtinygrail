@@ -234,3 +234,22 @@ def _cv_resolver(cv_id):
     from ..bgmd import person_work_voice_character, Person
     for character in person_work_voice_character(Person(id=int(cv_id))):
         yield character.id
+
+
+def level_colors(level):
+    if level == 0:
+        return colored(f"{level:^5}", 'grey', 'on_white', ['reverse', 'bold'])
+    elif level == 1:
+        return colored(f"{level:^5}", 'white', 'on_green')
+    elif level == 2:
+        return colored(f"{level:^5}", 'white', 'on_cyan')
+    elif level == 3:
+        return colored(f"{level:^5}", 'yellow', 'on_white', ['reverse', 'bold'])
+    elif level == 4:
+        return colored(f"{level:^5}", 'white', 'on_yellow')
+    elif level == 5:
+        return colored(f"{level:^5}", 'white', 'on_magenta')
+    elif level == 6:
+        return colored(f"{level:^5}", 'red', 'on_white', ['reverse', 'bold'])
+    else:
+        return colored(f"{level:^5}", 'black', 'on_white')

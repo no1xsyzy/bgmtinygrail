@@ -8,7 +8,7 @@ from tabulate import tabulate
 from termcolor import colored
 
 from ._base import TG_PLAYER
-from ._helpers import Targets
+from ._helpers import Targets, level_colors
 from ..tinygrail import (
     TICO,
     TTemple,
@@ -22,25 +22,6 @@ from ..tinygrail import (
     batch_character_info,
     get_full_holding_2,
 )
-
-
-def level_colors(level):
-    if level == 0:
-        return colored(f"{level:^5}", 'grey', 'on_white', ['reverse', 'bold'])
-    elif level == 1:
-        return colored(f"{level:^5}", 'white', 'on_green')
-    elif level == 2:
-        return colored(f"{level:^5}", 'white', 'on_cyan')
-    elif level == 3:
-        return colored(f"{level:^5}", 'yellow', 'on_white', ['reverse', 'bold'])
-    elif level == 4:
-        return colored(f"{level:^5}", 'white', 'on_yellow')
-    elif level == 5:
-        return colored(f"{level:^5}", 'white', 'on_magenta')
-    elif level == 6:
-        return colored(f"{level:^5}", 'red', 'on_white', ['reverse', 'bold'])
-    else:
-        return colored(f"{level:^5}", 'black', 'on_white')
 
 
 def time_color(end_date):

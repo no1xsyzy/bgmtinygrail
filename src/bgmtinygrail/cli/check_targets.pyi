@@ -7,9 +7,6 @@ from ._helpers import Targets
 from ..tinygrail import Player
 
 
-def level_colors(level: int) -> str: ...
-
-
 def time_color(end_date: datetime) -> str: ...
 
 
