@@ -60,9 +60,9 @@ class Target:
         return cls(clones.holding_min, clones.holding_max, clones.tower_min, clones.tower_max)
 
     def __bool__(self):
-        return (self.tower_min is not None or
+        return ((self.tower_min is not None and self.tower_min > 0) or
                 self.tower_max is not None or
-                self.holding_min is not None or
+                (self.holding_min is not None and self.holding_min > 0) or
                 self.holding_max is not None)
 
     def __str__(self):

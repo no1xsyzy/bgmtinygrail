@@ -178,8 +178,9 @@ def check_targets(player, targets, from_file, output_format,
                     in_initial.append([(end_date, 100), []])
             else:
                 if show_on_market:
-                    initialized[cid] = [f"#{cid}", c.name, str(parsed_target),
-                                        parsed_target.colored_comparison(0, 0)]
+                    if parsed_target.check(0, 0) != ('match', 'match'):
+                        initialized[cid] = [f"#{cid}", c.name, str(parsed_target),
+                                            parsed_target.colored_comparison(0, 0)]
             checks.remove(cid)
 
     if not initialized and not in_initial:
